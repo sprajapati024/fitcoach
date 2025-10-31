@@ -11,6 +11,10 @@ type QueueEntry = {
   createdAt: number;
 };
 
+interface SyncCapableRegistration extends ServiceWorkerRegistration {
+  sync?: { register: (tag: string) => Promise<void> };
+}
+
 let dbPromise: Promise<IDBPDatabase> | null = null;
 
 async function getDb() {
@@ -35,11 +39,11 @@ async function getDb() {
 
 async function registerBackgroundSync(tag: string) {
   if (typeof window === "undefined") return;
-  if (!("serviceWorker" in navigator) || !("SyncManager" in window)) return;
+  if (!("serviceWorker" in navigator)) return;
 
   try {
-    const registration = await navigator.serviceWorker.ready;
-    await registration.sync.register(tag);
+    const registration = (await navigator.serviceWorker.ready) as SyncCapableRegistration;
+    await registration.sync?.register(tag);
   } catch (error) {
     console.warn("Failed to register background sync", error);
   }
@@ -88,7 +92,9 @@ export async function flushQueue() {
   for (const entry of entries) {
     try {
       await sendLog(entry.body);
-      await store.delete(entry.id);
+      if (typeof entry.id !== "undefined") {
+        await store.delete(entry.id);
+      }
     } catch (error) {
       console.warn("Retaining log entry for retry", error);
     }

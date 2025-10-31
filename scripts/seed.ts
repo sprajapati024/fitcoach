@@ -358,7 +358,7 @@ async function seed() {
         microcycleDayId: `${microcycle.id}-${patternDay.dayIndex}`,
         dayIndex: calendarDay.dayIndex,
         weekIndex,
-        sessionDate,
+        sessionDate: toIsoDate(sessionDate),
         title: `${patternDay.focus} · Week ${weekIndex + 1}`,
         focus: patternDay.focus,
         kind,
@@ -402,7 +402,16 @@ async function seed() {
   };
 
   const firstWorkout = workoutsData[0];
+  if (!firstWorkout) {
+    throw new Error("Seed requires at least one workout");
+  }
   const logId = randomUUID();
+
+  const logWorkoutId = firstWorkout.id;
+  if (!logWorkoutId) {
+    throw new Error("Seed requires workouts to include ids");
+  }
+  const sessionDateForLog = firstWorkout.sessionDate ?? toIsoDate(planStart);
 
   const logEntries: Array<(typeof workoutLogSets)["$inferInsert"]> = [
     {
@@ -411,8 +420,8 @@ async function seed() {
       exerciseId: "trap_bar_deadlift",
       setIndex: 1,
       reps: 6,
-      weightKg: 60,
-      rpe: 7.5,
+      weightKg: "60",
+      rpe: "7.5",
       createdAt: new Date(),
     },
     {
@@ -421,8 +430,8 @@ async function seed() {
       exerciseId: "trap_bar_deadlift",
       setIndex: 2,
       reps: 6,
-      weightKg: 62.5,
-      rpe: 8,
+      weightKg: "62.5",
+      rpe: "8",
       createdAt: new Date(),
     },
     {
@@ -431,8 +440,8 @@ async function seed() {
       exerciseId: "front_squat",
       setIndex: 1,
       reps: 8,
-      weightKg: 40,
-      rpe: 7,
+      weightKg: "40",
+      rpe: "7",
       createdAt: new Date(),
     },
   ];
@@ -453,6 +462,9 @@ async function seed() {
 
     await tx.insert(profiles).values({
       userId: demoUserId,
+      heightCm: "168",
+      weightKg: "68",
+      timezone: "UTC",
       fullName: "FitCoach Demo",
       sex: "female",
       unitSystem: "metric",
@@ -482,7 +494,7 @@ async function seed() {
       summary: "3-day template emphasizing lower strength, upper push/pull, and PCOS-friendly cardio.",
       status: "active",
       active: true,
-      startDate: planStart,
+      startDate: toIsoDate(planStart),
       durationWeeks: microcycle.weeks,
       daysPerWeek: microcycle.daysPerWeek,
       minutesPerSession: 60,
@@ -502,14 +514,14 @@ async function seed() {
       id: logId,
       userId: demoUserId,
       planId: demoPlanId,
-      workoutId: firstWorkout.id,
-      sessionDate: firstWorkout.sessionDate ?? planStart,
+      workoutId: logWorkoutId,
+      sessionDate: sessionDateForLog,
       performedAt: addDays(planStart, 0),
-      rpeLastSet: 8,
+      rpeLastSet: "8",
       totalDurationMinutes: 58,
       notes: "Felt strong, ready to nudge load next session.",
       createdAt: new Date(),
-    });
+    } satisfies (typeof workoutLogs)["$inferInsert"]);
 
     await tx.insert(workoutLogSets).values(logEntries);
   });

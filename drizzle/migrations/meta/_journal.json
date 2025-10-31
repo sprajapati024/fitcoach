@@ -8,6 +8,13 @@
       "when": 1761874925944,
       "tag": "0000_yellow_clint_barton",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1761876390918,
+      "tag": "0001_tranquil_joshua_kane",
+      "breakpoints": true
     }
   ]
 }

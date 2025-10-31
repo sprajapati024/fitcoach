@@ -131,8 +131,9 @@ export const profiles = pgTable(
     coachTone: coachToneEnum("coach_tone").default("concise").notNull(),
     coachTodayEnabled: boolean("coach_today_enabled").default(true).notNull(),
     coachDebriefEnabled: boolean("coach_debrief_enabled").default(true).notNull(),
-    coachWeeklyEnabled: boolean("coach_weekly_enabled").default(true).notNull(),
-    coachNotes: text("coach_notes"),
+  coachWeeklyEnabled: boolean("coach_weekly_enabled").default(true).notNull(),
+  coachNotes: text("coach_notes"),
+  timezone: text("timezone").default("UTC").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
@@ -346,3 +347,6 @@ export const rlsPolicies = {
     select: "CREATE POLICY \"Substitution events select\" ON substitution_events FOR SELECT USING ( auth.uid() = user_id );",
   },
 };
+
+export type Profile = typeof profiles.$inferSelect;
+export type ProfileInsert = typeof profiles.$inferInsert;

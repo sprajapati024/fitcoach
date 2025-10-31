@@ -23,8 +23,8 @@ export const createSupabaseBrowserClient = (): SupabaseClient => {
   return globalThis.__supabase__;
 };
 
-export const createSupabaseServerClient = () => {
-  const cookieStore = cookies();
+export const createSupabaseServerClient = async () => {
+  const cookieStore = await cookies();
 
   return createServerClient(
     publicEnv.NEXT_PUBLIC_SUPABASE_URL,

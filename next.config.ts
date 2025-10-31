@@ -15,7 +15,7 @@ export default withPWA({
   skipWaiting: false,
   runtimeCaching: [
     {
-      urlPattern: ({ request }) =>
+      urlPattern: ({ request }: { request: Request }) =>
         request.destination === "document" ||
         request.destination === "script" ||
         request.destination === "style" ||
@@ -30,7 +30,7 @@ export default withPWA({
       },
     },
     {
-      urlPattern: ({ url }) => url.pathname.startsWith("/api/"),
+      urlPattern: ({ url }: { url: URL }) => url.pathname.startsWith("/api/"),
       handler: "NetworkFirst",
       method: "GET",
       options: {
@@ -43,7 +43,7 @@ export default withPWA({
       },
     },
     {
-      urlPattern: ({ url }) => url.pathname.startsWith("/api/log"),
+      urlPattern: ({ url }: { url: URL }) => url.pathname.startsWith("/api/log"),
       handler: "NetworkOnly",
       method: "POST",
       options: {
@@ -56,7 +56,7 @@ export default withPWA({
       },
     },
     {
-      urlPattern: ({ request }) => request.destination === "image",
+      urlPattern: ({ request }: { request: Request }) => request.destination === "image",
       handler: "CacheFirst",
       options: {
         cacheName: "fitcoach-images",
