@@ -40,15 +40,17 @@ export function Segmented<T extends string>({
               }
             }}
             className={cn(
-              "flex h-full flex-col items-start gap-1 rounded-[var(--radius-sm)] border border-transparent px-3 py-3 text-left transition",
+              "flex h-full flex-col items-start gap-1 rounded-[var(--radius-sm)] border px-3 py-3 text-left transition",
               isActive
-                ? "border-fg0 bg-fg0/10 text-fg0"
-                : "border-line2 text-fg1 hover:border-fg2 hover:text-fg0",
+                ? "border-fg0 bg-fg0 text-bg0"
+                : "border-line1 bg-bg2 text-fg1 hover:border-fg0 hover:bg-bg1",
             )}
           >
-            <span className="text-sm font-medium uppercase tracking-wide">{option.label}</span>
+            <span className="text-sm font-medium uppercase tracking-wide">
+              {isActive ? "✓ " : ""}{option.label}
+            </span>
             {option.description ? (
-              <span className="text-xs text-fg2">{option.description}</span>
+              <span className={cn("text-xs", isActive ? "text-bg1" : "text-fg2")}>{option.description}</span>
             ) : null}
           </button>
         );

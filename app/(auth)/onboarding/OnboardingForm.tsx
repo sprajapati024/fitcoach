@@ -369,8 +369,8 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
             </header>
             {form.sex === "female" ? (
               <div className="space-y-2 rounded-[var(--radius-md)] border border-line1 bg-bg2 p-3">
-                <label className="flex items-center justify-between text-sm">
-                  <span>PCOS considerations</span>
+                <label className={`flex items-center justify-between text-sm cursor-pointer transition ${form.hasPcos ? "font-semibold" : ""}`}>
+                  <span>{form.hasPcos ? "✓ " : ""}PCOS considerations</span>
                   <input
                     type="checkbox"
                     checked={form.hasPcos}
@@ -387,8 +387,8 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                 <p className="text-xs text-fg2">Not medical advice. We bias Zone 2 volume and remove high-impact work.</p>
               </div>
             ) : null}
-            <label className="flex items-center justify-between rounded-[var(--radius-md)] border border-line1 bg-bg2 p-3 text-sm">
-              <span>No high-impact movements</span>
+            <label className={`flex items-center justify-between rounded-[var(--radius-md)] border border-line1 bg-bg2 p-3 text-sm cursor-pointer transition ${form.noHighImpact ? "font-semibold" : ""}`}>
+              <span>{form.noHighImpact ? "✓ " : ""}No high-impact movements</span>
               <input
                 type="checkbox"
                 checked={form.noHighImpact}
@@ -475,7 +475,13 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
               </label>
             </div>
             <div className="space-y-2">
-              <span className="text-xs uppercase tracking-wide text-fg2">Preferred training days</span>
+              <div className="flex items-center justify-between">
+                <span className="text-xs uppercase tracking-wide text-fg2">Preferred training days</span>
+                <span className={`text-xs font-semibold ${form.schedule.preferredDays.length === form.schedule.daysPerWeek ? "text-green-500" : "text-yellow-500"}`}>
+                  {form.schedule.preferredDays.length === form.schedule.daysPerWeek ? "✓ " : ""}
+                  Selected {form.schedule.preferredDays.length} of {form.schedule.daysPerWeek}
+                </span>
+              </div>
               <div className="flex flex-wrap gap-2">
                 {dayOptions.map((day) => {
                   const isActive = form.schedule.preferredDays.includes(day.value);
@@ -503,15 +509,15 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                           };
                         });
                       }}
-                      className={`rounded-full border px-4 py-2 text-xs uppercase tracking-wide transition ${isActive ? "border-fg0 bg-fg0 text-bg0" : "border-line1 text-fg1"}`}
+                      className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wide transition ${isActive ? "border-fg0 bg-fg0 text-bg0 shadow-lg" : "border-line1 bg-bg2 text-fg1 hover:border-fg0 hover:bg-bg1"}`}
                     >
-                      {day.label}
+                      {isActive ? "✓ " : ""}{day.label}
                     </button>
                   );
                 })}
               </div>
               {errors.preferredDays ? (
-                <span className="block text-xs text-fg2">{errors.preferredDays}</span>
+                <span className="block text-xs font-semibold text-red-500">{errors.preferredDays}</span>
               ) : null}
             </div>
           </section>
@@ -529,7 +535,10 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                 {equipmentOptions.map((option) => {
                   const checked = form.equipment.includes(option.value);
                   return (
-                    <label key={option.value} className="flex items-center gap-2 rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-2 text-sm">
+                    <label
+                      key={option.value}
+                      className={`flex items-center gap-2 rounded-[var(--radius-md)] border px-3 py-2 text-sm font-medium transition cursor-pointer ${checked ? "border-fg0 bg-fg0 text-bg0 shadow-md" : "border-line1 bg-bg2 text-fg1 hover:border-fg0 hover:bg-bg1"}`}
+                    >
                       <input
                         type="checkbox"
                         checked={checked}
@@ -541,9 +550,9 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                               : prev.equipment.filter((item) => item !== option.value),
                           }))
                         }
-                        className="h-4 w-4"
+                        className="h-4 w-4 accent-bg0"
                       />
-                      <span>{option.label}</span>
+                      <span>{checked ? "✓ " : ""}{option.label}</span>
                     </label>
                   );
                 })}
@@ -551,7 +560,7 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
               {errors.equipment ? <span className="text-xs text-fg2">{errors.equipment}</span> : null}
             </div>
             <div className="space-y-2">
-              <span className="text-xs uppercase tracking-wide text-fg2">Movements to avoid</span>
+              <span className="text-xs uppercase tracking-wide text-fg2">Movements to avoid (optional)</span>
               <div className="flex flex-wrap gap-2">
                 {avoidOptions.map((option) => {
                   const active = form.avoidList.includes(option.value);
@@ -567,9 +576,9 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                             : [...prev.avoidList, option.value],
                         }))
                       }
-                      className={`rounded-full border px-4 py-2 text-xs uppercase tracking-wide transition ${active ? "border-fg0 bg-fg0 text-bg0" : "border-line1 text-fg1"}`}
+                      className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wide transition ${active ? "border-fg0 bg-fg0 text-bg0 shadow-lg" : "border-line1 bg-bg2 text-fg1 hover:border-fg0 hover:bg-bg1"}`}
                     >
-                      {option.label}
+                      {active ? "✓ " : ""}{option.label}
                     </button>
                   );
                 })}
@@ -603,8 +612,8 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
               onChange={(value) => setForm((prev) => ({ ...prev, coachTone: value }))}
             />
             <div className="space-y-2 rounded-[var(--radius-md)] border border-line1 bg-bg2 p-3 text-sm">
-              <label className="flex items-center justify-between">
-                <span>Today coach</span>
+              <label className={`flex items-center justify-between cursor-pointer transition ${form.coachTodayEnabled ? "font-semibold" : ""}`}>
+                <span>{form.coachTodayEnabled ? "✓ " : ""}Today coach</span>
                 <input
                   type="checkbox"
                   checked={form.coachTodayEnabled}
@@ -612,8 +621,8 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                   className="h-4 w-4"
                 />
               </label>
-              <label className="flex items-center justify-between">
-                <span>Post-workout debrief</span>
+              <label className={`flex items-center justify-between cursor-pointer transition ${form.coachDebriefEnabled ? "font-semibold" : ""}`}>
+                <span>{form.coachDebriefEnabled ? "✓ " : ""}Post-workout debrief</span>
                 <input
                   type="checkbox"
                   checked={form.coachDebriefEnabled}
@@ -621,8 +630,8 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                   className="h-4 w-4"
                 />
               </label>
-              <label className="flex items-center justify-between">
-                <span>Weekly review</span>
+              <label className={`flex items-center justify-between cursor-pointer transition ${form.coachWeeklyEnabled ? "font-semibold" : ""}`}>
+                <span>{form.coachWeeklyEnabled ? "✓ " : ""}Weekly review</span>
                 <input
                   type="checkbox"
                   checked={form.coachWeeklyEnabled}

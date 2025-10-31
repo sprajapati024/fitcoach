@@ -11,6 +11,11 @@ export default function Home() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSignIn = useCallback(async () => {
+    if (!supabase) {
+      setErrorMessage('Supabase is still initializing. Please try again.');
+      return;
+    }
+
     try {
       setIsLoading(true);
       setErrorMessage(null);
@@ -51,8 +56,8 @@ export default function Home() {
           <button
             type="button"
             onClick={handleSignIn}
-            disabled={isLoading}
-            className="inline-flex h-12 items-center justify-center rounded-full bg-fg0 px-6 text-sm font-medium uppercase tracking-wide text-bg0 transition hover:bg-fg1 disabled:cursor-not-allowed disabled:opacity-70"
+            disabled={isLoading || !supabase}
+            className="inline-flex h-14 w-full max-w-sm items-center justify-center rounded-full border border-line2 bg-fg0 px-8 text-base font-semibold uppercase tracking-[0.35em] text-bg0 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-fg1 hover:shadow-[0_18px_46px_rgba(255,255,255,0.12)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg0 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
           >
             {isLoading ? (
               <span className="flex items-center gap-2">

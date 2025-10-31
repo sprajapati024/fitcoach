@@ -1,5 +1,5 @@
 import type { Session } from '@supabase/supabase-js';
-import { createSupabaseServerClient } from '@/lib/supabaseClient';
+import { createSupabaseServerClient } from '@/lib/supabaseServerClient';
 
 export async function getSession(): Promise<Session | null> {
   const supabase = await createSupabaseServerClient();

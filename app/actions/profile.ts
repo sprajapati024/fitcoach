@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { onboardingSchema, type OnboardingInput } from "@/lib/validation";
-import { createSupabaseServerClient } from "@/lib/supabaseClient";
+import { createSupabaseServerClient } from "@/lib/supabaseServerClient";
 import { users, profiles } from "@/drizzle/schema";
 import { convertHeightToCm, convertWeightToKg } from "@/lib/unitConversion";
 
