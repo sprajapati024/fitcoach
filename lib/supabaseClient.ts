@@ -5,7 +5,6 @@ import { publicEnv } from "@/lib/env/public";
 type SupabaseClient = ReturnType<typeof createBrowserClient>;
 
 declare global {
-  // eslint-disable-next-line no-var
   var __supabase__: SupabaseClient | undefined;
 }
 
