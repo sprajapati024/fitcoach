@@ -21,27 +21,27 @@ Shift from "12-week upfront generation" to "weekly adaptive generation" based on
 
 ## Implementation Checklist
 
-### Phase 1: Database & Schema Updates
+### Phase 1: Database & Schema Updates ✅
 
-#### 1.1 Periodization Framework
-- [ ] Create `periodization_framework` table in schema.prisma
-  - [ ] Fields: `id`, `planId`, `totalWeeks`, `blocks` (JSON)
-  - [ ] Each block: `{ blockNumber, blockType, startWeek, endWeek, volumeTarget, intensityTarget, repRanges, rpeTargets }`
-- [ ] Add migration for new table
-- [ ] Create TypeScript types for periodization blocks
+#### 1.1 Periodization Framework ✅
+- [x] Create `periodization_framework` table in drizzle/schema.ts
+  - [x] Fields: `id`, `planId`, `framework` (JSON with PeriodizationFramework type)
+  - [x] Each block: `{ blockNumber, blockType, startWeek, endWeek, volumeTarget, intensityTarget, repRanges, rpeTargets }`
+- [x] Add migration for new table (drizzle/migrations/0002_milky_peter_parker.sql)
+- [x] Create TypeScript types for periodization blocks (PeriodizationBlock, PeriodizationFramework)
 
-#### 1.2 Week Status Tracking
-- [ ] Add `weekStatus` enum to workout schema: `pending | active | completed`
-- [ ] Add `weekNumber` field to workouts table
-- [ ] Add `generationContext` JSON field (stores AI context for next week)
-- [ ] Add `coachingNotes` text field (weekly guidance from AI)
-- [ ] Create migration
+#### 1.2 Week Status Tracking ✅
+- [x] Add `weekStatus` enum to workout schema: `pending | active | completed`
+- [x] Add `weekNumber` field to workouts table
+- [x] Add `generationContext` JSON field (stores AI context for next week)
+- [x] Add `coachingNotes` text field (weekly guidance from AI)
+- [x] Create migration (included in 0002_milky_peter_parker.sql)
 
-#### 1.3 Workout Performance Tracking
-- [ ] Create `week_performance_summary` table
-  - [ ] Fields: `id`, `planId`, `weekNumber`, `completionRate`, `avgRPE`, `totalVolume`, `totalTonnage`, `metrics` (JSON)
-- [ ] Add migration
-- [ ] Create TypeScript types
+#### 1.3 Workout Performance Tracking ✅
+- [x] Create `week_performance_summary` table
+  - [x] Fields: `id`, `planId`, `weekNumber`, `completionRate`, `avgRPE`, `totalVolume`, `totalTonnage`, `metrics` (JSON)
+- [x] Add migration (included in 0002_milky_peter_parker.sql)
+- [x] Create TypeScript types (WeekPerformanceMetrics, WeekPerformanceSummary)
 
 ---
 
