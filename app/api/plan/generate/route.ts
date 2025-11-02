@@ -2,21 +2,18 @@ import { createSupabaseServerClient } from "@/lib/supabaseServerClient";
 import { db } from "@/lib/db";
 import { profiles, plans, workouts } from "@/drizzle/schema";
 import { eq } from "drizzle-orm";
-import { buildPlannerPrompt } from "@/lib/ai/buildPrompt";
-import { callPlanner } from "@/lib/ai/client";
 import { runPlannerAgent } from "@/lib/ai/agents/planner-agent";
 import { postProcessPlannerResponse } from "@/lib/ai/postProcessor";
-import { plannerResponseSchema } from "@/lib/validation";
-import { plannerSystemPrompt } from "@/lib/ai/prompts";
 import { expandPlannerResponse } from "@/lib/calendar";
 import { createPlanId } from "@/lib/ids";
 
 // Helper to send SSE message
-function createSSEMessage(data: any): string {
+function createSSEMessage(data: unknown): string {
   return `data: ${JSON.stringify(data)}\n\n`;
 }
 
 export async function POST(request: Request) {
+  void request;
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream({
@@ -35,7 +32,7 @@ export async function POST(request: Request) {
       };
 
       // Helper to send completion
-      const sendComplete = (result: any) => {
+      const sendComplete = (result: unknown) => {
         const data = createSSEMessage({ type: 'complete', data: result });
         controller.enqueue(encoder.encode(data));
         controller.close();
@@ -180,7 +177,6 @@ export async function POST(request: Request) {
               planId,
               userId: user.id,
               weeks: userProfile.scheduleWeeks, // Pass weeks from user profile
-              startDate: new Date().toISOString().slice(0, 10), // Default start date (can be changed later)
               preferredDays: userProfile.preferredDays || [],
             }
           );
@@ -206,8 +202,8 @@ export async function POST(request: Request) {
               daysPerWeek: microcycle.daysPerWeek,
               minutesPerSession: userProfile.scheduleMinutesPerSession,
               preferredDays: userProfile.preferredDays || [],
-              microcycle: microcycle as any,
-              calendar: calendar as any,
+              microcycle,
+              calendar,
               plannerVersion: "gpt-4o-agents",
               generatedBy: "planner-agent",
             })

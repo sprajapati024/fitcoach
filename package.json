@@ -12,9 +12,11 @@
     "test:watch": "vitest",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "backfill:plans": "tsx scripts/backfill-plan-schedule.ts"
   },
   "dependencies": {
+    "@openai/agents": "^0.2.1",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.78.0",
     "class-variance-authority": "^0.7.1",

@@ -4,7 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ExerciseLogger } from './ExerciseLogger';
 import { CoachBrief } from './CoachBrief';
-import type { workouts } from '@/drizzle/schema';
+import { Card } from '@/components/Card';
+import { PrimaryButton } from '@/components/PrimaryButton';
+import type { workouts, WorkoutPayload } from '@/drizzle/schema';
 
 type Workout = typeof workouts.$inferSelect;
 
@@ -53,26 +55,25 @@ export function TodayView({ workout, userId }: TodayViewProps) {
 
   if (!workout) {
     return (
-      <div className="p-4 max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold mb-4">Today</h1>
+      <div className="mx-auto w-full max-w-3xl space-y-6 p-4">
+        <h1 className="text-2xl font-semibold text-fg0">Today</h1>
 
         <CoachBrief userId={userId} />
 
-        <div className="mt-6 bg-white rounded-lg p-6 shadow-sm text-center">
-          <p className="text-gray-600 mb-2">No workout scheduled for today.</p>
-          <p className="text-gray-500 text-sm">Enjoy your rest day!</p>
-        </div>
+        <Card className="space-y-2 bg-bg1 text-center">
+          <p className="text-sm text-fg1">No workout scheduled for today.</p>
+          <p className="text-xs text-fg2">Enjoy the recovery—your body adapts while you rest.</p>
+        </Card>
       </div>
     );
   }
 
-  const workoutPayload = workout.payload as any;
+  const workoutPayload = workout.payload as WorkoutPayload;
 
   if (isLogging) {
     return (
       <ExerciseLogger
         workout={workout}
-        userId={userId}
         onComplete={() => {
           setIsLogging(false);
           router.refresh();
@@ -82,95 +83,99 @@ export function TodayView({ workout, userId }: TodayViewProps) {
     );
   }
 
-  return (
-    <div className="p-4 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Today's Workout</h1>
+  const sessionDate = workout.sessionDate
+    ? new Date(workout.sessionDate).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      })
+    : null;
 
-      {/* Coach Brief */}
+  return (
+    <div className="mx-auto w-full max-w-3xl space-y-6 p-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <h1 className="text-2xl font-semibold text-fg0">Today&apos;s Workout</h1>
+        {sessionDate && <span className="text-sm text-fg2">Scheduled for {sessionDate}</span>}
+      </div>
+
       <CoachBrief userId={userId} />
 
-      {/* Workout Details */}
-      <div className="mt-6 space-y-4">
-        <div className="bg-white rounded-lg p-4 shadow-sm">
-          <h2 className="font-semibold text-lg mb-2">
-            {workoutPayload.focus || 'Training Session'}
-          </h2>
-          <p className="text-sm text-gray-600">
-            {workoutPayload.blocks?.length || 0} blocks · {workout.durationMinutes || 60} min
-          </p>
-        </div>
+      <Card className="space-y-1 bg-bg1/80">
+        <h2 className="text-lg font-semibold text-fg0">
+          {workoutPayload.focus || workout.title || 'Training Session'}
+        </h2>
+        <p className="text-sm text-fg2">
+          {(workoutPayload.blocks?.length ?? 0)} blocks · {workout.durationMinutes || 60} min
+        </p>
+      </Card>
 
-        {/* Workout Blocks */}
-        <div className="space-y-4">
-          {workoutPayload.blocks?.map((block: any, index: number) => (
-            <div key={index} className="bg-white rounded-lg p-4 shadow-sm">
-              <h3 className="font-semibold mb-2 text-gray-900">
-                {block.title}
-              </h3>
-              <div className="space-y-2">
-                {block.exercises?.map((exercise: any, exIndex: number) => (
-                  <div key={exIndex} className="text-sm text-gray-700 py-1">
-                    <div className="font-medium">{exercise.name || exercise.id}</div>
-                    <div className="text-gray-500 text-xs mt-0.5">
-                      {exercise.sets}×{exercise.reps}
-                      {exercise.tempo && ` • Tempo: ${exercise.tempo}`}
-                    </div>
+      <div className="space-y-4">
+        {workoutPayload.blocks?.map((block, index) => (
+          <Card key={index} className="space-y-3 bg-bg0">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-fg0">{block.title}</h3>
+              <span className="text-xs uppercase tracking-wide text-fg2">{block.type}</span>
+            </div>
+            <div className="space-y-2">
+              {block.exercises?.map((exercise, exIndex) => (
+                <div key={exIndex} className="rounded-md border border-line1/60 p-3 text-sm text-fg1">
+                  <div className="text-fg0">{exercise.name || exercise.id}</div>
+                  <div className="text-xs text-fg2">
+                    {exercise.sets}×{exercise.reps}
+                    {exercise.tempo && ` • Tempo: ${exercise.tempo}`}
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-
-        {/* Start Workout Button */}
-        <button
-          onClick={() => setIsLogging(true)}
-          className="w-full bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors"
-        >
-          Start Workout
-        </button>
-
-        {/* Skip Today */}
-        {!isSkipping ? (
-          <button
-            onClick={() => setIsSkipping(true)}
-            className="w-full text-gray-600 py-2 text-sm hover:text-gray-800 transition-colors"
-          >
-            Skip Today
-          </button>
-        ) : (
-          <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-            <p className="text-sm font-medium text-gray-900">Why are you skipping?</p>
-            <select
-              value={skipReason}
-              onChange={(e) => setSkipReason(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-            >
-              <option value="">Select a reason...</option>
-              <option value="rest">Planned rest day</option>
-              <option value="injury">Injury or discomfort</option>
-              <option value="schedule">Schedule conflict</option>
-              <option value="fatigue">Too fatigued</option>
-              <option value="other">Other</option>
-            </select>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setIsSkipping(false)}
-                className="flex-1 bg-gray-200 text-gray-700 py-2 rounded font-medium text-sm hover:bg-gray-300 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSkipToday}
-                disabled={!skipReason}
-                className="flex-1 bg-black text-white py-2 rounded font-medium text-sm hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                Confirm Skip
-              </button>
-            </div>
-          </div>
-        )}
+          </Card>
+        ))}
       </div>
+
+      <PrimaryButton
+        onClick={() => setIsLogging(true)}
+        className="w-full normal-case"
+      >
+        Start Workout
+      </PrimaryButton>
+
+      {!isSkipping ? (
+        <button
+          onClick={() => setIsSkipping(true)}
+          className="w-full text-sm font-medium text-fg2 transition hover:text-fg0"
+        >
+          Skip Today
+        </button>
+      ) : (
+        <Card className="space-y-3 bg-bg0">
+          <p className="text-sm font-medium text-fg0">Why are you skipping?</p>
+          <select
+            value={skipReason}
+            onChange={(e) => setSkipReason(e.target.value)}
+            className="w-full rounded-md border border-line1 bg-bg0 px-3 py-2 text-sm text-fg0 focus:border-fg0 focus:outline-none focus:ring-1 focus:ring-fg0"
+          >
+            <option value="">Select a reason...</option>
+            <option value="rest">Planned rest day</option>
+            <option value="injury">Injury or discomfort</option>
+            <option value="schedule">Schedule conflict</option>
+            <option value="fatigue">Too fatigued</option>
+            <option value="other">Other</option>
+          </select>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <button
+              onClick={() => setIsSkipping(false)}
+              className="flex-1 rounded-full border border-line1 bg-bg0 px-4 py-2 text-sm font-semibold text-fg0 transition hover:bg-bg1"
+            >
+              Cancel
+            </button>
+            <PrimaryButton
+              onClick={handleSkipToday}
+              disabled={!skipReason}
+              className="flex-1 normal-case disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Confirm Skip
+            </PrimaryButton>
+          </div>
+        </Card>
+      )}
     </div>
   );
 }

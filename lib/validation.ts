@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+const isoDateRegex = /^\d{4}-\d{2}-\d{2}$/;
+const isoDateString = z.string().regex(isoDateRegex);
+const optionalIsoDateString = z.union([isoDateString, z.literal("")]);
+
 export const preferredDaySchema = z.enum(["mon", "tue", "wed", "thu", "fri", "sat", "sun"]);
 
 export const onboardingSchema = z.object({
@@ -101,7 +105,7 @@ export type PlanMicrocycleInput = z.infer<typeof planMicrocycleSchema>;
 
 export const planCalendarDaySchema = z.object({
   dayIndex: z.number().int().min(0).max(95),
-  isoDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  isoDate: optionalIsoDateString,
   workoutId: z.string().min(6).max(64),
   isDeload: z.boolean(),
   focus: z.string().min(3).max(80),
@@ -113,7 +117,7 @@ export const planCalendarSchema = z.object({
     .array(
       z.object({
         weekIndex: z.number().int().min(0).max(15),
-        startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        startDate: optionalIsoDateString,
         days: z.array(planCalendarDaySchema).min(1).max(7),
       }),
     )

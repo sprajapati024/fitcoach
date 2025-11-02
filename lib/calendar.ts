@@ -9,7 +9,7 @@ type WorkoutInsert = typeof workouts.$inferInsert;
 interface CalendarGenerationOptions {
   planId: string;
   userId: string;
-  startDate: string; // ISO date string "YYYY-MM-DD"
+  startDate?: string; // ISO date string "YYYY-MM-DD"
   weeks: number;
   daysPerWeek: number;
   preferredDays?: string[]; // e.g., ["Mon", "Wed", "Fri"]
@@ -55,7 +55,7 @@ function getDayOfWeekIndex(dayName: string): number {
 /**
  * Calculate training days for a week based on preferred days
  */
-function calculateTrainingDays(
+export function calculateTrainingDays(
   daysPerWeek: number,
   preferredDays?: string[]
 ): number[] {
@@ -110,7 +110,7 @@ export function generateWorkouts(
 
       // Calculate the actual calendar date
       const daysFromStart = weekIndex * 7 + dayOfWeek;
-      const sessionDate = shiftUtcDate(startDate, daysFromStart);
+      const sessionDate = startDate ? shiftUtcDate(startDate, daysFromStart) : undefined;
 
       // Rotate through microcycle pattern (A/B rotation)
       const patternIndex = sessionIndex % pattern.length;
@@ -159,7 +159,7 @@ export function generateWorkouts(
         microcycleDayId: `${microcycle.id}_day_${templateDay.dayIndex}`,
         dayIndex: globalDayIndex,
         weekIndex,
-        sessionDate,
+        sessionDate: sessionDate ?? null,
         title: `Week ${weekIndex + 1} - ${templateDay.focus}`,
         focus: templateDay.focus,
         kind: "strength",
@@ -181,31 +181,37 @@ export function generateWorkouts(
  * - Reduce strength volume (trim 1 set from each exercise)
  * - Reduce conditioning duration by 20%
  */
-function applyDeloadModifications(blocks: any[]): any[] {
+type WorkoutBlock = WorkoutPayload["blocks"][number];
+type WorkoutExercise = WorkoutBlock["exercises"][number];
+
+function applyDeloadModifications(blocks: WorkoutBlock[]): WorkoutBlock[] {
   return blocks.map((block) => {
-    const modifiedBlock = { ...block };
+    let modifiedExercises: WorkoutExercise[] = block.exercises;
 
     if (block.type === "primary" || block.type === "accessory") {
       // Reduce sets for each exercise
-      modifiedBlock.exercises = block.exercises.map((ex: any) => ({
-        ...ex,
-        sets: Math.max(1, ex.sets - 1),
-        cues: [...(ex.cues || []), "Deload week - reduced volume"],
+      modifiedExercises = block.exercises.map((exercise) => ({
+        ...exercise,
+        sets: Math.max(1, exercise.sets - 1),
+        cues: [...(exercise.cues ?? []), "Deload week - reduced volume"],
       }));
     }
 
     if (block.type === "conditioning") {
       // Reduce exercise count or duration
-      modifiedBlock.exercises = block.exercises.map((ex: any) => ({
-        ...ex,
-        reps: ex.reps.includes("min")
-          ? `${Math.floor(parseInt(ex.reps) * 0.8)} min`
-          : ex.reps,
-        cues: [...(ex.cues || []), "Deload week - reduced intensity"],
+      modifiedExercises = block.exercises.map((exercise) => ({
+        ...exercise,
+        reps: exercise.reps.includes("min")
+          ? `${Math.floor(parseInt(exercise.reps, 10) * 0.8)} min`
+          : exercise.reps,
+        cues: [...(exercise.cues ?? []), "Deload week - reduced intensity"],
       }));
     }
 
-    return modifiedBlock;
+    return {
+      ...block,
+      exercises: modifiedExercises,
+    };
   });
 }
 
@@ -224,7 +230,7 @@ export function generateCalendar(
 
   for (let weekIndex = 0; weekIndex < weeks; weekIndex++) {
     const weekWorkouts = workoutsGenerated.filter((w) => w.weekIndex === weekIndex);
-    const weekStartDate = shiftUtcDate(startDate, weekIndex * 7);
+    const weekStartDate = startDate ? shiftUtcDate(startDate, weekIndex * 7) : "";
 
     weeklySchedule.push({
       weekIndex,
@@ -243,19 +249,6 @@ export function generateCalendar(
     planId,
     weeks: weeklySchedule,
   };
-}
-
-/**
- * Generate weeklyFocus array from pattern rotation
- */
-function generateWeeklyFocus(pattern: any[], weeks: number): string[] {
-  const weeklyFocus: string[] = [];
-  for (let weekIndex = 0; weekIndex < weeks; weekIndex++) {
-    // Rotate through pattern to describe each week's focus
-    const focuses = pattern.map(day => day.focus);
-    weeklyFocus.push(`Week ${weekIndex + 1}: ${focuses.join(', ')}`);
-  }
-  return weeklyFocus.slice(0, 6); // Max 6 as per schema
 }
 
 /**

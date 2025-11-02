@@ -4,13 +4,13 @@
 
 **GitHub Issue**: [#1 - Implement FitCoach core flows](https://github.com/user/FitCoach/issues/1)
 
-**Status**: 6/13 tasks completed (Auth, Onboarding, Plan Generation with Agents SDK, Plan Activation, Core Logging, UUID/Foreign Key Fixes)
+**Status**: 7/13 tasks completed (Auth, Onboarding, Plan Generation with Agents SDK, Plan Activation, Calendar Alignment, Core Logging, UUID/Foreign Key Fixes)
 
 **Goal**: Deliver the first usable vertical slice with Today experience, workout logging, progress tracking, offline support, and complete UI polish.
 
 **Timeline**: 25 days (5 phases × 5 days each)
 
-**Last Updated**: 2025-11-02
+**Last Updated**: 2025-11-03
 
 ---
 
@@ -23,7 +23,13 @@
 - OpenAI Agents SDK integration (Zod schema fixes, tool implementation) - [Issue #4 CLOSED](https://github.com/sprajapati024/fitcoach/issues/4)
 - UUID format and foreign key constraint fixes
 - Plan activation & calendar UI (PlanWeekGrid, date selection)
-- **Phase 1: Core Logging Infrastructure** - Today experience, workout logging API, exercise logger
+- Calendar schedule alignment (activation rebuild + date shifting, backfill tooling, regression tests)
+- **Phase 1: Core Logging Infrastructure** - Today experience, workout logging API, exercise logger, shared UI polish
+
+### ℹ️ Latest Updates (2025-11-03)
+- Added `buildPlanSchedule` helper, server action changes, and `pnpm backfill:plans` script so plan activation and historical plans share the same schedule alignment.
+- Introduced `tests/planSchedule.test.ts` to lock the day/date rotation behaviour.
+- Refreshed Today + Exercise Logger surfaces to reuse the global card/button system and improved button contrast.
 
 ### 🚧 In Progress
 - Progress & weekly review (metrics, sparklines, AI review)
@@ -171,6 +177,7 @@ export async function POST(request: NextRequest) {
 - [x] Implement set logging UI (weight, reps, RPE inputs)
 - [x] Add "Log Set" and "Complete Workout" buttons
 - [x] Add "Skip Today" functionality
+- [x] Standardize logger UI with shared Card/PrimaryButton theme for calendar parity
 
 #### Code Template - TodayView Component
 ```typescript

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/Card";
 import { PrimaryButton } from "@/components/PrimaryButton";
@@ -37,8 +37,19 @@ export function PlanView({ activePlan, userPlans, workouts }: PlanViewProps) {
   const [selectedStartDate, setSelectedStartDate] = useState(
     new Date().toISOString().slice(0, 10)
   );
+  const [startDateUpdate, setStartDateUpdate] = useState(
+    activePlan?.startDate || new Date().toISOString().slice(0, 10)
+  );
+  const [isUpdatingStartDate, setIsUpdatingStartDate] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const timezoneLabel = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  useEffect(() => {
+    if (activePlan?.startDate) {
+      setStartDateUpdate(activePlan.startDate);
+    }
+  }, [activePlan?.startDate]);
 
   const handleGeneratePlan = async () => {
     setIsGenerating(true);
@@ -126,6 +137,28 @@ export function PlanView({ activePlan, userPlans, workouts }: PlanViewProps) {
     }
   };
 
+  const handleUpdateStartDate = async () => {
+    if (!activePlan) return;
+    if (!startDateUpdate) {
+      setError("Please choose a start date");
+      return;
+    }
+
+    setIsUpdatingStartDate(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      await activatePlanAction({ planId: activePlan.id, startDate: startDateUpdate });
+      setSuccess("Plan start date updated.");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update start date");
+    } finally {
+      setIsUpdatingStartDate(false);
+    }
+  };
+
   const handleDeletePlan = async (planId: string) => {
     if (!confirm("Are you sure you want to delete this plan?")) return;
 
@@ -156,7 +189,7 @@ export function PlanView({ activePlan, userPlans, workouts }: PlanViewProps) {
             <Calendar className="mx-auto mb-4 h-12 w-12 text-fg2" />
             <h2 className="mb-2 text-xl font-semibold">No Training Plan Yet</h2>
             <p className="mb-6 text-sm text-fg2">
-              Let's create your personalized training plan based on your profile and goals.
+              Let&apos;s create your personalized training plan based on your profile and goals.
             </p>
             {error && (
               <div className="mb-4 rounded border border-line2 bg-bg2 p-3 text-sm text-fg1">
@@ -223,6 +256,9 @@ export function PlanView({ activePlan, userPlans, workouts }: PlanViewProps) {
               min={new Date().toISOString().slice(0, 10)}
               className="h-12 w-full rounded border border-line1 bg-bg2 px-4 text-fg0 focus:border-fg0 focus:outline-none"
             />
+            <p className="mt-2 text-xs text-fg2">
+              Workouts will align to this date once you activate the plan. Local timezone: {timezoneLabel}.
+            </p>
           </div>
 
           <div className="flex gap-3">
@@ -283,6 +319,31 @@ export function PlanView({ activePlan, userPlans, workouts }: PlanViewProps) {
               <span>{activePlan.daysPerWeek} days/week</span>
               <span>Started: {activePlan.startDate || "Not set"}</span>
             </div>
+            <p className="mt-2 text-xs text-fg2">
+              Calendar times shown in your local timezone: {timezoneLabel}.
+            </p>
+          </div>
+          <div className="mt-6 rounded border border-line1 bg-bg2 p-4">
+            <h3 className="text-sm font-medium text-fg0">Adjust start date</h3>
+            <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center">
+              <input
+                type="date"
+                value={startDateUpdate}
+                onChange={(e) => setStartDateUpdate(e.target.value)}
+                className="h-12 rounded border border-line1 bg-bg0 px-4 text-sm text-fg0 focus:border-fg0 focus:outline-none"
+              />
+              <PrimaryButton
+                onClick={handleUpdateStartDate}
+                loading={isUpdatingStartDate}
+                disabled={!startDateUpdate || startDateUpdate === (activePlan.startDate || "")}
+                className="w-full md:w-auto"
+              >
+                Update Start Date
+              </PrimaryButton>
+            </div>
+            <p className="mt-2 text-xs text-fg2">
+              We&apos;ll realign every workout in the calendar to the date you choose.
+            </p>
           </div>
         </div>
 
@@ -291,7 +352,6 @@ export function PlanView({ activePlan, userPlans, workouts }: PlanViewProps) {
           <WorkoutCalendar
             workouts={workouts}
             weeks={activePlan.durationWeeks}
-            daysPerWeek={activePlan.daysPerWeek}
             startDate={activePlan.startDate || new Date().toISOString().split("T")[0]}
           />
         </div>

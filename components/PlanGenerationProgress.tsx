@@ -2,12 +2,6 @@
 
 import { useEffect, useState } from "react";
 
-interface ProgressStage {
-  stage: string;
-  message: string;
-  percent: number;
-}
-
 interface PlanGenerationProgressProps {
   stage: string;
   message: string;

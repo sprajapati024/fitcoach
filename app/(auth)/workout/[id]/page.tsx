@@ -29,7 +29,7 @@ export default async function WorkoutPage({ params }: WorkoutPageProps) {
     return (
       <div className="p-6 text-center">
         <h1 className="text-2xl font-semibold text-fg0 mb-2">Workout Not Found</h1>
-        <p className="text-fg2">The workout you're looking for doesn't exist.</p>
+        <p className="text-fg2">The workout you&apos;re looking for doesn&apos;t exist.</p>
       </div>
     );
   }
@@ -39,5 +39,5 @@ export default async function WorkoutPage({ params }: WorkoutPageProps) {
     redirect("/dashboard");
   }
 
-  return <WorkoutDetailView workout={workout} userId={user.id} />;
+  return <WorkoutDetailView workout={workout} />;
 }

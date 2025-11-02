@@ -8,9 +8,13 @@
 
 **Priority Order**: Planner → Coach → Substitution → Load Calculation
 
-**Last Updated**: 2025-10-31
+**Last Updated**: 2025-11-03
 
 ---
+
+### Update 2025-11-03
+- Plan persistence now stores relative workouts (no default session dates) and relies on `buildPlanSchedule` during activation for timezone-safe alignment.
+- Added a backfill script (`pnpm backfill:plans`) and unit test coverage to validate the agent output expansion path.
 
 ## Phase 0: Setup & Preparation ✅
 

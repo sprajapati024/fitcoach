@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import type { ChatCompletionCreateParamsNonStreaming } from "openai/resources/chat/completions";
 import { serverEnv } from "@/lib/env/server";
 import { z } from "zod";
 
@@ -38,7 +39,11 @@ export async function callOpenAIWithValidation<T>({
     // Note: o1/o4/gpt-5 models have different parameter requirements
     const isReasoningModel = modelToUse.includes('o1') || modelToUse.includes('o4') || modelToUse.includes('gpt-5');
 
-    const completionParams: any = {
+    type CompletionParams = ChatCompletionCreateParamsNonStreaming & {
+      max_completion_tokens?: number;
+    };
+
+    const completionParams: CompletionParams = {
       model: modelToUse,
       messages: [
         { role: "user", content: `${systemPrompt}\n\n${userPrompt}` },
@@ -68,7 +73,7 @@ export async function callOpenAIWithValidation<T>({
     let jsonData: unknown;
     try {
       jsonData = JSON.parse(responseText);
-    } catch (parseError) {
+    } catch {
       if (!retryOnInvalid) {
         return { success: false, error: "Invalid JSON response" };
       }
@@ -127,7 +132,11 @@ This response is invalid. Please provide a corrected JSON response that strictly
 
     const isReasoningModel = model.includes('o1') || model.includes('o4') || model.includes('gpt-5');
 
-    const retryParams: any = {
+    type RetryParams = ChatCompletionCreateParamsNonStreaming & {
+      max_completion_tokens?: number;
+    };
+
+    const retryParams: RetryParams = {
       model,
       messages: isReasoningModel
         ? [{ role: "user", content: `${repairSystemPrompt}\n\n${repairUserPrompt}` }]

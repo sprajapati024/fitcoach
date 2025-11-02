@@ -3,20 +3,19 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ExerciseLogger } from "@/app/(auth)/dashboard/ExerciseLogger";
-import type { workouts } from "@/drizzle/schema";
+import type { workouts, WorkoutPayload } from "@/drizzle/schema";
 
 type Workout = typeof workouts.$inferSelect;
 
 interface WorkoutDetailViewProps {
   workout: Workout;
-  userId: string;
 }
 
-export function WorkoutDetailView({ workout, userId }: WorkoutDetailViewProps) {
+export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
   const router = useRouter();
   const [isLogging, setIsLogging] = useState(false);
 
-  const workoutPayload = workout.payload as any;
+  const workoutPayload = workout.payload as WorkoutPayload;
   const today = new Date().toISOString().split("T")[0];
   const isPast = workout.sessionDate ? workout.sessionDate < today : false;
   const isFuture = workout.sessionDate ? workout.sessionDate > today : false;
@@ -25,7 +24,6 @@ export function WorkoutDetailView({ workout, userId }: WorkoutDetailViewProps) {
     return (
       <ExerciseLogger
         workout={workout}
-        userId={userId}
         onComplete={() => {
           setIsLogging(false);
           router.refresh();
@@ -36,10 +34,8 @@ export function WorkoutDetailView({ workout, userId }: WorkoutDetailViewProps) {
   }
 
   // Calculate total exercises
-  const totalExercises = workoutPayload.blocks?.reduce(
-    (sum: number, block: any) => sum + (block.exercises?.length || 0),
-    0
-  ) || 0;
+  const totalExercises =
+    workoutPayload.blocks?.reduce((sum, block) => sum + (block.exercises?.length ?? 0), 0) ?? 0;
 
   return (
     <div className="p-4 max-w-3xl mx-auto">
@@ -103,7 +99,7 @@ export function WorkoutDetailView({ workout, userId }: WorkoutDetailViewProps) {
 
       {/* Workout Blocks */}
       <div className="space-y-4 mb-6">
-        {workoutPayload.blocks?.map((block: any, blockIndex: number) => (
+        {workoutPayload.blocks?.map((block, blockIndex) => (
           <div
             key={blockIndex}
             className="bg-bg0 border border-line1 rounded-lg p-4"
@@ -116,7 +112,7 @@ export function WorkoutDetailView({ workout, userId }: WorkoutDetailViewProps) {
             </div>
 
             <div className="space-y-3">
-              {block.exercises?.map((exercise: any, exIndex: number) => (
+              {block.exercises?.map((exercise, exIndex) => (
                 <div
                   key={exIndex}
                   className="bg-bg1 rounded-md p-3 border border-line1"
@@ -171,7 +167,7 @@ export function WorkoutDetailView({ workout, userId }: WorkoutDetailViewProps) {
                     <div className="mt-2 pt-2 border-t border-line1">
                       <div className="text-xs text-fg2 mb-1">Form Cues:</div>
                       <ul className="text-xs text-fg1 space-y-0.5">
-                        {exercise.cues.map((cue: string, cueIndex: number) => (
+                        {exercise.cues.map((cue, cueIndex) => (
                           <li key={cueIndex}>• {cue}</li>
                         ))}
                       </ul>

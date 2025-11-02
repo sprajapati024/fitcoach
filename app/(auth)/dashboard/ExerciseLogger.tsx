@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import type { workouts } from '@/drizzle/schema';
+import { Card } from '@/components/Card';
+import { PrimaryButton } from '@/components/PrimaryButton';
+import type { workouts, WorkoutPayload } from '@/drizzle/schema';
 
 type Workout = typeof workouts.$inferSelect;
 
@@ -16,12 +18,19 @@ interface LogEntry {
 
 interface ExerciseLoggerProps {
   workout: Workout;
-  userId: string;
   onComplete: () => void;
   onCancel: () => void;
 }
 
-export function ExerciseLogger({ workout, userId, onComplete, onCancel }: ExerciseLoggerProps) {
+type WorkoutBlock = WorkoutPayload["blocks"][number];
+type WorkoutExercise = WorkoutBlock["exercises"][number];
+
+interface FlattenedExercise extends WorkoutExercise {
+  blockTitle: string;
+  blockType: WorkoutBlock["type"];
+}
+
+export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLoggerProps) {
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
   const [weight, setWeight] = useState('');
@@ -31,15 +40,16 @@ export function ExerciseLogger({ workout, userId, onComplete, onCancel }: Exerci
   const [rpeLastSet, setRpeLastSet] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const workoutPayload = workout.payload as any;
+  const workoutPayload = workout.payload as WorkoutPayload;
 
   // Flatten all exercises from all blocks
-  const allExercises = workoutPayload.blocks?.flatMap((block: any) =>
-    block.exercises?.map((ex: any) => ({
-      ...ex,
+  const allExercises: FlattenedExercise[] = workoutPayload.blocks?.flatMap((block) =>
+    block.exercises?.map((exercise) => ({
+      ...exercise,
       blockTitle: block.title,
-    })) || []
-  ) || [];
+      blockType: block.type,
+    })) ?? []
+  ) ?? [];
 
   const currentExercise = allExercises[currentExerciseIndex];
 
@@ -138,16 +148,16 @@ export function ExerciseLogger({ workout, userId, onComplete, onCancel }: Exerci
 
   if (!currentExercise) {
     return (
-      <div className="p-4 max-w-2xl mx-auto">
-        <div className="text-center py-8">
-          <p className="text-gray-600">No exercises found in this workout.</p>
-          <button
+      <div className="mx-auto w-full max-w-3xl p-6">
+        <Card className="flex flex-col items-center gap-4 bg-bg1 text-center">
+          <p className="text-sm text-fg2">No exercises found in this workout.</p>
+          <PrimaryButton
             onClick={onCancel}
-            className="mt-4 text-black underline"
+            className="w-full max-w-xs bg-bg2 text-fg0 normal-case hover:bg-line2"
           >
             Go back
-          </button>
-        </div>
+          </PrimaryButton>
+        </Card>
       </div>
     );
   }
@@ -156,48 +166,48 @@ export function ExerciseLogger({ workout, userId, onComplete, onCancel }: Exerci
   const progress = `${currentExerciseIndex + 1} / ${allExercises.length}`;
 
   return (
-    <div className="p-4 max-w-2xl mx-auto">
+    <div className="mx-auto w-full max-w-3xl space-y-6 p-4">
       {/* Header */}
-      <div className="mb-4 flex items-center justify-between">
+      <div className="flex items-center justify-between text-sm text-fg2">
         <button
           onClick={onCancel}
-          className="text-gray-600 text-sm hover:text-gray-900"
+          className="inline-flex items-center gap-2 rounded-full px-4 py-2 transition hover:bg-bg2 hover:text-fg0"
         >
           ← Cancel
         </button>
-        <span className="text-sm text-gray-600">Exercise {progress}</span>
+        <span>Exercise {progress}</span>
       </div>
 
       {/* Current Exercise Info */}
-      <div className="bg-gray-100 rounded-lg p-4 mb-4">
-        <p className="text-xs text-gray-600 uppercase tracking-wide mb-1">
+      <Card className="space-y-2 bg-bg1/80">
+        <p className="text-xs font-medium uppercase tracking-wide text-fg2">
           {currentExercise.blockTitle}
         </p>
-        <h2 className="text-xl font-semibold mb-1">
+        <h2 className="text-xl font-semibold text-fg0">
           {currentExercise.name || currentExercise.id}
         </h2>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-fg1">
           Target: {currentExercise.sets}×{currentExercise.reps}
           {currentExercise.tempo && ` • Tempo: ${currentExercise.tempo}`}
         </p>
         {currentExercise.cues && currentExercise.cues.length > 0 && (
-          <div className="mt-2 text-xs text-gray-700 space-y-1">
-            {currentExercise.cues.map((cue: string, i: number) => (
-              <div key={i}>• {cue}</div>
+          <div className="mt-2 space-y-1 text-xs text-fg2">
+            {currentExercise.cues.map((cue, index) => (
+              <div key={index}>• {cue}</div>
             ))}
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Set Input Form */}
-      <div className="bg-white rounded-lg p-4 shadow-sm mb-4 space-y-3">
-        <h3 className="font-semibold text-sm text-gray-900">
+      <Card className="space-y-4 bg-bg0">
+        <h3 className="text-sm font-semibold text-fg0">
           Log Set {nextSetNumber}
         </h3>
 
-        <div className="grid grid-cols-3 gap-3">
-          <div>
-            <label className="block text-xs font-medium mb-1 text-gray-700">
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="space-y-1">
+            <label className="block text-xs font-medium text-fg2">
               Weight (kg)
             </label>
             <input
@@ -205,26 +215,26 @@ export function ExerciseLogger({ workout, userId, onComplete, onCancel }: Exerci
               step="0.5"
               value={weight}
               onChange={(e) => setWeight(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+              className="w-full rounded-md border border-line1 bg-bg0 px-3 py-2 text-sm text-fg0 placeholder:text-fg2 focus:border-fg0 focus:outline-none focus:ring-1 focus:ring-fg0"
               placeholder="0"
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-medium mb-1 text-gray-700">
+          <div className="space-y-1">
+            <label className="block text-xs font-medium text-fg2">
               Reps
             </label>
             <input
               type="number"
               value={reps}
               onChange={(e) => setReps(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+              className="w-full rounded-md border border-line1 bg-bg0 px-3 py-2 text-sm text-fg0 placeholder:text-fg2 focus:border-fg0 focus:outline-none focus:ring-1 focus:ring-fg0"
               placeholder="0"
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-medium mb-1 text-gray-700">
+          <div className="space-y-1">
+            <label className="block text-xs font-medium text-fg2">
               RPE (5-10)
             </label>
             <input
@@ -234,87 +244,87 @@ export function ExerciseLogger({ workout, userId, onComplete, onCancel }: Exerci
               max="10"
               value={rpe}
               onChange={(e) => setRpe(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+              className="w-full rounded-md border border-line1 bg-bg0 px-3 py-2 text-sm text-fg0 placeholder:text-fg2 focus:border-fg0 focus:outline-none focus:ring-1 focus:ring-fg0"
               placeholder="7.5"
             />
           </div>
         </div>
 
-        <div>
-          <label className="block text-xs font-medium mb-1 text-gray-700">
+        <div className="space-y-1">
+          <label className="block text-xs font-medium text-fg2">
             Notes (optional)
           </label>
           <input
             type="text"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+            className="w-full rounded-md border border-line1 bg-bg0 px-3 py-2 text-sm text-fg0 placeholder:text-fg2 focus:border-fg0 focus:outline-none focus:ring-1 focus:ring-fg0"
             placeholder="Felt strong, good form"
           />
         </div>
 
-        <button
+        <PrimaryButton
           onClick={handleLogSet}
           disabled={!weight || !reps}
-          className="w-full bg-black text-white py-2.5 rounded font-semibold text-sm hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full bg-bg2 text-fg0 normal-case hover:bg-line2 disabled:cursor-not-allowed disabled:opacity-60"
         >
           Log Set
-        </button>
-      </div>
+        </PrimaryButton>
+      </Card>
 
       {/* Logged Sets */}
       {currentExerciseSets.length > 0 && (
-        <div className="bg-white rounded-lg p-4 shadow-sm mb-4">
-          <h4 className="font-semibold mb-2 text-sm text-gray-900">Logged Sets</h4>
+        <Card className="space-y-3 bg-bg0">
+          <h4 className="text-sm font-semibold text-fg0">Logged Sets</h4>
           <div className="space-y-1.5">
             {currentExerciseSets.map((set, index) => (
               <div
                 key={index}
-                className="flex justify-between items-center text-sm py-1.5 border-b border-gray-100 last:border-0"
+                className="flex items-center justify-between rounded-md border border-line1/60 px-3 py-2 text-sm text-fg1"
               >
-                <span className="text-gray-600">Set {set.set}</span>
-                <span className="font-medium">
+                <span>Set {set.set}</span>
+                <span className="text-fg0">
                   {set.weight}kg × {set.reps}
-                  {set.rpe && <span className="text-gray-600 ml-2">@ {set.rpe} RPE</span>}
+                  {set.rpe && <span className="ml-2 text-fg2">@ {set.rpe} RPE</span>}
                 </span>
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Navigation */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {!isLastExercise ? (
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
             {currentExerciseIndex > 0 && (
               <button
                 onClick={handlePreviousExercise}
-                className="flex-1 bg-gray-200 text-gray-900 py-2.5 rounded font-semibold text-sm hover:bg-gray-300 transition-colors"
+                className="flex-1 rounded-full border border-line1 bg-bg0 px-4 py-3 text-sm font-semibold text-fg0 transition hover:bg-bg1"
               >
                 ← Previous
               </button>
             )}
-            <button
+            <PrimaryButton
               onClick={handleNextExercise}
-              className="flex-1 bg-gray-900 text-white py-2.5 rounded font-semibold text-sm hover:bg-gray-800 transition-colors"
+              className="flex-1 normal-case"
             >
               Next Exercise →
-            </button>
+            </PrimaryButton>
           </div>
         ) : (
           <div className="space-y-3">
             {currentExerciseIndex > 0 && (
               <button
                 onClick={handlePreviousExercise}
-                className="w-full bg-gray-200 text-gray-900 py-2.5 rounded font-semibold text-sm hover:bg-gray-300 transition-colors"
+                className="w-full rounded-full border border-line1 bg-bg0 px-4 py-3 text-sm font-semibold text-fg0 transition hover:bg-bg1"
               >
                 ← Previous Exercise
               </button>
             )}
 
-            <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-              <label className="block text-sm font-medium text-gray-900">
+            <Card className="space-y-3 bg-bg0">
+              <label className="block text-sm font-medium text-fg0">
                 Overall Workout RPE
               </label>
               <input
@@ -324,22 +334,22 @@ export function ExerciseLogger({ workout, userId, onComplete, onCancel }: Exerci
                 max="10"
                 value={rpeLastSet}
                 onChange={(e) => setRpeLastSet(e.target.value)}
-                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                className="w-full rounded-md border border-line1 bg-bg0 px-3 py-2 text-sm text-fg0 placeholder:text-fg2 focus:border-fg0 focus:outline-none focus:ring-1 focus:ring-fg0"
                 placeholder="7.5"
               />
-              <button
+              <PrimaryButton
                 onClick={handleCompleteWorkout}
                 disabled={isSubmitting || !rpeLastSet}
-                className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full normal-case"
               >
-                {isSubmitting ? 'Logging...' : '✓ Complete Workout'}
-              </button>
-            </div>
+                {isSubmitting ? 'Logging...' : 'Complete Workout'}
+              </PrimaryButton>
+            </Card>
           </div>
         )}
 
         {/* Total Sets Logged */}
-        <p className="text-center text-xs text-gray-500">
+        <p className="text-center text-xs text-fg2">
           {entries.length} {entries.length === 1 ? 'set' : 'sets'} logged
         </p>
       </div>

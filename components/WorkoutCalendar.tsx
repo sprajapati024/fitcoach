@@ -8,7 +8,6 @@ type Workout = typeof workouts.$inferSelect;
 interface WorkoutCalendarProps {
   workouts: Workout[];
   weeks: number;
-  daysPerWeek: number;
   startDate: string;
 }
 
@@ -33,7 +32,6 @@ function getDayOfWeek(dateStr: string): string {
 export function WorkoutCalendar({
   workouts,
   weeks,
-  daysPerWeek,
   startDate,
 }: WorkoutCalendarProps) {
   // Group workouts by week

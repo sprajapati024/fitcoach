@@ -1,12 +1,12 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { createSupabaseServerClient } from "@/lib/supabaseServerClient";
 import { plans, workouts } from "@/drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { planActivateSchema } from "@/lib/validation";
+import { buildPlanSchedule } from "@/lib/planSchedule";
 
 /**
  * Generate a new plan for the authenticated user
@@ -65,6 +65,28 @@ export async function activatePlanAction(input: { planId: string; startDate: str
   const parsed = planActivateSchema.parse(input);
   const userId = userData.user.id;
 
+  const [plan] = await db
+    .select()
+    .from(plans)
+    .where(and(eq(plans.id, parsed.planId), eq(plans.userId, userId)))
+    .limit(1);
+
+  if (!plan) {
+    throw new Error("Plan not found or unauthorized");
+  }
+
+  const planWorkouts = await db
+    .select()
+    .from(workouts)
+    .where(eq(workouts.planId, parsed.planId))
+    .orderBy(workouts.dayIndex);
+
+  const { calendar: updatedCalendar, workoutUpdates } = buildPlanSchedule({
+    plan,
+    startDate: parsed.startDate,
+    workouts: planWorkouts,
+  });
+
   // Update plan in transaction
   await db.transaction(async (tx) => {
     // Deactivate all other plans for this user
@@ -73,15 +95,24 @@ export async function activatePlanAction(input: { planId: string; startDate: str
       .set({ active: false })
       .where(and(eq(plans.userId, userId), eq(plans.active, true)));
 
-    // Activate the selected plan
+    // Activate the selected plan with updated schedule
     await tx
       .update(plans)
       .set({
         active: true,
         startDate: parsed.startDate,
         status: "active",
+        calendar: updatedCalendar,
+        updatedAt: new Date(),
       })
       .where(and(eq(plans.id, parsed.planId), eq(plans.userId, userId)));
+
+    for (const workout of workoutUpdates) {
+      await tx
+        .update(workouts)
+        .set({ sessionDate: workout.sessionDate })
+        .where(eq(workouts.id, workout.id));
+    }
   });
 
   // Revalidate plan and dashboard pages

@@ -3,7 +3,7 @@
 import { Card } from "./Card";
 import { cn } from "@/lib/utils";
 import type { PlanCalendar } from "@/drizzle/schema";
-import { Calendar, Dumbbell, Zap } from "lucide-react";
+import { Dumbbell, Zap } from "lucide-react";
 
 interface PlanWeekGridProps {
   calendar: PlanCalendar;
@@ -55,7 +55,9 @@ export function PlanWeekGrid({ calendar, currentDayIndex, onDayClick }: PlanWeek
                         )}
                       </div>
                       <div className="mb-2 text-sm font-medium">{day.focus}</div>
-                      <div className="text-xs text-fg2">{day.isoDate}</div>
+                      <div className="text-xs text-fg2">
+                        {day.isoDate || "Date set during activation"}
+                      </div>
                     </div>
                     <div className="flex flex-col items-center gap-1">
                       {day.isDeload ? (
@@ -102,7 +104,15 @@ export function PlanCalendarCompact({ calendar }: { calendar: PlanCalendar }) {
         const weekGrid = Array(7).fill(null);
 
         week.days.forEach((day) => {
+          if (!day.isoDate) {
+            return;
+          }
+
           const date = new Date(day.isoDate);
+          if (Number.isNaN(date.getTime())) {
+            return;
+          }
+
           const dayOfWeek = date.getDay();
           weekGrid[dayOfWeek] = day;
         });
