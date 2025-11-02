@@ -60,7 +60,7 @@ Shift from "12-week upfront generation" to "weekly adaptive generation" based on
   - [x] Beginner: Linear progression (simple accumulation → deload)
   - [x] Intermediate: Block periodization (accumulation → intensification → deload → peak)
 - [x] Add block transition logic (`getCurrentBlock()`, `getBlockGuidelines()`, etc.)
-- [ ] Write unit tests
+- [x] Write unit tests (30 tests, all passing)
 
 #### 2.2 Performance Analysis (`lib/performance-analysis.ts`) ✅
 - [x] Create file: `lib/performance-analysis.ts`
@@ -79,7 +79,7 @@ Shift from "12-week upfront generation" to "weekly adaptive generation" based on
   - [x] Input: performance summary
   - [x] Output: Concise text summary for AI prompt (token-efficient)
 - [x] Add helper functions (`calculateWeekOverWeekChanges()`, `isWeekReadyForAnalysis()`)
-- [ ] Write unit tests
+- [x] Write unit tests (25 tests, all passing)
 
 #### 2.3 Enhanced Progression Logic (`lib/progression.ts`) ✅
 - [x] Extend existing `progression.ts` with week-to-week logic
@@ -93,7 +93,7 @@ Shift from "12-week upfront generation" to "weekly adaptive generation" based on
   - [x] Configurable reduction percentages
 - [x] Add `calculateWeeklyVolumeLandmarks()` for trend analysis
 - [x] Add 1RM estimation utilities (`estimateOneRepMax()`, `calculateWeightForReps()`)
-- [ ] Write unit tests
+- [x] Write unit tests (28 tests, all passing)
 
 ---
 
