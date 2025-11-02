@@ -129,8 +129,8 @@ export function generateWorkouts(
           equipment: ex.equipment,
           sets: ex.sets,
           reps: ex.reps,
-          tempo: ex.tempo ?? undefined, // Convert null to undefined
-          cues: ex.cues ?? undefined, // Convert null to undefined
+          ...(ex.tempo && { tempo: ex.tempo }),
+          ...(ex.cues && { cues: ex.cues }),
           restSeconds: 90, // Default rest
         })),
       }));
@@ -184,33 +184,63 @@ export function generateWorkouts(
 type WorkoutBlock = WorkoutPayload["blocks"][number];
 type WorkoutExercise = WorkoutBlock["exercises"][number];
 
-function applyDeloadModifications(blocks: WorkoutBlock[]): WorkoutBlock[] {
+function applyDeloadModifications(blocks: WorkoutBlock[]) {
   return blocks.map((block) => {
-    let modifiedExercises: WorkoutExercise[] = block.exercises;
-
     if (block.type === "primary" || block.type === "accessory") {
       // Reduce sets for each exercise
-      modifiedExercises = block.exercises.map((exercise) => ({
-        ...exercise,
-        sets: Math.max(1, exercise.sets - 1),
-        cues: [...(exercise.cues ?? []), "Deload week - reduced volume"],
-      }));
+      return {
+        ...block,
+        exercises: block.exercises.map((exercise) => {
+          const newCues = [...(exercise.cues ?? []), "Deload week - reduced volume"];
+          return {
+            id: exercise.id,
+            name: exercise.name,
+            equipment: exercise.equipment,
+            sets: Math.max(1, exercise.sets - 1),
+            reps: exercise.reps,
+            restSeconds: 90,
+            ...(exercise.tempo && { tempo: exercise.tempo }),
+            cues: newCues,
+          };
+        }),
+      };
     }
 
     if (block.type === "conditioning") {
       // Reduce exercise count or duration
-      modifiedExercises = block.exercises.map((exercise) => ({
-        ...exercise,
-        reps: exercise.reps.includes("min")
-          ? `${Math.floor(parseInt(exercise.reps, 10) * 0.8)} min`
-          : exercise.reps,
-        cues: [...(exercise.cues ?? []), "Deload week - reduced intensity"],
-      }));
+      return {
+        ...block,
+        exercises: block.exercises.map((exercise) => {
+          const newCues = [...(exercise.cues ?? []), "Deload week - reduced intensity"];
+          return {
+            id: exercise.id,
+            name: exercise.name,
+            equipment: exercise.equipment,
+            sets: exercise.sets,
+            reps: exercise.reps.includes("min")
+              ? `${Math.floor(parseInt(exercise.reps, 10) * 0.8)} min`
+              : exercise.reps,
+            restSeconds: 90,
+            ...(exercise.tempo && { tempo: exercise.tempo }),
+            cues: newCues,
+          };
+        }),
+      };
     }
 
+    // For warmup, finisher, or other block types - normalize structure
     return {
       ...block,
-      exercises: modifiedExercises,
+      exercises: block.exercises.map((exercise) => ({
+        id: exercise.id,
+        name: exercise.name,
+        equipment: exercise.equipment,
+        sets: exercise.sets,
+        reps: exercise.reps,
+        restSeconds: 90,
+        ...(exercise.tempo && { tempo: exercise.tempo }),
+        ...(exercise.cues && { cues: exercise.cues }),
+      })),
     };
   });
 }

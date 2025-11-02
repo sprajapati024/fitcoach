@@ -1,13 +1,18 @@
 'use client';
 
-import { type ReactNode, createContext, useContext, useState } from 'react';
+import { type ReactNode, createContext, useContext, useState, useEffect } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createSupabaseBrowserClient } from '@/lib/supabaseClient';
 
 const SupabaseContext = createContext<SupabaseClient | null>(null);
 
 export function SupabaseProvider({ children }: { children: ReactNode }) {
-  const [supabase] = useState<SupabaseClient>(() => createSupabaseBrowserClient());
+  const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
+
+  useEffect(() => {
+    // Only create the client on the client side
+    setSupabase(createSupabaseBrowserClient());
+  }, []);
 
   return <SupabaseContext.Provider value={supabase}>{children}</SupabaseContext.Provider>;
 }

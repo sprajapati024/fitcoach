@@ -99,11 +99,11 @@ export function buildPlanSchedule(args: BuildPlanScheduleArgs): BuildPlanSchedul
   );
 
   const workoutUpdates: WorkoutScheduleUpdate[] = workoutInstances.map((instance) => ({
-    id: instance.id,
+    id: instance.id!,
     sessionDate: instance.sessionDate!,
     weekIndex: instance.weekIndex,
     dayIndex: instance.dayIndex,
-    isDeload: instance.isDeload,
+    isDeload: instance.isDeload ?? false,
   }));
 
   return {

@@ -50,11 +50,8 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
   const calendarLogs = useMemo(
     () =>
       workoutLogs.map((log) => {
-        const rawDate = log.sessionDate;
-        const dateObj =
-          typeof rawDate === "string" ? new Date(rawDate) : rawDate instanceof Date ? rawDate : null;
-        const isoDate =
-          dateObj && !Number.isNaN(dateObj.getTime()) ? dateObj.toISOString().split("T")[0] : null;
+        const dateObj = new Date(log.sessionDate);
+        const isoDate = !Number.isNaN(dateObj.getTime()) ? dateObj.toISOString().split("T")[0] : null;
         const status =
           Number(log.totalDurationMinutes ?? 0) === 0 ||
           (log.notes ?? "").toLowerCase().startsWith("skipped")
