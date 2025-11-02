@@ -45,54 +45,54 @@ Shift from "12-week upfront generation" to "weekly adaptive generation" based on
 
 ---
 
-### Phase 2: Business Logic Modules
+### Phase 2: Business Logic Modules ✅
 
-#### 2.1 Periodization Framework (`lib/periodization.ts`)
-- [ ] Create file: `lib/periodization.ts`
-- [ ] Define periodization block types:
-  - [ ] `accumulation` - High volume, moderate intensity (12-15 reps, RPE 7-8)
-  - [ ] `intensification` - Moderate volume, high intensity (6-10 reps, RPE 8-9)
-  - [ ] `deload` - Low volume, moderate intensity (8 reps, RPE 6)
-  - [ ] `realization` - Low volume, peak intensity (4-6 reps, RPE 9+)
-- [ ] Create `generatePeriodizationFramework()` function
-  - [ ] Input: totalWeeks, experienceLevel, goal
-  - [ ] Output: Array of periodization blocks
-  - [ ] Beginner: Linear progression (simple accumulation → deload)
-  - [ ] Intermediate: Block periodization (accumulation → intensification → deload → peak)
-  - [ ] Advanced: Daily undulating with blocks
-- [ ] Add block transition logic
+#### 2.1 Periodization Framework (`lib/periodization.ts`) ✅
+- [x] Create file: `lib/periodization.ts`
+- [x] Define periodization block types:
+  - [x] `accumulation` - High volume, moderate intensity (12-15 reps, RPE 7-8)
+  - [x] `intensification` - Moderate volume, high intensity (6-10 reps, RPE 8-9)
+  - [x] `deload` - Low volume, moderate intensity (8 reps, RPE 6)
+  - [x] `realization` - Low volume, peak intensity (4-6 reps, RPE 9+)
+- [x] Create `generatePeriodizationFramework()` function
+  - [x] Input: totalWeeks, experienceLevel, goal
+  - [x] Output: Array of periodization blocks
+  - [x] Beginner: Linear progression (simple accumulation → deload)
+  - [x] Intermediate: Block periodization (accumulation → intensification → deload → peak)
+- [x] Add block transition logic (`getCurrentBlock()`, `getBlockGuidelines()`, etc.)
 - [ ] Write unit tests
 
-#### 2.2 Performance Analysis (`lib/performance-analysis.ts`)
-- [ ] Create file: `lib/performance-analysis.ts`
-- [ ] Create `analyzeWeekPerformance()` function
-  - [ ] Input: weekId, logged workouts
-  - [ ] Calculate: completion rate, avg RPE, total volume, total tonnage
-  - [ ] Output: Performance summary object
-- [ ] Create `generateProgressionRecommendations()` function
-  - [ ] Input: performance summary, periodization phase
-  - [ ] Logic:
-    - [ ] If exceeded targets (RPE < target, hit top of reps) → progress faster
-    - [ ] If struggled (RPE > target, missed reps) → maintain or reduce
-    - [ ] If mixed → hold steady with refinements
-  - [ ] Output: Recommendations for next week
-- [ ] Create `summarizeWeekForAI()` function
-  - [ ] Input: performance summary
-  - [ ] Output: Concise text summary for AI prompt (token-efficient)
+#### 2.2 Performance Analysis (`lib/performance-analysis.ts`) ✅
+- [x] Create file: `lib/performance-analysis.ts`
+- [x] Create `analyzeWeekPerformance()` function
+  - [x] Input: planId, weekNumber
+  - [x] Calculate: completion rate, avg RPE, total volume, total tonnage
+  - [x] Output: Performance summary object with exercise breakdown
+- [x] Create `generateProgressionRecommendations()` function
+  - [x] Input: performance summary, periodization phase
+  - [x] Logic:
+    - [x] If exceeded targets (RPE < target, hit top of reps) → progress faster
+    - [x] If struggled (RPE > target, missed reps) → maintain or reduce
+    - [x] If mixed → hold steady with refinements
+  - [x] Output: Recommendations for next week with confidence score
+- [x] Create `summarizeWeekForAI()` function
+  - [x] Input: performance summary
+  - [x] Output: Concise text summary for AI prompt (token-efficient)
+- [x] Add helper functions (`calculateWeekOverWeekChanges()`, `isWeekReadyForAnalysis()`)
 - [ ] Write unit tests
 
-#### 2.3 Enhanced Progression Logic (`lib/progression.ts`)
-- [ ] Extend existing `progression.ts` with week-to-week logic
-- [ ] Add `calculateWeeklyProgression()` function
-  - [ ] Input: exercise, previous week performance, periodization phase
-  - [ ] Output: Load/rep/set adjustments
-  - [ ] Beginner: Linear (add 5lb when hit top of reps)
-  - [ ] Intermediate: Volume waves + load progression
-  - [ ] Advanced: Autoregulated based on RPE
-- [ ] Add `applyDeloadModifications()` enhancement
-  - [ ] 40% volume reduction (sets)
-  - [ ] 15% load reduction (weight)
-  - [ ] Max RPE cap at 7
+#### 2.3 Enhanced Progression Logic (`lib/progression.ts`) ✅
+- [x] Extend existing `progression.ts` with week-to-week logic
+- [x] Add `calculateExerciseProgression()` function
+  - [x] Input: exercise, previous week logs, periodization phase, performance analysis
+  - [x] Output: Exercise-specific load/rep/RPE recommendations
+  - [x] Handles all experience levels with RPE-based autoregulation
+- [x] Add `applyDeloadModifications()` enhancement
+  - [x] 40% volume reduction (sets)
+  - [x] 15% load reduction (weight)
+  - [x] Configurable reduction percentages
+- [x] Add `calculateWeeklyVolumeLandmarks()` for trend analysis
+- [x] Add 1RM estimation utilities (`estimateOneRepMax()`, `calculateWeightForReps()`)
 - [ ] Write unit tests
 
 ---
