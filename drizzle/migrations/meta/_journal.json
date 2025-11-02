@@ -15,6 +15,13 @@
       "when": 1761876390918,
       "tag": "0001_tranquil_joshua_kane",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1762124862016,
+      "tag": "0002_milky_peter_parker",
+      "breakpoints": true
     }
   ]
 }
