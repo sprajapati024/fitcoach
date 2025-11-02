@@ -56,15 +56,31 @@ export const planBlockSchema = z.object({
         equipment: z.string().min(2).max(40),
         sets: z.number().int().min(1).max(6),
         reps: z.string().min(1).max(40),
-        tempo: z.string().max(20).optional(),
-        cues: z.array(z.string().min(2).max(80)).max(4).optional(),
-        notes: z.string().max(140).optional(),
+        tempo: z.union([z.string().max(20), z.null()]).optional(),
+        cues: z.union([z.array(z.string().min(2).max(80)).max(4), z.null()]).optional(),
+        notes: z.union([z.string().max(140), z.null()]).optional(),
       }),
     )
     .min(1)
     .max(6),
 });
 
+// Simplified schema for what the AI agent generates (no weeks, no id)
+export const plannerMicrocycleSchema = z.object({
+  daysPerWeek: z.number().int().min(3).max(6),
+  pattern: z
+    .array(
+      z.object({
+        dayIndex: z.number().int().min(0).max(6),
+        focus: z.string().min(3).max(80),
+        blocks: z.array(planBlockSchema).min(1).max(5),
+      }),
+    )
+    .min(3)
+    .max(6),
+});
+
+// Full schema for storage (includes weeks and id)
 export const planMicrocycleSchema = z.object({
   id: z.string().min(4).max(64),
   weeks: z.number().int().min(6).max(16),
@@ -107,13 +123,13 @@ export const planCalendarSchema = z.object({
 
 export type PlanCalendarInput = z.infer<typeof planCalendarSchema>;
 
+// Simplified schema for what the AI agent generates
+// App will add: planId (via nanoid), microcycle.id, microcycle.weeks (from profile), review.weeklyFocus (derived from pattern)
 export const plannerResponseSchema = z.object({
-  planId: z.string().min(6).max(64),
-  microcycle: planMicrocycleSchema,
+  microcycle: plannerMicrocycleSchema,
   summary: z.string().min(10).max(240),
   cues: z.array(z.string().min(3).max(120)).max(5),
   review: z.object({
-    weeklyFocus: z.array(z.string().min(3).max(120)).max(6),
     safety: z.array(z.string().min(3).max(120)).max(4),
   }),
 });
@@ -156,16 +172,18 @@ export const coachContextSchema = z.object({
 export const coachResponseSchema = z.object({
   headline: z.string().min(3).max(80),
   bullets: z.array(z.string().min(3).max(120)).max(5),
-  prompts: z.array(z.string().min(3).max(80)).max(3).optional(),
+  prompts: z.union([z.array(z.string().min(3).max(80)).max(3), z.null()]).optional(),
   tweaks: z
-    .array(
-      z.object({
-        exerciseId: z.string().min(2).max(60),
-        replacementId: z.string().min(2).max(60),
-        rationale: z.string().min(3).max(160),
-      }),
-    )
-    .max(3)
+    .union([
+      z.array(
+        z.object({
+          exerciseId: z.string().min(2).max(60),
+          replacementId: z.string().min(2).max(60),
+          rationale: z.string().min(3).max(160),
+        }),
+      ).max(3),
+      z.null(),
+    ])
     .optional(),
 });
 

@@ -8,62 +8,62 @@
 
 **Priority Order**: Planner → Coach → Substitution → Load Calculation
 
+**Last Updated**: 2025-10-31
+
 ---
 
-## Phase 0: Setup & Preparation
+## Phase 0: Setup & Preparation ✅
 
 ### Goal
 Set up the OpenAI Agents SDK infrastructure and prepare the codebase for migration.
 
+**Status**: COMPLETED (2025-10-31)
+
 ### Tasks
-- [ ] Install dependencies: `npm install @openai/agents zod@3`
-- [ ] Update `.env.local` to use `gpt-4o` instead of GPT-5
-  ```env
-  OPENAI_MODEL_PLANNER=gpt-4o
-  OPENAI_MODEL_COACH=gpt-4o-mini
-  ```
-- [ ] Create directory structure:
-  ```bash
-  mkdir -p lib/ai/agents
-  ```
-- [ ] Add feature flag to `.env.local` (optional for A/B testing):
-  ```env
-  USE_AGENT_PLANNER=true
-  ```
-- [ ] Create base types file: `lib/ai/agents/types.ts`
+- [x] Install dependencies: `pnpm install @openai/agents` (zod already at v4.1.12)
+- [x] Update to use `gpt-4o` model (handled in agent configuration)
+- [x] Create directory structure: `lib/ai/agents/`
+- [x] Agent types defined inline (no separate types.ts needed)
 
 ### Success Criteria
-- [ ] Dependencies installed successfully
-- [ ] Environment variables updated
-- [ ] Directory structure in place
-- [ ] No breaking changes to existing functionality
+- [x] Dependencies installed successfully (@openai/agents 0.2.1)
+- [x] Directory structure in place
+- [x] No breaking changes to existing functionality
+
+### Known Issues
+- ✅ RESOLVED: Build errors with Zod schema conversion - Fixed in commit c4b9a5d ([GitHub Issue #4](https://github.com/sprajapati024/fitcoach/issues/4))
+  - Solution: Use union pattern `z.union([z.string(), z.null()]).optional()` for optional fields
+  - All tool schemas and validation schemas updated
 
 ---
 
-## Phase 1: Planner Agent (Priority 1 - Fix Timeout Issue)
+## Phase 1: Planner Agent (Priority 1 - Fix Timeout Issue) ✅
 
 ### Goal
 Replace the current monolithic planner with an agent-based approach using function tools to dynamically query exercises.
 
-### 1.1 Create Shared Tool Utilities
+**Status**: COMPLETED (2025-11-02) - Implementation complete, build errors resolved, ready for production testing
 
-- [ ] Create `lib/ai/agents/tools.ts`
-- [ ] Implement `queryExercises` tool:
-  ```typescript
-  // Filters exercises by movement, impact, PCOS compatibility
-  // Returns: "exercise_id: Exercise Name" list
-  ```
-- [ ] Implement `getExerciseDetails` tool:
-  ```typescript
-  // Returns full exercise info for specific IDs
-  // Includes: equipment, muscles, notes
-  ```
-- [ ] Implement `validateTimeBudget` tool:
-  ```typescript
-  // Validates session fits within time constraints
-  // Returns: pass/fail + suggestions if over budget
-  ```
-- [ ] Add helper: `getProfileContext(profile)` → Formats user data for tools
+### 1.1 Create Shared Tool Utilities ✅
+
+**Status**: COMPLETED (2025-10-31)
+
+- [x] Create `lib/ai/agents/tools.ts`
+- [x] Implement `queryExercisesTool`:
+  - Filters exercises by movement, impact, PCOS compatibility
+  - Returns: "exercise_id: Exercise Name" list
+- [x] Implement `getExerciseDetailsTool`:
+  - Returns full exercise info for specific IDs
+  - Includes: equipment, muscles, notes
+- [x] Implement `validateTimeBudgetTool`:
+  - Validates session fits within time constraints
+  - Returns: pass/fail + suggestions if over budget
+- [x] Tools use Zod schemas for type safety
+
+**Resolution**:
+- ✅ Zod schema conversion fixed - [GitHub Issue #4](https://github.com/sprajapati024/fitcoach/issues/4) CLOSED
+  - Solution: Use union pattern `z.union([z.string(), z.null()]).optional()` for all optional fields
+  - Applied to: `movement`, `impact`, `pcosFriendly` parameters in tools.ts
 
 ### Code Template for Tools
 ```typescript
@@ -75,9 +75,9 @@ export const queryExercisesTool = tool({
   name: 'query_exercises',
   description: 'Search exercises by movement pattern, impact level, and PCOS compatibility',
   parameters: z.object({
-    movement: z.string().optional().describe('Movement pattern: squat, hinge, lunge, etc.'),
-    impact: z.enum(['low', 'moderate', 'high']).optional(),
-    pcosFriendly: z.boolean().optional().describe('Filter for PCOS-safe exercises'),
+    movement: z.union([z.string(), z.null()]).optional().describe('Movement pattern: squat, hinge, lunge, etc.'),
+    impact: z.union([z.enum(['low', 'moderate', 'high']), z.null()]).optional(),
+    pcosFriendly: z.union([z.boolean(), z.null()]).optional().describe('Filter for PCOS-safe exercises'),
   }),
   async execute({ movement, impact, pcosFriendly }) {
     const exercises = listExercises();
@@ -140,14 +140,17 @@ export const validateTimeBudgetTool = tool({
 });
 ```
 
-### 1.2 Create Planner Agent
+### 1.2 Create Planner Agent ✅
 
-- [ ] Create `lib/ai/agents/planner-agent.ts`
-- [ ] Define `PlannerAgent` with instructions
-- [ ] Configure to use `gpt-4o` model
-- [ ] Attach all three tools
-- [ ] Set output schema to `plannerResponseSchema` from `lib/validation.ts`
-- [ ] Export `runPlannerAgent(profile)` function
+**Status**: COMPLETED (2025-10-31)
+
+- [x] Create `lib/ai/agents/planner-agent.ts`
+- [x] Define `plannerAgent` with instructions from `plannerSystemPrompt`
+- [x] Configure to use `gpt-4o` model
+- [x] Attach all three tools (queryExercises, getExerciseDetails, validateTimeBudget)
+- [x] Validate output with `plannerResponseSchema.parse()` from `lib/validation.ts`
+- [x] Export `runPlannerAgent(profile)` function
+- [x] Build compact prompts (no exercise library dump)
 
 ### Code Template for Planner Agent
 ```typescript
@@ -237,13 +240,16 @@ function calculateAge(dateOfBirth: string | null): number {
 }
 ```
 
-### 1.3 Update API Route
+### 1.3 Update API Route ✅
 
-- [ ] Open `app/api/plan/generate/route.ts`
-- [ ] Import `runPlannerAgent` from new agent file
-- [ ] Add conditional logic: if `USE_AGENT_PLANNER=true`, use agent; else use old `callPlanner`
-- [ ] Keep all existing post-processing logic (`postProcessPlannerResponse`, `expandPlannerResponse`)
-- [ ] Add enhanced error logging
+**Status**: COMPLETED (2025-10-31)
+
+- [x] Open `app/api/plan/generate/route.ts`
+- [x] Import `runPlannerAgent` from new agent file
+- [x] Replace `callPlanner()` with `runPlannerAgent()`
+- [x] Keep all existing post-processing logic (`postProcessPlannerResponse`, `expandPlannerResponse`)
+- [x] Add enhanced error logging with try/catch
+- [x] Update planner version to "gpt-4o-agents" in database
 
 ### Code Changes for API Route
 ```typescript
@@ -273,9 +279,13 @@ if (!aiResult.success) {
 // Continue with existing post-processing...
 ```
 
-### 1.4 Testing & Validation
+### 1.4 Testing & Validation ✅
 
-- [ ] Test with existing user profiles
+**Status**: READY - Build errors resolved (2025-11-02)
+
+- [x] Build errors resolved - all type checking passes
+- [x] UUID format and foreign key constraints fixed
+- [ ] Test with existing user profiles (ready for production testing)
 - [ ] Verify plan generation completes in <20s
 - [ ] Check exercise selections are valid
 - [ ] Validate PCOS guardrails still apply
@@ -283,11 +293,20 @@ if (!aiResult.success) {
 - [ ] Test error handling (invalid profile data)
 
 ### Success Criteria
-- [ ] Plan generation success rate >95%
-- [ ] Response time <20 seconds
-- [ ] Token usage reduced by 50%+
-- [ ] All existing post-processing works
-- [ ] No breaking changes to plan structure
+- [x] Build errors resolved - all type checking passes
+- [x] UUID and foreign key constraints fixed
+- [x] All existing post-processing works (code intact)
+- [x] No breaking changes to plan structure
+- [ ] Plan generation success rate >95% (ready for production testing)
+- [ ] Response time <20 seconds (ready for production testing)
+- [ ] Token usage reduced by 50%+ (ready for production testing)
+
+### Blocking Issues (RESOLVED ✅)
+- ✅ **Build Error FIXED**: Zod schema to JSON Schema conversion - [GitHub Issue #4](https://github.com/sprajapati024/fitcoach/issues/4) CLOSED
+  - Solution: Use union pattern `z.union([type, z.null()]).optional()` for all optional fields
+  - Fixed in commit c4b9a5d (2025-11-02)
+  - Applied to: tools.ts, validation.ts, planner-agent.ts
+  - All builds now passing successfully
 
 ---
 

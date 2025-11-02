@@ -4,20 +4,35 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/Card";
 import { PrimaryButton } from "@/components/PrimaryButton";
-import { generatePlanAction, activatePlanAction, deletePlanAction } from "@/app/actions/plan";
-import type { plans } from "@/drizzle/schema";
+import { activatePlanAction, deletePlanAction } from "@/app/actions/plan";
+import PlanGenerationProgress from "@/components/PlanGenerationProgress";
+import { WorkoutCalendar } from "@/components/WorkoutCalendar";
+import type { plans, workouts } from "@/drizzle/schema";
 import { Calendar, Trash2, CheckCircle } from "lucide-react";
 
 type Plan = typeof plans.$inferSelect;
+type Workout = typeof workouts.$inferSelect;
 
 interface PlanViewProps {
   activePlan: Plan | null;
   userPlans: Plan[];
+  workouts: Workout[];
 }
 
-export function PlanView({ activePlan, userPlans }: PlanViewProps) {
+interface ProgressState {
+  stage: string;
+  message: string;
+  percent: number;
+}
+
+export function PlanView({ activePlan, userPlans, workouts }: PlanViewProps) {
   const router = useRouter();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [progressState, setProgressState] = useState<ProgressState>({
+    stage: 'initializing',
+    message: 'Starting...',
+    percent: 0
+  });
   const [isActivating, setIsActivating] = useState(false);
   const [selectedStartDate, setSelectedStartDate] = useState(
     new Date().toISOString().slice(0, 10)
@@ -29,14 +44,68 @@ export function PlanView({ activePlan, userPlans }: PlanViewProps) {
     setIsGenerating(true);
     setError(null);
     setSuccess(null);
+    setProgressState({
+      stage: 'initializing',
+      message: 'Starting plan generation...',
+      percent: 0
+    });
 
     try {
-      const result = await generatePlanAction();
-      setSuccess(`Plan generated successfully! ${result.warnings?.length ? `(${result.warnings.length} adjustments made)` : ""}`);
-      router.refresh();
+      const response = await fetch('/api/plan/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.body) {
+        throw new Error('No response body');
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) break;
+
+        // Decode the chunk and split by newlines
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+
+              if (data.type === 'progress') {
+                setProgressState({
+                  stage: data.stage,
+                  message: data.message,
+                  percent: data.percent
+                });
+              } else if (data.type === 'complete') {
+                setIsGenerating(false);
+                const warnings = data.data.warnings?.length || 0;
+                setSuccess(`Plan generated successfully! ${warnings ? `(${warnings} adjustments made)` : ""}`);
+                router.refresh();
+                return;
+              } else if (data.type === 'error') {
+                setIsGenerating(false);
+                setError(data.error);
+                return;
+              }
+            } catch (err) {
+              console.error('Failed to parse SSE message:', err);
+            }
+          }
+        }
+      }
+
+      setIsGenerating(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to generate plan");
-    } finally {
       setIsGenerating(false);
     }
   };
@@ -76,21 +145,29 @@ export function PlanView({ activePlan, userPlans }: PlanViewProps) {
   if (userPlans.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
-        <Card className="max-w-md text-center">
-          <Calendar className="mx-auto mb-4 h-12 w-12 text-fg2" />
-          <h2 className="mb-2 text-xl font-semibold">No Training Plan Yet</h2>
-          <p className="mb-6 text-sm text-fg2">
-            Let's create your personalized training plan based on your profile and goals.
-          </p>
-          {error && (
-            <div className="mb-4 rounded border border-line2 bg-bg2 p-3 text-sm text-fg1">
-              {error}
-            </div>
-          )}
-          <PrimaryButton onClick={handleGeneratePlan} loading={isGenerating}>
-            Generate My Plan
-          </PrimaryButton>
-        </Card>
+        {isGenerating ? (
+          <PlanGenerationProgress
+            stage={progressState.stage}
+            message={progressState.message}
+            percent={progressState.percent}
+          />
+        ) : (
+          <Card className="max-w-md text-center">
+            <Calendar className="mx-auto mb-4 h-12 w-12 text-fg2" />
+            <h2 className="mb-2 text-xl font-semibold">No Training Plan Yet</h2>
+            <p className="mb-6 text-sm text-fg2">
+              Let's create your personalized training plan based on your profile and goals.
+            </p>
+            {error && (
+              <div className="mb-4 rounded border border-line2 bg-bg2 p-3 text-sm text-fg1">
+                {error}
+              </div>
+            )}
+            <PrimaryButton onClick={handleGeneratePlan} loading={isGenerating}>
+              Generate My Plan
+            </PrimaryButton>
+          </Card>
+        )}
       </div>
     );
   }
@@ -98,6 +175,18 @@ export function PlanView({ activePlan, userPlans }: PlanViewProps) {
   // Case 2: Plans exist but none active - show activation UI
   if (!activePlan) {
     const latestPlan = userPlans[0]; // Most recent plan
+
+    if (isGenerating) {
+      return (
+        <div className="flex flex-col items-center justify-center py-16">
+          <PlanGenerationProgress
+            stage={progressState.stage}
+            message={progressState.message}
+            percent={progressState.percent}
+          />
+        </div>
+      );
+    }
 
     return (
       <div className="space-y-6">
@@ -164,6 +253,18 @@ export function PlanView({ activePlan, userPlans }: PlanViewProps) {
   }
 
   // Case 3: Active plan exists - show calendar view
+  if (isGenerating) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16">
+        <PlanGenerationProgress
+          stage={progressState.stage}
+          message={progressState.message}
+          percent={progressState.percent}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {success && (
@@ -185,14 +286,14 @@ export function PlanView({ activePlan, userPlans }: PlanViewProps) {
           </div>
         </div>
 
-        {/* Calendar Grid Placeholder */}
-        <div className="mt-6 rounded border border-line1 bg-bg2 p-6 text-center text-fg2">
-          <Calendar className="mx-auto mb-3 h-10 w-10" />
-          <p className="text-sm">Calendar grid component coming soon</p>
-          <p className="mt-2 text-xs">
-            Your plan has {activePlan.durationWeeks} weeks with{" "}
-            {activePlan.daysPerWeek} training days per week
-          </p>
+        {/* Calendar Grid */}
+        <div className="mt-6">
+          <WorkoutCalendar
+            workouts={workouts}
+            weeks={activePlan.durationWeeks}
+            daysPerWeek={activePlan.daysPerWeek}
+            startDate={activePlan.startDate || new Date().toISOString().split("T")[0]}
+          />
         </div>
       </Card>
 

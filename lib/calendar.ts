@@ -1,4 +1,4 @@
-import { createWorkoutId } from "@/lib/ids";
+import { createWorkoutId, createMicrocycleId } from "@/lib/ids";
 import { shiftUtcDate } from "@/lib/tz";
 import type { PlannerResponse, PlanMicrocycleInput } from "@/lib/validation";
 import type { PlanCalendar, PlanMicrocycle, WorkoutPayload } from "@/drizzle/schema";
@@ -129,8 +129,8 @@ export function generateWorkouts(
           equipment: ex.equipment,
           sets: ex.sets,
           reps: ex.reps,
-          tempo: ex.tempo,
-          cues: ex.cues,
+          tempo: ex.tempo ?? undefined, // Convert null to undefined
+          cues: ex.cues ?? undefined, // Convert null to undefined
           restSeconds: 90, // Default rest
         })),
       }));
@@ -246,38 +246,75 @@ export function generateCalendar(
 }
 
 /**
+ * Generate weeklyFocus array from pattern rotation
+ */
+function generateWeeklyFocus(pattern: any[], weeks: number): string[] {
+  const weeklyFocus: string[] = [];
+  for (let weekIndex = 0; weekIndex < weeks; weekIndex++) {
+    // Rotate through pattern to describe each week's focus
+    const focuses = pattern.map(day => day.focus);
+    weeklyFocus.push(`Week ${weekIndex + 1}: ${focuses.join(', ')}`);
+  }
+  return weeklyFocus.slice(0, 6); // Max 6 as per schema
+}
+
+/**
  * Main function to expand planner response into full plan data
+ * Now accepts weeks from options (user profile) instead of from agent response
  */
 export function expandPlannerResponse(
   plannerResponse: PlannerResponse,
-  options: Omit<CalendarGenerationOptions, "weeks" | "daysPerWeek">
+  options: Omit<CalendarGenerationOptions, "daysPerWeek"> & { weeks: number }
 ): {
   microcycle: PlanMicrocycle;
   calendar: PlanCalendar;
   workouts: WorkoutInsert[];
 } {
   const { microcycle: microcycleInput } = plannerResponse;
+  const { weeks } = options;
+
+  // Generate microcycle ID (app-generated, not from agent)
+  const microcycleId = createMicrocycleId();
+
+  // Build full microcycle for storage with app-generated fields
+  const fullMicrocycleInput: PlanMicrocycleInput = {
+    id: microcycleId,
+    weeks,
+    daysPerWeek: microcycleInput.daysPerWeek,
+    pattern: microcycleInput.pattern,
+  };
 
   // Generate workouts
-  const workouts = generateWorkouts(microcycleInput, {
+  const workouts = generateWorkouts(fullMicrocycleInput, {
     ...options,
-    weeks: microcycleInput.weeks,
+    weeks,
     daysPerWeek: microcycleInput.daysPerWeek,
   });
 
   // Generate calendar
-  const calendar = generateCalendar(microcycleInput, workouts, {
+  const calendar = generateCalendar(fullMicrocycleInput, workouts, {
     ...options,
-    weeks: microcycleInput.weeks,
+    weeks,
     daysPerWeek: microcycleInput.daysPerWeek,
   });
 
-  // Convert microcycle input to storage format
+  // Convert to storage format (transform null to undefined for optional fields)
   const microcycle: PlanMicrocycle = {
-    id: microcycleInput.id,
-    weeks: microcycleInput.weeks,
+    id: microcycleId,
+    weeks,
     daysPerWeek: microcycleInput.daysPerWeek,
-    pattern: microcycleInput.pattern,
+    pattern: microcycleInput.pattern.map(day => ({
+      ...day,
+      blocks: day.blocks.map(block => ({
+        ...block,
+        exercises: block.exercises.map(ex => ({
+          ...ex,
+          tempo: ex.tempo ?? undefined,
+          cues: ex.cues ?? undefined,
+          notes: ex.notes ?? undefined,
+        })),
+      })),
+    })),
   };
 
   return {

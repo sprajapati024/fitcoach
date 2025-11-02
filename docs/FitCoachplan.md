@@ -4,11 +4,13 @@
 
 **GitHub Issue**: [#1 - Implement FitCoach core flows](https://github.com/user/FitCoach/issues/1)
 
-**Status**: 4/13 tasks completed (Auth, Onboarding, Plan Generation, Plan Activation)
+**Status**: 6/13 tasks completed (Auth, Onboarding, Plan Generation with Agents SDK, Plan Activation, Core Logging, UUID/Foreign Key Fixes)
 
 **Goal**: Deliver the first usable vertical slice with Today experience, workout logging, progress tracking, offline support, and complete UI polish.
 
 **Timeline**: 25 days (5 phases × 5 days each)
+
+**Last Updated**: 2025-11-02
 
 ---
 
@@ -17,12 +19,13 @@
 ### ✅ Completed
 - Auth shell (Supabase SSR, Google sign-in)
 - Onboarding stepper (7 steps + coach notes)
-- Plan generation flow (AI planner, PCOS post-processing)
+- Plan generation flow (AI planner, PCOS post-processing) - **MIGRATED TO AGENTS SDK** ✅
+- OpenAI Agents SDK integration (Zod schema fixes, tool implementation) - [Issue #4 CLOSED](https://github.com/sprajapati024/fitcoach/issues/4)
+- UUID format and foreign key constraint fixes
 - Plan activation & calendar UI (PlanWeekGrid, date selection)
+- **Phase 1: Core Logging Infrastructure** - Today experience, workout logging API, exercise logger
 
-### 🚧 Pending
-- Today experience (exercise logger, coach brief)
-- Workout logging API (batch logs, RPE, offline queue)
+### 🚧 In Progress
 - Progress & weekly review (metrics, sparklines, AI review)
 - Settings page (toggles, sliders, preferences)
 - AI substitution helper (exercise alternatives)
@@ -38,17 +41,19 @@
 ### Goal
 Build the workout logging foundation that enables all other features.
 
-### 1.1 Workout Logging API
+### 1.1 Workout Logging API ✅
 
 **Priority**: CRITICAL - Foundation for all tracking
 
+**Status**: COMPLETED (2025-10-31)
+
 #### Tasks
-- [ ] Create `app/api/log/route.ts` - POST endpoint for workout logs
-- [ ] Implement batch log processing (multiple sets + overall RPE)
-- [ ] Add Drizzle ORM insert logic for `workoutLogs` and `workoutLogSets`
-- [ ] Handle duplicate log prevention (check existing logs by workout ID + date)
-- [ ] Add error handling with descriptive messages
-- [ ] Return logged workout summary
+- [x] Create `app/api/log/route.ts` - POST endpoint for workout logs
+- [x] Implement batch log processing (multiple sets + overall RPE)
+- [x] Add Drizzle ORM insert logic for `workoutLogs` and `workoutLogSets`
+- [x] Handle duplicate log prevention (check existing logs by workout ID + date)
+- [x] Add error handling with descriptive messages
+- [x] Return logged workout summary
 
 #### Code Template
 ```typescript
@@ -149,21 +154,23 @@ export async function POST(request: NextRequest) {
 
 ---
 
-### 1.2 Today View with Exercise Logger
+### 1.2 Today View with Exercise Logger ✅
 
 **Priority**: HIGH - Primary user interaction point
 
+**Status**: COMPLETED (2025-10-31)
+
 #### Tasks
-- [ ] Create `app/(auth)/dashboard/TodayView.tsx` - main Today view component
-- [ ] Create `app/(auth)/dashboard/ExerciseLogger.tsx` - set-by-set logger
-- [ ] Create `app/(auth)/dashboard/CoachBrief.tsx` - brief display (static for now)
-- [ ] Update `app/(auth)/dashboard/page.tsx` to use TodayView
-- [ ] Create `app/actions/dashboard.ts` - server actions for Today data
-- [ ] Fetch today's workout from database
-- [ ] Display workout blocks (warmup, strength, accessory, etc.)
-- [ ] Implement set logging UI (weight, reps, RPE inputs)
-- [ ] Add "Log Set" and "Complete Workout" buttons
-- [ ] Add "Skip Today" functionality
+- [x] Create `app/(auth)/dashboard/TodayView.tsx` - main Today view component
+- [x] Create `app/(auth)/dashboard/ExerciseLogger.tsx` - set-by-set logger
+- [x] Create `app/(auth)/dashboard/CoachBrief.tsx` - brief display (static for now)
+- [x] Update `app/(auth)/dashboard/page.tsx` to use TodayView
+- [x] Create `app/actions/dashboard.ts` - server actions for Today data
+- [x] Fetch today's workout from database
+- [x] Display workout blocks (warmup, strength, accessory, etc.)
+- [x] Implement set logging UI (weight, reps, RPE inputs)
+- [x] Add "Log Set" and "Complete Workout" buttons
+- [x] Add "Skip Today" functionality
 
 #### Code Template - TodayView Component
 ```typescript
@@ -553,13 +560,15 @@ export async function getTodayWorkout() {
 
 ---
 
-### 1.3 Skip Today Functionality
+### 1.3 Skip Today Functionality ✅
+
+**Status**: COMPLETED (2025-10-31)
 
 #### Tasks
-- [ ] Add skip reason dropdown (rest, injury, schedule, other)
-- [ ] Create skip log in database (use workoutLogs with skip flag)
-- [ ] Update Today view to show skip confirmation
-- [ ] Store skip reason in notes field
+- [x] Add skip reason dropdown (rest, injury, schedule, other)
+- [x] Create skip log in database (use workoutLogs with empty entries)
+- [x] Update Today view to show skip confirmation
+- [x] Store skip reason in notes field
 
 #### Code Addition to TodayView
 ```typescript
@@ -603,12 +612,14 @@ const handleSkipToday = async () => {
 
 ---
 
-### 1.4 Update Dashboard Page
+### 1.4 Update Dashboard Page ✅
+
+**Status**: COMPLETED (2025-10-31)
 
 #### Task
-- [ ] Replace placeholder with TodayView component
-- [ ] Fetch today's workout via server action
-- [ ] Pass workout and userId to TodayView
+- [x] Replace placeholder with TodayView component
+- [x] Fetch today's workout via server action
+- [x] Pass workout and userId to TodayView
 
 #### Code Template
 ```typescript
@@ -639,17 +650,19 @@ export default async function DashboardPage() {
 
 ---
 
-### Phase 1 Summary
+### Phase 1 Summary ✅
+
+**Status**: COMPLETED (2025-10-31)
 
 **Files Created**: 5
-- app/api/log/route.ts
-- app/(auth)/dashboard/TodayView.tsx
-- app/(auth)/dashboard/ExerciseLogger.tsx
-- app/(auth)/dashboard/CoachBrief.tsx
-- app/actions/dashboard.ts
+- app/api/log/route.ts ✅
+- app/(auth)/dashboard/TodayView.tsx ✅
+- app/(auth)/dashboard/ExerciseLogger.tsx ✅
+- app/(auth)/dashboard/CoachBrief.tsx ✅
+- app/actions/dashboard.ts ✅
 
 **Files Modified**: 1
-- app/(auth)/dashboard/page.tsx
+- app/(auth)/dashboard/page.tsx ✅
 
 **Database Tables Used**:
 - workouts (read)
@@ -657,12 +670,19 @@ export default async function DashboardPage() {
 - workoutLogSets (write)
 
 **Success Metrics**:
-- [ ] Users can view today's workout
-- [ ] Users can log sets with weight/reps/RPE
-- [ ] Users can complete workouts
-- [ ] Users can skip workouts with reason
-- [ ] Logs stored in database
-- [ ] UI responsive on mobile
+- [x] Users can view today's workout
+- [x] Users can log sets with weight/reps/RPE
+- [x] Users can complete workouts
+- [x] Users can skip workouts with reason
+- [x] Logs stored in database
+- [x] UI responsive on mobile
+- [x] Plan generation working with OpenAI Agents SDK
+- [x] UUID and foreign key constraints working correctly
+
+**All Issues Resolved**: ✅
+- OpenAI Agents SDK Zod schema errors fixed ([GitHub Issue #4](https://github.com/sprajapati024/fitcoach/issues/4) CLOSED)
+- UUID format and foreign key constraints fixed
+- Build passing successfully
 
 ---
 
@@ -1785,12 +1805,12 @@ MIT
 
 ## Implementation Checklist
 
-### Phase 1: Core Logging (Days 1-5)
-- [ ] Workout logging API endpoint
-- [ ] Today view component
-- [ ] Exercise logger component
-- [ ] Skip Today functionality
-- [ ] Coach brief placeholder
+### Phase 1: Core Logging (Days 1-5) ✅ COMPLETED
+- [x] Workout logging API endpoint
+- [x] Today view component
+- [x] Exercise logger component
+- [x] Skip Today functionality
+- [x] Coach brief placeholder
 
 ### Phase 2: Progression & Settings (Days 6-10)
 - [ ] Progression computation API
