@@ -46,6 +46,7 @@ function toWorkoutInsert(workout: WorkoutRecord, sessionDate: string): WorkoutIn
     microcycleDayId: workout.microcycleDayId,
     dayIndex: workout.dayIndex,
     weekIndex: workout.weekIndex,
+    weekNumber: workout.weekNumber,
     sessionDate,
     title: workout.title,
     focus: workout.focus,

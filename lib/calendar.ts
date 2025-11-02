@@ -159,6 +159,7 @@ export function generateWorkouts(
         microcycleDayId: `${microcycle.id}_day_${templateDay.dayIndex}`,
         dayIndex: globalDayIndex,
         weekIndex,
+        weekNumber: weekIndex + 1,
         sessionDate: sessionDate ?? null,
         title: `Week ${weekIndex + 1} - ${templateDay.focus}`,
         focus: templateDay.focus,
