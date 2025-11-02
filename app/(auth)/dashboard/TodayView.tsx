@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ExerciseLogger } from './ExerciseLogger';
+import { ExerciseLogger, type LoggerResult } from './ExerciseLogger';
 import { CoachBrief } from './CoachBrief';
 import { Card } from '@/components/Card';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import type { workouts, WorkoutPayload } from '@/drizzle/schema';
+import { enqueueLog } from '@/lib/offlineQueue';
+import type { WorkoutLogRequest } from '@/lib/validation';
 
 type Workout = typeof workouts.$inferSelect;
 
@@ -15,41 +17,102 @@ interface TodayViewProps {
   userId: string;
 }
 
+type Feedback = {
+  type: 'success' | 'error' | 'info';
+  message: string;
+};
+
 export function TodayView({ workout, userId }: TodayViewProps) {
   const router = useRouter();
   const [isLogging, setIsLogging] = useState(false);
   const [isSkipping, setIsSkipping] = useState(false);
   const [skipReason, setSkipReason] = useState('');
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
+  const [isSkipSubmitting, setIsSkipSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!feedback) return;
+    const timeout = window.setTimeout(() => setFeedback(null), 3200);
+    return () => window.clearTimeout(timeout);
+  }, [feedback]);
+
+  const handleLoggerComplete = (result: LoggerResult) => {
+    setIsLogging(false);
+    setSkipReason('');
+    setIsSkipping(false);
+    router.refresh();
+    setFeedback({
+      type: result.status === 'completed' ? 'success' : 'info',
+      message: result.message,
+    });
+  };
 
   const handleSkipToday = async () => {
     if (!workout || !skipReason) {
-      alert('Please select a reason for skipping');
+      setFeedback({ type: 'error', message: 'Select a reason before skipping.' });
       return;
     }
 
+    const payload: WorkoutLogRequest = {
+      workoutId: workout.id,
+      entries: [],
+      skipReason,
+      performedAt: new Date().toISOString(),
+    };
+
+    setIsSkipSubmitting(true);
+
     try {
-      // Log skip as a workout with 0 duration and no sets
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        await enqueueLog(payload);
+        setFeedback({
+          type: 'info',
+          message: 'Offline — skip queued. We will sync it once you reconnect.',
+        });
+        setIsSkipping(false);
+        setSkipReason('');
+        router.refresh();
+        return;
+      }
+
       const response = await fetch('/api/log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          workoutId: workout.id,
-          entries: [],
-          rpeLastSet: null,
-          performedAt: new Date().toISOString(),
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
+        const result = await response.json().catch(() => ({}));
+        setFeedback({
+          type: 'success',
+          message: result.message ?? 'Workout skipped. Enjoy the recovery.',
+        });
         router.refresh();
         setIsSkipping(false);
+        setSkipReason('');
       } else {
-        const error = await response.json();
-        alert(`Failed to skip workout: ${error.error}`);
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || 'Failed to skip workout');
       }
     } catch (error) {
-      console.error('Error skipping workout:', error);
-      alert('Failed to skip workout. Please try again.');
+      try {
+        await enqueueLog(payload);
+        setFeedback({
+          type: 'info',
+          message: 'Connection issue — skip saved offline and will sync soon.',
+        });
+        setIsSkipping(false);
+        setSkipReason('');
+        router.refresh();
+      } catch (queueError) {
+        console.error('Error skipping workout:', error, queueError);
+        setFeedback({
+          type: 'error',
+          message: error instanceof Error ? error.message : 'Failed to skip workout. Please try again.',
+        });
+      }
+    } finally {
+      setIsSkipSubmitting(false);
     }
   };
 
@@ -74,10 +137,7 @@ export function TodayView({ workout, userId }: TodayViewProps) {
     return (
       <ExerciseLogger
         workout={workout}
-        onComplete={() => {
-          setIsLogging(false);
-          router.refresh();
-        }}
+        onComplete={handleLoggerComplete}
         onCancel={() => setIsLogging(false)}
       />
     );
@@ -96,6 +156,26 @@ export function TodayView({ workout, userId }: TodayViewProps) {
         <h1 className="text-2xl font-semibold text-fg0">Today&apos;s Workout</h1>
         {sessionDate && <span className="text-sm text-fg2">Scheduled for {sessionDate}</span>}
       </div>
+
+      {feedback ? (
+        <Card
+          className={`flex items-center justify-between border ${
+            feedback.type === 'error'
+              ? 'border-red-500/40 text-red-200'
+              : feedback.type === 'success'
+                ? 'border-green-500/40 text-green-200'
+                : 'border-fg2 text-fg1'
+          } bg-bg1/80 text-sm`}
+        >
+          <span>{feedback.message}</span>
+          <button
+            onClick={() => setFeedback(null)}
+            className="rounded-full p-1 text-xs uppercase tracking-wide text-fg2 transition hover:text-fg0"
+          >
+            Dismiss
+          </button>
+        </Card>
+      ) : null}
 
       <CoachBrief userId={userId} />
 
@@ -168,7 +248,8 @@ export function TodayView({ workout, userId }: TodayViewProps) {
             </button>
             <PrimaryButton
               onClick={handleSkipToday}
-              disabled={!skipReason}
+              disabled={!skipReason || isSkipSubmitting}
+              loading={isSkipSubmitting}
               className="flex-1 normal-case disabled:cursor-not-allowed disabled:opacity-60"
             >
               Confirm Skip

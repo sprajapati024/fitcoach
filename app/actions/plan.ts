@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { createSupabaseServerClient } from "@/lib/supabaseServerClient";
-import { plans, workouts } from "@/drizzle/schema";
+import { plans, workouts, workoutLogs } from "@/drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { planActivateSchema } from "@/lib/validation";
 import { buildPlanSchedule } from "@/lib/planSchedule";
@@ -220,6 +220,28 @@ export async function getPlanWorkoutsAction(planId: string) {
     .orderBy(workouts.dayIndex);
 
   return planWorkouts;
+}
+
+/**
+ * Get all workout logs for a specific plan
+ */
+export async function getPlanWorkoutLogsAction(planId: string) {
+  const supabase = await createSupabaseServerClient();
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !userData.user) {
+    return [];
+  }
+
+  const userId = userData.user.id;
+
+  const logs = await db
+    .select()
+    .from(workoutLogs)
+    .where(and(eq(workoutLogs.planId, planId), eq(workoutLogs.userId, userId)))
+    .orderBy(desc(workoutLogs.sessionDate), desc(workoutLogs.createdAt));
+
+  return logs;
 }
 
 /**

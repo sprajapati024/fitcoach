@@ -1,22 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/Card";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { activatePlanAction, deletePlanAction } from "@/app/actions/plan";
 import PlanGenerationProgress from "@/components/PlanGenerationProgress";
 import { WorkoutCalendar } from "@/components/WorkoutCalendar";
-import type { plans, workouts } from "@/drizzle/schema";
+import type { plans, workouts, workoutLogs as workoutLogsTable } from "@/drizzle/schema";
 import { Calendar, Trash2, CheckCircle } from "lucide-react";
 
 type Plan = typeof plans.$inferSelect;
 type Workout = typeof workouts.$inferSelect;
+type WorkoutLog = typeof workoutLogsTable.$inferSelect;
 
 interface PlanViewProps {
   activePlan: Plan | null;
   userPlans: Plan[];
   workouts: Workout[];
+  workoutLogs: WorkoutLog[];
 }
 
 interface ProgressState {
@@ -25,7 +27,7 @@ interface ProgressState {
   percent: number;
 }
 
-export function PlanView({ activePlan, userPlans, workouts }: PlanViewProps) {
+export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanViewProps) {
   const router = useRouter();
   const [isGenerating, setIsGenerating] = useState(false);
   const [progressState, setProgressState] = useState<ProgressState>({
@@ -44,6 +46,29 @@ export function PlanView({ activePlan, userPlans, workouts }: PlanViewProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const timezoneLabel = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  const calendarLogs = useMemo(
+    () =>
+      workoutLogs.map((log) => {
+        const rawDate = log.sessionDate;
+        const dateObj =
+          typeof rawDate === "string" ? new Date(rawDate) : rawDate instanceof Date ? rawDate : null;
+        const isoDate =
+          dateObj && !Number.isNaN(dateObj.getTime()) ? dateObj.toISOString().split("T")[0] : null;
+        const status =
+          Number(log.totalDurationMinutes ?? 0) === 0 ||
+          (log.notes ?? "").toLowerCase().startsWith("skipped")
+            ? "skipped"
+            : "completed";
+
+        return {
+          workoutId: log.workoutId,
+          sessionDate: isoDate,
+          status,
+        } as const;
+      }),
+    [workoutLogs],
+  );
 
   useEffect(() => {
     if (activePlan?.startDate) {
@@ -353,6 +378,7 @@ export function PlanView({ activePlan, userPlans, workouts }: PlanViewProps) {
             workouts={workouts}
             weeks={activePlan.durationWeeks}
             startDate={activePlan.startDate || new Date().toISOString().split("T")[0]}
+            logs={calendarLogs}
           />
         </div>
       </Card>

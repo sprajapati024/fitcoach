@@ -154,12 +154,42 @@ export const logEntrySchema = z.object({
   notes: z.string().max(160).optional(),
 });
 
-export const logRequestSchema = z.object({
-  workoutId: z.string().min(6).max(64),
-  entries: z.array(logEntrySchema).min(1).max(60),
-  rpeLastSet: z.number().min(5).max(10).optional(),
-  performedAt: z.string().datetime().optional(),
-});
+export const logRequestSchema = z
+  .object({
+    workoutId: z.string().min(6).max(64),
+    entries: z.array(logEntrySchema).max(60),
+    rpeLastSet: z.number().min(5).max(10).optional(),
+    performedAt: z.string().datetime().optional(),
+    skipReason: z.string().min(3).max(160).optional(),
+  })
+  .superRefine((data, ctx) => {
+    const hasEntries = data.entries.length > 0;
+    const hasSkip = !!data.skipReason;
+
+    if (!hasEntries && !hasSkip) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Provide at least one logged set or a skip reason.",
+        path: ["entries"],
+      });
+    }
+
+    if (hasEntries && typeof data.rpeLastSet !== "number") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Overall workout RPE is required when logging sets.",
+        path: ["rpeLastSet"],
+      });
+    }
+
+    if (hasSkip && data.entries.length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Skipped workouts should not include logged sets.",
+        path: ["entries"],
+      });
+    }
+  });
 
 export type WorkoutLogRequest = z.infer<typeof logRequestSchema>;
 

@@ -8,9 +8,14 @@
 
 **Priority Order**: Planner → Coach → Substitution → Load Calculation
 
-**Last Updated**: 2025-11-03
+**Last Updated**: 2025-11-04
 
 ---
+
+### Update 2025-11-04
+- Shipped `/api/coach/today` on top of Agents SDK utilities; daily briefs now cache per user/day and respect profile tone flags.
+- Dashboard coach card calls the new route with optimistic refresh, falling back to offline copy when needed.
+- Workout logging API distinguishes skipped vs. completed sessions so Coach + Progress analytics share the same status signal.
 
 ### Update 2025-11-03
 - Plan persistence now stores relative workouts (no default session dates) and relies on `buildPlanSchedule` during activation for timezone-safe alignment.
@@ -319,7 +324,18 @@ if (!aiResult.success) {
 ### Goal
 Implement missing coach features (daily brief, debrief, weekly review) using stateful agents.
 
+### 2.0 Ship Coach Today Brief API ✅
+
+**Status**: COMPLETED (2025-11-04)
+
+- [x] Add `/api/coach/today` route that builds context (profile, workout, recent logs) and calls `callCoach` with new prompt scaffolding.
+- [x] Cache responses per user/day in `coachCache` with automatic expiry.
+- [x] Update dashboard `CoachBrief` client to fetch, refresh, and handle offline fallback.
+- [x] Ensure skip vs. complete signals flow from workout logs for richer prompts.
+
 ### 2.1 Create Coach Agent
+
+> **Note**: Today brief ships via direct `callCoach` usage; this section tracks the follow-up work to promote a dedicated multi-turn coach agent that can power debriefs and weekly reviews.
 
 - [ ] Create `lib/ai/agents/coach-agent.ts`
 - [ ] Define coach tools:

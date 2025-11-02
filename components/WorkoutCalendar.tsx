@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 import type { workouts } from "@/drizzle/schema";
 
 type Workout = typeof workouts.$inferSelect;
@@ -9,6 +10,13 @@ interface WorkoutCalendarProps {
   workouts: Workout[];
   weeks: number;
   startDate: string;
+  logs?: WorkoutLogStatus[];
+}
+
+interface WorkoutLogStatus {
+  workoutId: string;
+  sessionDate: string | null;
+  status: "completed" | "skipped";
 }
 
 function getDateString(startDate: string, daysOffset: number): string {
@@ -33,7 +41,18 @@ export function WorkoutCalendar({
   workouts,
   weeks,
   startDate,
+  logs = [],
 }: WorkoutCalendarProps) {
+  const statusByWorkout = useMemo(() => {
+    const map = new Map<string, WorkoutLogStatus["status"]>();
+    logs.forEach((log) => {
+      if (!map.has(log.workoutId)) {
+        map.set(log.workoutId, log.status);
+      }
+    });
+    return map;
+  }, [logs]);
+
   // Group workouts by week
   const workoutsByWeek: Workout[][] = [];
   for (let weekIndex = 0; weekIndex < weeks; weekIndex++) {
@@ -71,7 +90,7 @@ export function WorkoutCalendar({
                   (w) => w.sessionDate === dayDate
                 );
                 const isToday = dayDate === today;
-                const isPast = dayDate < today;
+                const status = workout ? statusByWorkout.get(workout.id) : undefined;
 
                 return (
                   <div
@@ -103,12 +122,25 @@ export function WorkoutCalendar({
                           {workout.durationMinutes} min
                         </div>
 
-                        {/* Completion indicator */}
-                        {isPast && (
+                        {status ? (
                           <div className="absolute top-1 right-1">
-                            <div className="w-2 h-2 rounded-full bg-green-500" />
+                            <div
+                              className={`h-2 w-2 rounded-full ${
+                                status === "completed" ? "bg-green-400" : "bg-amber-400"
+                              }`}
+                            />
                           </div>
-                        )}
+                        ) : null}
+
+                        {status ? (
+                          <span
+                            className={`mt-1 text-[10px] font-semibold uppercase tracking-wide ${
+                              status === "completed" ? "text-green-300" : "text-amber-300"
+                            }`}
+                          >
+                            {status === "completed" ? "Completed" : "Skipped"}
+                          </span>
+                        ) : null}
                       </Link>
                     ) : (
                       <div className="text-xs text-fg2 mt-2">Rest</div>

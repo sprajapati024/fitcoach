@@ -4,13 +4,13 @@
 
 **GitHub Issue**: [#1 - Implement FitCoach core flows](https://github.com/user/FitCoach/issues/1)
 
-**Status**: 7/13 tasks completed (Auth, Onboarding, Plan Generation with Agents SDK, Plan Activation, Calendar Alignment, Core Logging, UUID/Foreign Key Fixes)
+**Status**: 10/13 tasks completed (Auth, Onboarding, Plan Generation with Agents SDK, Plan Activation, Calendar Alignment, Core Logging, UUID/Foreign Key Fixes, Mobile Navigation Shell, Coach Brief Integration, Progress Snapshot)
 
 **Goal**: Deliver the first usable vertical slice with Today experience, workout logging, progress tracking, offline support, and complete UI polish.
 
 **Timeline**: 25 days (5 phases × 5 days each)
 
-**Last Updated**: 2025-11-03
+**Last Updated**: 2025-11-04
 
 ---
 
@@ -25,18 +25,22 @@
 - Plan activation & calendar UI (PlanWeekGrid, date selection)
 - Calendar schedule alignment (activation rebuild + date shifting, backfill tooling, regression tests)
 - **Phase 1: Core Logging Infrastructure** - Today experience, workout logging API, exercise logger, shared UI polish
+- Mobile navigation shell (bottom tab bar + desktop header)
+- Coach Today brief wired to AI agent with caching
+- Progress snapshot dashboard card (7-day adherence, average RPE, totals)
 
-### ℹ️ Latest Updates (2025-11-03)
-- Added `buildPlanSchedule` helper, server action changes, and `pnpm backfill:plans` script so plan activation and historical plans share the same schedule alignment.
-- Introduced `tests/planSchedule.test.ts` to lock the day/date rotation behaviour.
-- Refreshed Today + Exercise Logger surfaces to reuse the global card/button system and improved button contrast.
+### ℹ️ Latest Updates (2025-11-04)
+- Introduced mobile bottom navigation and sticky desktop header so the primary surfaces stay one tap away across the app.
+- Upgraded the exercise logger with set edit/delete, rest-timer cues, optimistic toasts, and offline queue fallback for both completions and skips.
+- Expanded skip logging contract (schema + API) so calendar/compliance metrics can distinguish skipped vs. completed days.
+- Coach Today brief now calls `/api/coach/today`, caches responses per day, and exposes a refresh affordance.
+- Plan calendar consumes real log status to highlight skipped/completed workouts; Progress view surfaces adherence + total load metrics.
 
 ### 🚧 In Progress
-- Progress & weekly review (metrics, sparklines, AI review)
+- Progress deep dive (weekly review flow, charts, AI analysis)
 - Settings page (toggles, sliders, preferences)
 - AI substitution helper (exercise alternatives)
 - Progression engine wiring (API, triggers, tests)
-- Offline queue hooks (service worker, UI indicators)
 - Testing & linting (unit/integration/E2E tests)
 - README refresh (complete documentation)
 
@@ -164,20 +168,25 @@ export async function POST(request: NextRequest) {
 
 **Priority**: HIGH - Primary user interaction point
 
-**Status**: COMPLETED (2025-10-31)
+**Status**: COMPLETED (2025-11-04)
 
 #### Tasks
 - [x] Create `app/(auth)/dashboard/TodayView.tsx` - main Today view component
-- [x] Create `app/(auth)/dashboard/ExerciseLogger.tsx` - set-by-set logger
-- [x] Create `app/(auth)/dashboard/CoachBrief.tsx` - brief display (static for now)
+- [x] Create `app/(auth)/dashboard/ExerciseLogger.tsx` - set-by-set logger with edit/delete + rest timer
+- [x] Create `app/(auth)/dashboard/CoachBrief.tsx` - AI-powered daily brief with SSE refresh
 - [x] Update `app/(auth)/dashboard/page.tsx` to use TodayView
 - [x] Create `app/actions/dashboard.ts` - server actions for Today data
 - [x] Fetch today's workout from database
 - [x] Display workout blocks (warmup, strength, accessory, etc.)
-- [x] Implement set logging UI (weight, reps, RPE inputs)
+- [x] Implement set logging UI (weight, reps, RPE inputs) with optimistic toasts
 - [x] Add "Log Set" and "Complete Workout" buttons
-- [x] Add "Skip Today" functionality
+- [x] Add "Skip Today" functionality (schema + API support)
+- [x] Integrate offline queue fallback for log + skip submissions
 - [x] Standardize logger UI with shared Card/PrimaryButton theme for calendar parity
+
+#### Implementation Notes (2025-11-04 Refresh)
+- `app/(auth)/dashboard/TodayView.tsx` now manages optimistic feedback, skip queuing, and hands completion callbacks to the upgraded logger. See source for the latest JSX structure.
+- `app/(auth)/dashboard/ExerciseLogger.tsx` introduces set editing, rest timer, offline queue fallback, and richer toasts. The template below is retained for historical context only.
 
 #### Code Template - TodayView Component
 ```typescript

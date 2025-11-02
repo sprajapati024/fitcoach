@@ -66,8 +66,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Calculate total duration (placeholder - will be enhanced later)
-    const totalDurationMinutes = workout.durationMinutes || 60;
+    const isSkip = validated.entries.length === 0;
+    const totalDurationMinutes = isSkip ? 0 : workout.durationMinutes || 60;
+    const logNotes = isSkip
+      ? `Skipped: ${validated.skipReason ?? 'No reason provided'}`
+      : validated.entries
+          .filter((entry) => entry.notes)
+          .map((entry) => `${entry.exerciseId}: ${entry.notes}`)
+          .join('; ') || null;
 
     // Insert workout log
     const [log] = await db
@@ -78,19 +84,16 @@ export async function POST(request: NextRequest) {
         workoutId: validated.workoutId,
         sessionDate: sessionDateStr,
         performedAt: performedAtDate,
-        rpeLastSet: validated.rpeLastSet ? validated.rpeLastSet.toString() : null,
+        rpeLastSet: !isSkip && typeof validated.rpeLastSet === 'number' ? validated.rpeLastSet.toString() : null,
         totalDurationMinutes,
-        notes: validated.entries
-          .filter(e => e.notes)
-          .map(e => `${e.exerciseId}: ${e.notes}`)
-          .join('; ') || null,
+        notes: logNotes,
       })
       .returning();
 
     console.log('[Workout Log] Created log:', log.id);
 
     // Insert workout log sets
-    if (validated.entries.length > 0) {
+    if (!isSkip) {
       const setRecords = validated.entries.map((entry) => ({
         logId: log.id,
         exerciseId: entry.exerciseId,
@@ -110,7 +113,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       logId: log.id,
-      message: 'Workout logged successfully',
+      status: isSkip ? 'skipped' : 'completed',
+      message: isSkip ? 'Workout skipped' : 'Workout logged successfully',
     });
   } catch (error) {
     console.error('[Workout Log] Error:', error);

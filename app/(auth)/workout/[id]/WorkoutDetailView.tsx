@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ExerciseLogger } from "@/app/(auth)/dashboard/ExerciseLogger";
+import { ExerciseLogger, type LoggerResult } from "@/app/(auth)/dashboard/ExerciseLogger";
 import type { workouts, WorkoutPayload } from "@/drizzle/schema";
 
 type Workout = typeof workouts.$inferSelect;
@@ -20,14 +20,17 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
   const isPast = workout.sessionDate ? workout.sessionDate < today : false;
   const isFuture = workout.sessionDate ? workout.sessionDate > today : false;
 
+  const handleLoggerComplete = (result: LoggerResult) => {
+    void result;
+    setIsLogging(false);
+    router.refresh();
+  };
+
   if (isLogging) {
     return (
       <ExerciseLogger
         workout={workout}
-        onComplete={() => {
-          setIsLogging(false);
-          router.refresh();
-        }}
+        onComplete={handleLoggerComplete}
         onCancel={() => setIsLogging(false)}
       />
     );
