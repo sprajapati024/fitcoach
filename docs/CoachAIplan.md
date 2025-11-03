@@ -122,14 +122,67 @@ Shift from "12-week upfront generation" to "weekly adaptive generation" based on
 
 ### Phase 3: AI Agent Updates ⏸️ PENDING
 
-**Status:** Not started. Phase 1-2 complete, but adaptive weekly generation logic not yet implemented.
+**Status:** Core adaptive planning logic not yet implemented, but related AI coaching infrastructure is complete.
 
 **Prerequisites:**
 - ✅ Periodization framework (Phase 2)
 - ✅ Performance analysis (Phase 2)
-- ✅ Weekly review AI (completed separately)
+- ✅ Weekly review AI (completed separately - November 2025)
 
-**Next Steps:** Start with schema validation updates below, then move to prompt templates and agent refactoring.
+**Next Steps:** Leverage completed AI coaching work below, then implement remaining adaptive planning tasks.
+
+---
+
+#### 3.0 Related Completed Work (November 2025) ✅
+
+**AI Infrastructure Built (Supports Adaptive Planning):**
+
+- [x] **Weekly Performance Review** (`lib/ai/weekly-context-builder.ts`)
+  - [x] Aggregates week performance using Phase 2 analysis
+  - [x] Integrates periodization framework context
+  - [x] Generates AI-powered insights and recommendations
+  - [x] Can be extended to inform next week generation
+
+- [x] **AI Prompt System** (`lib/ai/prompts.ts`)
+  - [x] `coachSystemPrompt` - General coaching guidance
+  - [x] `substitutionSystemPrompt` - Exercise alternatives
+  - [x] Foundation for week-specific prompt templates (see 3.2 below)
+
+- [x] **Schema Validation Extensions** (`lib/validation.ts`)
+  - [x] `coachResponseSchema` - AI response structure
+  - [x] `substitutionResponseSchema` - Alternative exercises
+  - [x] Foundation for adaptive planning schemas (see 3.1 below)
+
+- [x] **AI Client Infrastructure** (`lib/ai/client.ts`, `lib/ai/buildPrompt.ts`)
+  - [x] OpenAI integration with retry logic
+  - [x] Context building utilities
+  - [x] Schema validation with Zod
+  - [x] Ready for adaptive planning prompts
+
+- [x] **Performance Context Builders**
+  - [x] `buildWeeklyContext()` - Summarizes week metrics for AI
+  - [x] `buildWeeklyPrompt()` - Generates AI prompts with performance data
+  - [x] Can be adapted for `subsequentWeekPromptTemplate` (see 3.2)
+
+- [x] **API Endpoints**
+  - [x] `GET /api/coach/weekly` - Weekly review generation (uses Phase 2 analysis)
+  - [x] `POST /api/substitution` - Exercise alternatives
+  - [x] Caching infrastructure for cost optimization
+
+**How This Supports Adaptive Planning:**
+The weekly review system already:
+1. Analyzes performance using Phase 2 modules
+2. Integrates periodization context
+3. Generates progression recommendations
+4. Has AI prompt infrastructure
+
+**What's Still Needed:**
+- Modify planner agent to accept previous week performance as input
+- Create dedicated prompts for week-by-week generation (vs. review)
+- Build `/api/plan/generate-next-week` endpoint
+- Frontend UI for triggering next week generation
+
+---
 
 #### 3.1 Update Schema Validation (`lib/validation.ts`)
 - [ ] Add `periodizationBlockSchema`:
