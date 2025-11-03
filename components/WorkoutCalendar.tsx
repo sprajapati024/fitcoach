@@ -53,18 +53,21 @@ export function WorkoutCalendar({
     return map;
   }, [logs]);
 
-  // Group workouts by week
+  // Group workouts by week - only show weeks that have workouts (adaptive planning)
   const workoutsByWeek: Workout[][] = [];
-  for (let weekIndex = 0; weekIndex < weeks; weekIndex++) {
+  const weekIndices = [...new Set(workouts.map(w => w.weekIndex))].sort((a, b) => a - b);
+
+  for (const weekIndex of weekIndices) {
     const weekWorkouts = workouts.filter((w) => w.weekIndex === weekIndex);
-    workoutsByWeek.push(weekWorkouts);
+    workoutsByWeek[weekIndex] = weekWorkouts;
   }
 
   const today = new Date().toISOString().split("T")[0];
 
   return (
     <div className="space-y-6">
-      {workoutsByWeek.map((weekWorkouts, weekIndex) => {
+      {weekIndices.map((weekIndex) => {
+        const weekWorkouts = workoutsByWeek[weekIndex] || [];
         const weekStartDate = getDateString(startDate, weekIndex * 7);
         const isDeloadWeek = weekWorkouts.some((w) => w.isDeload);
 
@@ -86,9 +89,21 @@ export function WorkoutCalendar({
             <div className="grid grid-cols-7 gap-2">
               {Array.from({ length: 7 }).map((_, dayIndex) => {
                 const dayDate = getDateString(weekStartDate, dayIndex);
-                const workout = weekWorkouts.find(
-                  (w) => w.sessionDate === dayDate
-                );
+
+                // Find workout for this day
+                // If sessionDate is set (plan activated), match by sessionDate
+                // If sessionDate is null (plan not activated), calculate expected date from workout's dayIndex
+                const workout = weekWorkouts.find((w) => {
+                  if (w.sessionDate) {
+                    // Plan is activated - use actual sessionDate
+                    return w.sessionDate === dayDate;
+                  } else {
+                    // Plan not activated - calculate expected date from dayIndex
+                    const expectedDate = getDateString(startDate, w.dayIndex);
+                    return expectedDate === dayDate;
+                  }
+                });
+
                 const isToday = dayDate === today;
                 const status = workout ? statusByWorkout.get(workout.id) : undefined;
 

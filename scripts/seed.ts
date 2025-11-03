@@ -358,6 +358,7 @@ async function seed() {
         microcycleDayId: `${microcycle.id}-${patternDay.dayIndex}`,
         dayIndex: calendarDay.dayIndex,
         weekIndex,
+        weekNumber: weekIndex + 1,
         sessionDate: toIsoDate(sessionDate),
         title: `${patternDay.focus} · Week ${weekIndex + 1}`,
         focus: patternDay.focus,

@@ -23,6 +23,8 @@ export const coachToneEnum = pgEnum("coach_tone", ["concise", "friendly"]);
 export const planStatusEnum = pgEnum("plan_status", ["draft", "active", "completed", "archived"]);
 export const workoutKindEnum = pgEnum("workout_kind", ["strength", "conditioning", "mobility", "mixed"]);
 export const coachContextEnum = pgEnum("coach_context", ["today", "debrief", "weekly", "substitution"]);
+export const weekStatusEnum = pgEnum("week_status", ["pending", "active", "completed"]);
+export const blockTypeEnum = pgEnum("block_type", ["accumulation", "intensification", "deload", "realization"]);
 
 export type PreferredDay = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
 
@@ -92,6 +94,36 @@ export type ProgressionTarget = {
   totalLoadKg: number;
   zone2Minutes: number;
   focusNotes?: string;
+};
+
+export type PeriodizationBlock = {
+  blockNumber: number;
+  blockType: "accumulation" | "intensification" | "deload" | "realization";
+  startWeek: number;
+  endWeek: number;
+  volumeTarget: "high" | "moderate" | "low";
+  intensityTarget: "low" | "moderate" | "high";
+  repRanges: {
+    strength: string;
+    accessory: string;
+  };
+  rpeTargets: {
+    strength: number;
+    accessory: number;
+  };
+};
+
+export type PeriodizationFramework = {
+  totalWeeks: number;
+  blocks: PeriodizationBlock[];
+};
+
+export type WeekPerformanceMetrics = {
+  completionRate: number;
+  avgRPE: number;
+  totalVolume: number;
+  totalTonnage: number;
+  exerciseBreakdown?: Record<string, { sets: number; reps: number; avgWeight: number }>;
 };
 
 export const users = pgTable(
@@ -170,6 +202,25 @@ export const plans = pgTable(
   }),
 );
 
+export const periodizationFrameworks = pgTable(
+  "periodization_frameworks",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    planId: uuid("plan_id")
+      .references(() => plans.id, { onDelete: "cascade" })
+      .notNull()
+      .unique(),
+    framework: jsonb("framework").$type<PeriodizationFramework>().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    planIdx: index("periodization_frameworks_plan_idx").on(table.planId),
+  }),
+);
+
 export const workouts = pgTable(
   "workouts",
   {
@@ -185,6 +236,8 @@ export const workouts = pgTable(
     microcycleDayId: text("microcycle_day_id").notNull(),
     dayIndex: integer("day_index").notNull(),
     weekIndex: smallint("week_index").notNull(),
+    weekNumber: smallint("week_number").notNull(),
+    weekStatus: weekStatusEnum("week_status").default("pending"),
     sessionDate: date("session_date"),
     title: text("title").notNull(),
     focus: text("focus").notNull(),
@@ -192,11 +245,14 @@ export const workouts = pgTable(
     isDeload: boolean("is_deload").default(false).notNull(),
     durationMinutes: smallint("duration_minutes").notNull(),
     payload: jsonb("payload").$type<WorkoutPayload>().notNull(),
+    generationContext: jsonb("generation_context").$type<Record<string, unknown>>(),
+    coachingNotes: text("coaching_notes"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => ({
     planIdx: index("workouts_plan_idx").on(table.planId, table.weekIndex, table.dayIndex),
+    weekStatusIdx: index("workouts_week_status_idx").on(table.planId, table.weekNumber, table.weekStatus),
   }),
 );
 
@@ -245,6 +301,29 @@ export const workoutLogSets = pgTable(
   },
   (table) => ({
     logIdx: index("workout_log_sets_idx").on(table.logId, table.exerciseId),
+  }),
+);
+
+export const weekPerformanceSummaries = pgTable(
+  "week_performance_summaries",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    planId: uuid("plan_id")
+      .references(() => plans.id, { onDelete: "cascade" })
+      .notNull(),
+    weekNumber: smallint("week_number").notNull(),
+    completionRate: numeric("completion_rate", { precision: 5, scale: 2 }).notNull(),
+    avgRPE: numeric("avg_rpe", { precision: 4, scale: 2 }),
+    totalVolume: integer("total_volume").default(0).notNull(),
+    totalTonnage: numeric("total_tonnage", { precision: 10, scale: 2 }).default(sql`0`).notNull(),
+    metrics: jsonb("metrics").$type<WeekPerformanceMetrics>().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    uniqueWeek: uniqueIndex("week_performance_summaries_idx").on(table.planId, table.weekNumber),
   }),
 );
 
@@ -346,7 +425,25 @@ export const rlsPolicies = {
   substitutionEvents: {
     select: "CREATE POLICY \"Substitution events select\" ON substitution_events FOR SELECT USING ( auth.uid() = user_id );",
   },
+  periodizationFrameworks: {
+    select: "CREATE POLICY \"Periodization frameworks select\" ON periodization_frameworks FOR SELECT USING ( auth.uid() IN (SELECT user_id FROM plans WHERE plans.id = plan_id) );",
+    insert: "CREATE POLICY \"Periodization frameworks insert\" ON periodization_frameworks FOR INSERT WITH CHECK ( auth.uid() IN (SELECT user_id FROM plans WHERE plans.id = plan_id) );",
+    update: "CREATE POLICY \"Periodization frameworks update\" ON periodization_frameworks FOR UPDATE USING ( auth.uid() IN (SELECT user_id FROM plans WHERE plans.id = plan_id) );",
+  },
+  weekPerformanceSummaries: {
+    select: "CREATE POLICY \"Week performance summaries select\" ON week_performance_summaries FOR SELECT USING ( auth.uid() IN (SELECT user_id FROM plans WHERE plans.id = plan_id) );",
+    insert: "CREATE POLICY \"Week performance summaries insert\" ON week_performance_summaries FOR INSERT WITH CHECK ( auth.uid() IN (SELECT user_id FROM plans WHERE plans.id = plan_id) );",
+    update: "CREATE POLICY \"Week performance summaries update\" ON week_performance_summaries FOR UPDATE USING ( auth.uid() IN (SELECT user_id FROM plans WHERE plans.id = plan_id) );",
+  },
 };
 
 export type Profile = typeof profiles.$inferSelect;
 export type ProfileInsert = typeof profiles.$inferInsert;
+export type Plan = typeof plans.$inferSelect;
+export type PlanInsert = typeof plans.$inferInsert;
+export type PeriodizationFrameworkRow = typeof periodizationFrameworks.$inferSelect;
+export type PeriodizationFrameworkInsert = typeof periodizationFrameworks.$inferInsert;
+export type Workout = typeof workouts.$inferSelect;
+export type WorkoutInsert = typeof workouts.$inferInsert;
+export type WeekPerformanceSummary = typeof weekPerformanceSummaries.$inferSelect;
+export type WeekPerformanceSummaryInsert = typeof weekPerformanceSummaries.$inferInsert;

@@ -16,6 +16,38 @@ export const createSupabaseBrowserClient = (): SupabaseClient => {
     globalThis.__supabase__ = createBrowserClient(
       publicEnv.NEXT_PUBLIC_SUPABASE_URL,
       publicEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      {
+        cookies: {
+          get(name: string) {
+            const cookie = document.cookie
+              .split('; ')
+              .find((row) => row.startsWith(`${name}=`));
+            return cookie ? decodeURIComponent(cookie.split('=')[1]) : undefined;
+          },
+          set(name: string, value: string, options) {
+            let cookieString = `${name}=${encodeURIComponent(value)}`;
+            if (options?.maxAge) {
+              cookieString += `; max-age=${options.maxAge}`;
+            }
+            if (options?.path) {
+              cookieString += `; path=${options.path}`;
+            }
+            if (options?.sameSite) {
+              cookieString += `; samesite=${options.sameSite}`;
+            }
+            if (options?.domain) {
+              cookieString += `; domain=${options.domain}`;
+            }
+            if (options?.secure) {
+              cookieString += `; secure`;
+            }
+            document.cookie = cookieString;
+          },
+          remove(name: string, options) {
+            document.cookie = `${name}=; path=${options?.path ?? '/'}; max-age=0`;
+          },
+        },
+      }
     );
   }
 
