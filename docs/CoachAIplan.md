@@ -1,5 +1,28 @@
 # FitCoach: Week-by-Week Adaptive Plan Generation
 
+## Status Update (November 2025)
+
+**Completed:**
+- ✅ Phase 1: Database & Schema Updates (100%)
+- ✅ Phase 2: Business Logic Modules (100%)
+- ✅ AI Coaching Features (Separate from this plan)
+  - Exercise Substitution API (`/api/substitution`)
+  - Weekly Review API (`/api/coach/weekly`)
+  - Daily Brief API (`/api/coach/today`)
+  - UI components for all features
+
+**In Progress:**
+- 🚧 Phase 3: AI Agent Updates (Pending)
+- 🚧 Phase 4-8: API, Frontend, Testing, Deployment (Pending)
+
+**Open Issues:**
+- [Issue #5](https://github.com/sprajapati024/fitcoach/issues/5) - Auto-Progression feature
+- [Issue #6](https://github.com/sprajapati024/fitcoach/issues/6) - Phase 3 AI Features Integration
+
+**Note:** The "Phase 3" AI coaching features (substitution, weekly review, daily brief) were completed as a separate initiative. This document tracks the adaptive week-by-week plan generation system, which builds on top of those features but is a distinct project.
+
+---
+
 ## Overview
 
 Shift from "12-week upfront generation" to "weekly adaptive generation" based on actual user performance.
@@ -97,7 +120,16 @@ Shift from "12-week upfront generation" to "weekly adaptive generation" based on
 
 ---
 
-### Phase 3: AI Agent Updates
+### Phase 3: AI Agent Updates ⏸️ PENDING
+
+**Status:** Not started. Phase 1-2 complete, but adaptive weekly generation logic not yet implemented.
+
+**Prerequisites:**
+- ✅ Periodization framework (Phase 2)
+- ✅ Performance analysis (Phase 2)
+- ✅ Weekly review AI (completed separately)
+
+**Next Steps:** Start with schema validation updates below, then move to prompt templates and agent refactoring.
 
 #### 3.1 Update Schema Validation (`lib/validation.ts`)
 - [ ] Add `periodizationBlockSchema`:
@@ -360,3 +392,52 @@ Shift from "12-week upfront generation" to "weekly adaptive generation" based on
 - [ ] How to handle missed weeks (user takes 2 weeks off)?
 - [ ] Should AI have ability to extend/shorten program based on progress?
 - [ ] Add "ask coach" feature for mid-week questions?
+
+---
+
+## Relationship to Completed Work
+
+### What's Already Built (November 2025)
+
+**Phase 1-2 Foundation:**
+- ✅ Database schema supports adaptive planning
+- ✅ Periodization framework can guide week-by-week generation
+- ✅ Performance analysis calculates weekly metrics
+- ✅ Progression logic determines load changes
+
+**AI Coaching Features (Completed Separately):**
+- ✅ Daily brief (`/api/coach/today`) - motivational messages
+- ✅ Weekly review (`/api/coach/weekly`) - performance insights using Phase 2 analysis
+- ✅ Exercise substitution (`/api/substitution`) - real-time alternatives
+- ✅ All UI components created
+
+### What Still Needs to Be Built
+
+**Core Adaptive Planning System:**
+- ⏸️ Week-by-week plan generation (Phase 3-8 of this document)
+- ⏸️ Modified planner agent to generate incrementally
+- ⏸️ API endpoints for initial week + next week generation
+- ⏸️ Frontend UI for triggering and viewing week generation
+- ⏸️ Cost optimization and monitoring
+
+**Integration:**
+The weekly review AI we built can be enhanced to:
+1. Provide input to the adaptive planner
+2. Show progression recommendations alongside coaching notes
+3. Explain why next week's plan changed based on performance
+
+**Recommended Approach:**
+1. Start Phase 3 of this document (AI agent updates)
+2. Build on existing weekly review to inform next week generation
+3. Use auto-progression system (Issue #5) as foundation
+4. Test with real user data before full deployment
+
+---
+
+## Related Documentation
+
+- [Issue #5](https://github.com/sprajapati024/fitcoach/issues/5) - Auto-Progression (prerequisite for adaptive planning)
+- [Issue #6](https://github.com/sprajapati024/fitcoach/issues/6) - Phase 3 AI Features Integration
+- `lib/periodization.ts` - Periodization framework implementation
+- `lib/performance-analysis.ts` - Week performance analysis
+- `lib/progression.ts` - Exercise-specific progression logic
