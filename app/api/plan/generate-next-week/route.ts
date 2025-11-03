@@ -165,7 +165,7 @@ export async function POST(request: Request) {
       {
         planId,
         userId: user.id,
-        startDate: plan.startDate,
+        startDate: plan.startDate ?? undefined,
         daysPerWeek: plan.daysPerWeek,
         preferredDays: plan.preferredDays as string[],
       }

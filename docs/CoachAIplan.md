@@ -32,8 +32,18 @@
 - ✅ Authentication fix (Supabase cookie double-stringification)
 - ✅ Calendar display with NULL sessionDate handling
 - ✅ OpenAI model configuration
+- ✅ Type error in generate-next-week route (null → undefined conversion)
 
-**Note:** Core adaptive planning system is now functional! Users can generate Week 1, complete workouts, and generate subsequent weeks based on actual performance.
+**Latest Improvements (November 2025):**
+- ✅ **Prompt Optimization for Professional Workout Templates** ⭐ NEW
+  - Enhanced system prompt with strength coaching expertise
+  - Added workout template structures (Upper/Lower, Push/Pull/Legs, Full Body)
+  - Experience-specific exercise selection (beginner/intermediate/advanced)
+  - Goal-specific programming parameters (strength/hypertrophy/balanced/fat loss)
+  - Template consistency enforcement across weeks
+  - See `scripts/prompt-comparison.md` for detailed before/after analysis
+
+**Note:** Core adaptive planning system is now functional! Users can generate Week 1, complete workouts, and generate subsequent weeks based on actual performance. Workout plans now follow proven templates and match user experience levels.
 
 ---
 
@@ -255,6 +265,69 @@ The weekly review system already:
   - [x] Experience-level appropriate exercise selection
   - [x] PCOS-friendly options (low-impact, Zone-2 cardio)
   - [x] Weekly coaching rationale explaining progressions
+
+#### 3.4 Prompt Optimization for Professional Workout Templates (November 2025) ✅
+
+**Problem Identified:**
+- Generated workouts felt "random" - exercises didn't match user goals/experience
+- No structured workout templates (Upper/Lower, PPL, Full Body)
+- Exercise selection was too generic, leading to inappropriate movements for experience level
+- Lack of consistency and professional programming structure
+
+**Solution Implemented:**
+- [x] **Enhanced System Prompt** (`lib/ai/prompts.ts:plannerSystemPrompt`)
+  - [x] Added strength coaching expertise and programming principles
+  - [x] Defined workout templates by training frequency:
+    - [x] 3 days/week → Full Body (compound-focused)
+    - [x] 4 days/week → Upper/Lower Split (2 upper, 2 lower)
+    - [x] 5-6 days/week → Push/Pull/Legs
+  - [x] Added exercise selection hierarchy: Primary Compound → Secondary Compound → Accessories → Core
+  - [x] Goal-specific programming (strength/hypertrophy/balanced/fat loss)
+  - [x] Experience-level guidelines (beginner/intermediate/advanced)
+
+- [x] **Enhanced Main Generation Prompt** (`lib/ai/agents/planner-agent.ts`)
+  - [x] Added `getTemplateGuidance()` - Provides specific template structure based on training days
+  - [x] Added `getExperienceGuidance()` - Tailors exercise selection to fitness level
+    - [x] Beginner: Basic bilateral compounds only (back squat, bench, deadlift, rows)
+    - [x] Intermediate: Moderate variations (front squat, RDL, incline press)
+    - [x] Advanced: All variations and advanced techniques
+  - [x] Added `getGoalGuidance()` - Customizes sets/reps/rest for user goals
+    - [x] Strength: 3-6 reps, heavy compounds, minimal accessories
+    - [x] Hypertrophy: 8-12 reps, balanced volume
+    - [x] Fat Loss: 10-15 reps, circuit-style
+
+- [x] **Enhanced Adaptive Week 1 Prompt** (`lib/ai/prompts.ts:initialWeekPromptTemplate`)
+  - [x] Added `getTemplateStructureForAdaptive()` - Template structure for each frequency
+  - [x] Added `getExperienceExerciseGuidanceShort()` - Concise exercise selection rules
+  - [x] Emphasized following proven templates from day 1
+
+- [x] **Enhanced Subsequent Week Prompt** (`lib/ai/prompts.ts:subsequentWeekPromptTemplate`)
+  - [x] Added explicit instruction to maintain template consistency
+  - [x] Emphasized keeping core lifts consistent week-to-week
+  - [x] Allowed accessory variation while preserving structure
+  - [x] Clear progressive overload strategy based on performance
+
+**Testing & Validation:**
+- [x] Created test script (`scripts/test-prompt-improvements.ts`)
+- [x] Created detailed comparison doc (`scripts/prompt-comparison.md`)
+- [x] Verified build passes with TypeScript validation
+- [x] Fixed pre-existing type error in `generate-next-week/route.ts`
+
+**Expected Outcomes:**
+- ✅ Workouts follow proven templates (Upper/Lower, PPL, Full Body)
+- ✅ Exercise selection matches user experience level
+- ✅ Better alignment with stated goals
+- ✅ More coherent, structured workout plans
+- ✅ Consistent core movements with appropriate accessory variation
+
+**Files Modified:**
+- `lib/ai/prompts.ts` - System prompt and template functions
+- `lib/ai/agents/planner-agent.ts` - Template logic and helper functions
+- `app/api/plan/generate-next-week/route.ts` - Type error fix
+
+**Documentation Added:**
+- `scripts/test-prompt-improvements.ts` - Live test demonstrations
+- `scripts/prompt-comparison.md` - Before/after analysis
 
 ---
 
