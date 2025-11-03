@@ -1,11 +1,13 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { onboardingSchema, type OnboardingInput } from "@/lib/validation";
 import { createSupabaseServerClient } from "@/lib/supabaseServerClient";
 import { users, profiles } from "@/drizzle/schema";
 import { convertHeightToCm, convertWeightToKg } from "@/lib/unitConversion";
+import { eq } from "drizzle-orm";
 
 export async function saveProfileAction(form: OnboardingInput) {
   const supabase = await createSupabaseServerClient();
@@ -91,4 +93,60 @@ export async function saveProfileAction(form: OnboardingInput) {
   });
 
   redirect("/plan");
+}
+
+/**
+ * Update custom instructions (coach notes) for plan generation
+ */
+export async function updateCustomInstructionsAction(coachNotes: string) {
+  const supabase = await createSupabaseServerClient();
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !userData.user) {
+    throw new Error("Unable to resolve authenticated user");
+  }
+
+  const userId = userData.user.id;
+
+  // Validate coach notes length (max 500 characters)
+  if (coachNotes.length > 500) {
+    throw new Error("Custom instructions must be 500 characters or less");
+  }
+
+  // Update profile with custom instructions
+  await db
+    .update(profiles)
+    .set({
+      coachNotes: coachNotes.trim() || null, // Store null if empty
+      updatedAt: new Date(),
+    })
+    .where(eq(profiles.userId, userId));
+
+  // Revalidate settings and plan pages
+  revalidatePath("/settings");
+  revalidatePath("/plan");
+
+  return { success: true };
+}
+
+/**
+ * Get user profile for settings page
+ */
+export async function getUserProfileAction() {
+  const supabase = await createSupabaseServerClient();
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !userData.user) {
+    return null;
+  }
+
+  const userId = userData.user.id;
+
+  const [profile] = await db
+    .select()
+    .from(profiles)
+    .where(eq(profiles.userId, userId))
+    .limit(1);
+
+  return profile || null;
 }

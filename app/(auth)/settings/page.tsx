@@ -1,21 +1,34 @@
 import { signOutAction } from "@/app/actions/auth";
+import { getUserProfileAction } from "@/app/actions/profile";
+import { getUserPlansAction } from "@/app/actions/plan";
+import { SettingsView } from "./SettingsView";
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const profile = await getUserProfileAction();
+  const userPlans = await getUserPlansAction();
+
   return (
-    <div className="space-y-6 p-6 text-fg0">
-      <div>
-        <h1 className="text-2xl font-semibold">Settings</h1>
-        <p className="text-sm text-fg2">Manage preferences coming soon.</p>
-      </div>
+    <div className="min-h-screen bg-bg0 p-6 text-fg0">
+      <div className="mx-auto max-w-4xl space-y-6">
+        <div>
+          <h1 className="text-2xl font-semibold">Settings</h1>
+          <p className="text-sm text-fg2">Manage your preferences and plans</p>
+        </div>
 
-      <form action={signOutAction}>
-        <button
-          type="submit"
-          className="inline-flex h-11 items-center justify-center rounded-full border border-line1 px-5 text-sm font-medium uppercase tracking-wide text-fg0 transition hover:bg-bg1"
-        >
-          Sign out
-        </button>
-      </form>
+        <SettingsView profile={profile} userPlans={userPlans} />
+
+        <div className="rounded-lg border border-line1 bg-bg0 p-6">
+          <h2 className="mb-4 text-lg font-semibold text-fg0">Account</h2>
+          <form action={signOutAction}>
+            <button
+              type="submit"
+              className="inline-flex h-11 items-center justify-center rounded-full border border-line1 px-5 text-sm font-medium uppercase tracking-wide text-fg0 transition hover:bg-bg1"
+            >
+              Sign out
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

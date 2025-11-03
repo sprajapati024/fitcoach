@@ -64,6 +64,15 @@ function buildCompactPlannerPrompt(profile: Profile): string {
   // Get goal-specific programming guidance
   const goalGuidance = getGoalGuidance(payload.goal_bias);
 
+  // Get custom instructions from profile
+  const customInstructions = profile.coachNotes ? `
+
+**USER'S CUSTOM INSTRUCTIONS:**
+${profile.coachNotes}
+
+IMPORTANT: Respect these custom instructions when selecting exercises and designing workouts. These are the user's specific preferences and should be prioritized.
+` : '';
+
   return `Generate a training plan for:
 
 ${JSON.stringify(payload, null, 2)}
@@ -75,7 +84,7 @@ EXPERIENCE-APPROPRIATE EXERCISE SELECTION:
 ${experienceGuidance}
 
 GOAL-SPECIFIC PROGRAMMING:
-${goalGuidance}
+${goalGuidance}${customInstructions}
 
 WORKFLOW - Follow these steps in order:
 1. Use query_exercises to find exercises matching the template structure above
@@ -323,6 +332,7 @@ export async function generateInitialWeek(profile: Profile) {
     equipment: profile.equipment || [],
     avoidList: profile.avoidList || [],
     noHighImpact: profile.noHighImpact,
+    customInstructions: profile.coachNotes,
   };
 
   const prompt = initialWeekPromptTemplate(userContext);

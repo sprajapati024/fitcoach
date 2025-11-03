@@ -245,7 +245,7 @@ export async function getPlanWorkoutLogsAction(planId: string) {
 }
 
 /**
- * Delete a plan (and cascade delete workouts)
+ * Delete a plan and all associated data (workouts, logs)
  */
 export async function deletePlanAction(planId: string) {
   const supabase = await createSupabaseServerClient();
@@ -255,14 +255,38 @@ export async function deletePlanAction(planId: string) {
     throw new Error("Unable to resolve authenticated user");
   }
 
-  const userId = userData.user.id;
+  // Get cookies to forward to API
+  const { cookies } = await import("next/headers");
+  const cookieStore = await cookies();
+  const cookieHeader = cookieStore
+    .getAll()
+    .map((cookie) => `${cookie.name}=${cookie.value}`)
+    .join("; ");
 
-  // Delete plan (workouts will cascade delete due to foreign key)
-  await db
-    .delete(plans)
-    .where(and(eq(plans.id, planId), eq(plans.userId, userId)));
+  // Call the delete plan API with authentication cookies
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/plan/delete`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        "Cookie": cookieHeader,
+      },
+      body: JSON.stringify({ planId }),
+    }
+  );
 
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Failed to delete plan");
+  }
+
+  const result = await response.json();
+
+  // Revalidate plan and settings pages
   revalidatePath("/plan");
+  revalidatePath("/settings");
+  revalidatePath("/dashboard");
 
-  return { success: true };
+  return result;
 }

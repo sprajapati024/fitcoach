@@ -105,6 +105,7 @@ export function initialWeekPromptTemplate(userContext: {
   equipment: string[];
   avoidList: string[];
   noHighImpact: boolean;
+  customInstructions?: string | null;
 }): string {
   const pcosNote = userContext.hasPcos
     ? "CRITICAL: User has PCOS. Include at least 2 steady-state Zone 2 cardio sessions per week. Avoid high-impact plyometrics (no bounding/jumps). Limit intense intervals to <= 60 seconds."
@@ -119,6 +120,15 @@ export function initialWeekPromptTemplate(userContext: {
   // Template guidance based on training frequency
   const templateGuidance = getTemplateStructureForAdaptive(userContext.daysPerWeek);
 
+  // Custom instructions section
+  const customInstructionsSection = userContext.customInstructions ? `
+
+**USER'S CUSTOM INSTRUCTIONS:**
+${userContext.customInstructions}
+
+IMPORTANT: Respect these custom instructions when selecting exercises and designing workouts. These are the user's specific preferences and should be prioritized.
+` : '';
+
   return `Generate Week 1 of a structured training program following an established workout template.
 
 **User Profile:**
@@ -127,7 +137,7 @@ export function initialWeekPromptTemplate(userContext: {
 - Session duration: ${userContext.minutesPerSession} minutes
 - Available equipment: ${userContext.equipment.join(", ")}
 - Avoid: ${userContext.avoidList.length > 0 ? userContext.avoidList.join(", ") : "None"}
-${pcosNote}
+${pcosNote}${customInstructionsSection}
 
 **Template Structure to Follow:**
 ${templateGuidance}
