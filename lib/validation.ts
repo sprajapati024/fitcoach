@@ -229,3 +229,14 @@ export const substitutionRequestSchema = z.object({
   exerciseId: z.string().min(2).max(60),
   reason: z.string().max(120).optional(),
 });
+
+export type SubstitutionRequest = z.infer<typeof substitutionRequestSchema>;
+
+export const substitutionResponseSchema = z.object({
+  alternatives: z.array(z.object({
+    exerciseId: z.string().min(2).max(60),
+    rationale: z.string().min(3).max(200),
+  })).min(2).max(3),
+});
+
+export type SubstitutionResponse = z.infer<typeof substitutionResponseSchema>;
