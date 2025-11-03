@@ -349,3 +349,89 @@ export function isWeekReadyForAnalysis(
 ): boolean {
   return performance.completionRate >= minimumCompletionRate;
 }
+
+/**
+ * Transform week performance data into format expected by adaptive planner
+ * This bridges the existing performance analysis with the new adaptive agent
+ */
+export async function preparePerformanceDataForAdaptivePlanner(
+  planId: string,
+  weekNumber: number
+): Promise<{
+  workouts: Array<{
+    focus: string;
+    completedSets: number;
+    targetSets: number;
+    avgRPE: number;
+    notes?: string;
+  }>;
+  overallAdherence: number;
+  avgRPEAcrossWeek: number;
+  userFeedback?: string;
+}> {
+  // Get all scheduled workouts for this week
+  const scheduledWorkouts = await db
+    .select()
+    .from(workouts)
+    .where(and(eq(workouts.planId, planId), eq(workouts.weekNumber, weekNumber)));
+
+  // Get all logged workouts for this week
+  const workoutIds = scheduledWorkouts.map((w) => w.id);
+  const loggedWorkouts = await db
+    .select()
+    .from(workoutLogs)
+    .where(and(eq(workoutLogs.planId, planId)));
+
+  const weekLogs = loggedWorkouts.filter((log) => workoutIds.includes(log.workoutId));
+
+  // Get performance metrics
+  const performance = await analyzeWeekPerformance(planId, weekNumber);
+
+  // Build workout-by-workout breakdown
+  const workoutData = await Promise.all(
+    scheduledWorkouts.map(async (workout) => {
+      const log = weekLogs.find((l) => l.workoutId === workout.id);
+
+      // Count target sets from workout payload
+      const payload = workout.payload as { blocks: Array<{ exercises: Array<{ sets: number }> }> };
+      const targetSets = payload.blocks.reduce(
+        (sum, block) => sum + block.exercises.reduce((s, ex) => s + ex.sets, 0),
+        0
+      );
+
+      let completedSets = 0;
+      let avgRPE = 0;
+
+      if (log) {
+        // Get sets for this log
+        const sets = await db
+          .select()
+          .from(workoutLogSets)
+          .where(eq(workoutLogSets.logId, log.id));
+
+        completedSets = sets.length;
+
+        const setsWithRPE = sets.filter((s) => s.rpe !== null);
+        avgRPE =
+          setsWithRPE.length > 0
+            ? setsWithRPE.reduce((sum, s) => sum + Number(s.rpe), 0) / setsWithRPE.length
+            : 0;
+      }
+
+      return {
+        focus: workout.focus,
+        completedSets,
+        targetSets,
+        avgRPE: Math.round(avgRPE * 10) / 10,
+        notes: log?.notes || undefined,
+      };
+    })
+  );
+
+  return {
+    workouts: workoutData,
+    overallAdherence: performance.completionRate / 100, // Convert percentage to 0-1
+    avgRPEAcrossWeek: performance.avgRPE,
+    userFeedback: undefined, // Can be extended later to pull from user notes
+  };
+}

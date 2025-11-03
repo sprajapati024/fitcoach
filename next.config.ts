@@ -30,7 +30,9 @@ export default withPWA({
       },
     },
     {
-      urlPattern: ({ url }: { url: URL }) => url.pathname.startsWith("/api/"),
+      urlPattern: ({ url }: { url: URL }) =>
+        url.pathname.startsWith("/api/") &&
+        !url.pathname.startsWith("/api/auth/"),
       handler: "NetworkFirst",
       method: "GET",
       options: {

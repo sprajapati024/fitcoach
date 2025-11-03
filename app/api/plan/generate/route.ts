@@ -4,7 +4,7 @@ import { profiles, plans, workouts } from "@/drizzle/schema";
 import { eq } from "drizzle-orm";
 import { runPlannerAgent } from "@/lib/ai/agents/planner-agent";
 import { postProcessPlannerResponse } from "@/lib/ai/postProcessor";
-import { expandPlannerResponse } from "@/lib/calendar";
+import { expandPlannerResponseInitialWeek } from "@/lib/calendar";
 import { createPlanId } from "@/lib/ids";
 
 // Helper to send SSE message
@@ -167,22 +167,22 @@ export async function POST(request: Request) {
           // Generate plan ID
           const planId = createPlanId();
 
-          // Expand planner response to full calendar and workouts
-          console.log("[Plan Generation] Expanding microcycle to calendar...");
-          sendProgress('building', 'Building your calendar...', 85);
+          // Expand planner response for Week 1 only (adaptive planning)
+          console.log("[Plan Generation] Generating Week 1 workouts...");
+          sendProgress('building', 'Building Week 1...', 85);
 
-          const { microcycle, calendar, workouts: workoutInstances } = expandPlannerResponse(
+          const { microcycle, workouts: workoutInstances } = expandPlannerResponseInitialWeek(
             plannerResponse,
             {
               planId,
               userId: user.id,
-              weeks: userProfile.scheduleWeeks, // Pass weeks from user profile
+              totalWeeks: userProfile.scheduleWeeks, // Store total weeks in plan
               preferredDays: userProfile.preferredDays || [],
             }
           );
 
           console.log(
-            `[Plan Generation] Generated ${workoutInstances.length} workout instances across ${calendar.weeks.length} weeks`
+            `[Plan Generation] Generated ${workoutInstances.length} workout instances for Week 1`
           );
 
           // Save plan to database
@@ -203,8 +203,8 @@ export async function POST(request: Request) {
               minutesPerSession: userProfile.scheduleMinutesPerSession,
               preferredDays: userProfile.preferredDays || [],
               microcycle,
-              calendar,
-              plannerVersion: "gpt-4o-agents",
+              calendar: { planId, weeks: [] }, // Empty calendar - weeks generated on-demand
+              plannerVersion: "gpt-4o-agents-adaptive",
               generatedBy: "planner-agent",
             })
             .returning();

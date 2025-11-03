@@ -240,3 +240,94 @@ export const substitutionResponseSchema = z.object({
 });
 
 export type SubstitutionResponse = z.infer<typeof substitutionResponseSchema>;
+
+// ============================================================================
+// Phase 3: Adaptive Planning Schemas
+// ============================================================================
+
+/**
+ * Periodization block types for training phases
+ * Used to guide weekly plan generation based on training phase
+ */
+export const periodizationPhaseSchema = z.enum([
+  "accumulation",    // Build volume, moderate intensity (weeks 1-3)
+  "intensification", // Increase intensity, maintain/reduce volume (weeks 4-6)
+  "deload",         // Recovery week, reduced volume and intensity
+  "realization",    // Peak performance, test strength gains (weeks 7-8)
+]);
+
+export type PeriodizationPhase = z.infer<typeof periodizationPhaseSchema>;
+
+/**
+ * Periodization block configuration
+ * Defines which phase applies to which weeks of the program
+ */
+export const periodizationBlockSchema = z.object({
+  phase: periodizationPhaseSchema,
+  weekStart: z.number().int().min(1).max(16), // 1-indexed week number
+  weekEnd: z.number().int().min(1).max(16),
+  volumeModifier: z.number().min(0.5).max(1.5), // Multiplier for sets (0.7 = deload, 1.2 = volume block)
+  intensityModifier: z.number().min(0.7).max(1.1), // Multiplier for RPE targets
+  notes: z.string().max(200).optional(),
+});
+
+export type PeriodizationBlock = z.infer<typeof periodizationBlockSchema>;
+
+/**
+ * Exercise with RPE/RIR targets for adaptive progression
+ * Extends base exercise schema with progression guidance
+ */
+export const exerciseWithRPESchema = z.object({
+  id: z.string().min(2).max(60),
+  name: z.string().min(2).max(80),
+  equipment: z.string().min(2).max(40),
+  sets: z.number().int().min(1).max(6),
+  reps: z.string().min(1).max(40),
+  targetRPE: z.number().min(6).max(10).optional(), // Target RPE for this exercise
+  targetRIR: z.number().int().min(0).max(4).optional(), // Target RIR (Reps In Reserve)
+  tempo: z.union([z.string().max(20), z.null()]).optional(),
+  cues: z.union([z.array(z.string().min(2).max(80)).max(4), z.null()]).optional(),
+  notes: z.union([z.string().max(140), z.null()]).optional(),
+  progressionNotes: z.string().max(200).optional(), // How to progress this exercise week-to-week
+});
+
+export type ExerciseWithRPE = z.infer<typeof exerciseWithRPESchema>;
+
+/**
+ * Weekly workout schema with coaching notes
+ * Used for generating week-by-week plans with performance-based adaptations
+ */
+export const weeklyWorkoutBlockSchema = z.object({
+  type: z.enum(["warmup", "strength", "accessory", "conditioning", "recovery"]),
+  title: z.string().min(2).max(80),
+  durationMinutes: z.number().int().min(5).max(90),
+  exercises: z.array(exerciseWithRPESchema).min(1).max(6),
+});
+
+export const weeklyWorkoutSchema = z.object({
+  weekNumber: z.number().int().min(1).max(16), // 1-indexed week number
+  phase: periodizationPhaseSchema,
+  dayIndex: z.number().int().min(0).max(6),
+  focus: z.string().min(3).max(80),
+  blocks: z.array(weeklyWorkoutBlockSchema).min(1).max(5),
+  coachingNotes: z.string().max(300).optional(), // Weekly guidance based on previous week performance
+  volumeLoad: z.number().int().min(0).max(200).optional(), // Total estimated volume (sets × avg reps)
+  intensityScore: z.number().min(0).max(10).optional(), // Avg RPE across primary lifts
+});
+
+export type WeeklyWorkout = z.infer<typeof weeklyWorkoutSchema>;
+
+/**
+ * Adaptive planner response for single week generation
+ * Used when generating Week 2+ based on Week 1 performance
+ */
+export const adaptiveWeekResponseSchema = z.object({
+  weekNumber: z.number().int().min(1).max(16),
+  phase: periodizationPhaseSchema,
+  workouts: z.array(weeklyWorkoutSchema).min(3).max(6), // One workout per training day
+  summary: z.string().min(10).max(240), // Summary of this week's plan
+  progressionRationale: z.string().min(10).max(400), // Why exercises/volumes changed from previous week
+  cues: z.array(z.string().min(3).max(120)).max(5),
+});
+
+export type AdaptiveWeekResponse = z.infer<typeof adaptiveWeekResponseSchema>;

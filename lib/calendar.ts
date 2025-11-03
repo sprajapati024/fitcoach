@@ -367,3 +367,146 @@ export function getWorkoutsByWeek(
 ): WorkoutInsert[] {
   return workouts.filter((w) => w.weekIndex === weekIndex);
 }
+
+/**
+ * Generate workouts for a single week only (adaptive weekly generation)
+ */
+export function generateWeekWorkouts(
+  microcycle: PlanMicrocycleInput,
+  weekNumber: number, // 1-indexed (Week 1, Week 2, etc.)
+  options: Omit<CalendarGenerationOptions, "weeks">
+): WorkoutInsert[] {
+  const { planId, userId, startDate, daysPerWeek, preferredDays } = options;
+  const weekIndex = weekNumber - 1; // Convert to 0-indexed
+  const workouts: WorkoutInsert[] = [];
+
+  // Determine if this week is a deload (we'll pass total weeks context later)
+  // For now, week 3 and week 7 are deloads
+  const isDeloadWeek = weekNumber === 3 || weekNumber === 7;
+
+  const trainingDaysOfWeek = calculateTrainingDays(daysPerWeek, preferredDays);
+  const { pattern } = microcycle;
+
+  // Calculate starting globalDayIndex based on previous weeks
+  // Each week has daysPerWeek sessions
+  const globalDayIndexStart = weekIndex * daysPerWeek;
+
+  for (let sessionIndex = 0; sessionIndex < daysPerWeek; sessionIndex++) {
+    const dayOfWeek = trainingDaysOfWeek[sessionIndex];
+
+    // Calculate the actual calendar date
+    const daysFromStart = weekIndex * 7 + dayOfWeek;
+    const sessionDate = startDate ? shiftUtcDate(startDate, daysFromStart) : undefined;
+
+    // Rotate through microcycle pattern
+    const patternIndex = sessionIndex % pattern.length;
+    const templateDay = pattern[patternIndex];
+
+    const workoutId = createWorkoutId();
+
+    // Build workout payload
+    let blocks = templateDay.blocks.map((block) => ({
+      type: convertBlockType(block.type),
+      title: block.title,
+      exercises: block.exercises.map((ex) => ({
+        id: ex.id,
+        name: ex.name,
+        equipment: ex.equipment,
+        sets: ex.sets,
+        reps: ex.reps,
+        ...(ex.tempo && { tempo: ex.tempo }),
+        ...(ex.cues && { cues: ex.cues }),
+        restSeconds: 90,
+      })),
+    }));
+
+    // Apply deload modifications if needed
+    if (isDeloadWeek) {
+      blocks = applyDeloadModifications(blocks);
+    }
+
+    const payload: WorkoutPayload = {
+      workoutId,
+      focus: templateDay.focus,
+      blocks,
+    };
+
+    const durationMinutes = blocks.reduce((sum, block) => {
+      const blockDuration = block.exercises.reduce((total, ex) => total + ex.sets * 3, 0);
+      return sum + blockDuration;
+    }, 0);
+
+    const workout: WorkoutInsert = {
+      id: workoutId,
+      planId,
+      userId,
+      microcycleDayId: `${microcycle.id}_day_${templateDay.dayIndex}`,
+      dayIndex: globalDayIndexStart + sessionIndex,
+      weekIndex,
+      weekNumber,
+      sessionDate: sessionDate ?? null,
+      title: `Week ${weekNumber} - ${templateDay.focus}`,
+      focus: templateDay.focus,
+      kind: "strength",
+      isDeload: isDeloadWeek,
+      durationMinutes: Math.min(durationMinutes, 90),
+      payload,
+    };
+
+    workouts.push(workout);
+  }
+
+  return workouts;
+}
+
+/**
+ * Expand planner response for initial week only (adaptive planning)
+ */
+export function expandPlannerResponseInitialWeek(
+  plannerResponse: PlannerResponse,
+  options: Omit<CalendarGenerationOptions, "daysPerWeek" | "weeks"> & { totalWeeks: number }
+): {
+  microcycle: PlanMicrocycle;
+  workouts: WorkoutInsert[];
+} {
+  const { microcycle: microcycleInput } = plannerResponse;
+  const { totalWeeks } = options;
+
+  const microcycleId = createMicrocycleId();
+
+  const fullMicrocycleInput: PlanMicrocycleInput = {
+    id: microcycleId,
+    weeks: totalWeeks,
+    daysPerWeek: microcycleInput.daysPerWeek,
+    pattern: microcycleInput.pattern,
+  };
+
+  // Generate only Week 1 workouts
+  const workouts = generateWeekWorkouts(fullMicrocycleInput, 1, {
+    ...options,
+    daysPerWeek: microcycleInput.daysPerWeek,
+  });
+
+  const microcycle: PlanMicrocycle = {
+    id: microcycleId,
+    weeks: totalWeeks,
+    daysPerWeek: microcycleInput.daysPerWeek,
+    pattern: microcycleInput.pattern.map(day => ({
+      ...day,
+      blocks: day.blocks.map(block => ({
+        ...block,
+        exercises: block.exercises.map(ex => ({
+          ...ex,
+          tempo: ex.tempo ?? undefined,
+          cues: ex.cues ?? undefined,
+          notes: ex.notes ?? undefined,
+        })),
+      })),
+    })),
+  };
+
+  return {
+    microcycle,
+    workouts,
+  };
+}

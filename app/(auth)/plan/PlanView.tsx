@@ -73,6 +73,39 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
     }
   }, [activePlan?.startDate]);
 
+  const [isGeneratingNextWeek, setIsGeneratingNextWeek] = useState(false);
+
+  const handleGenerateNextWeek = async () => {
+    if (!activePlan) return;
+
+    setIsGeneratingNextWeek(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const response = await fetch('/api/plan/generate-next-week', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ planId: activePlan.id }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to generate next week');
+      }
+
+      setSuccess(`Week ${data.weekNumber} generated successfully! (${data.phase} phase)`);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to generate next week");
+    } finally {
+      setIsGeneratingNextWeek(false);
+    }
+  };
+
   const handleGeneratePlan = async () => {
     setIsGenerating(true);
     setError(null);
@@ -377,6 +410,52 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
             startDate={activePlan.startDate || new Date().toISOString().split("T")[0]}
             logs={calendarLogs}
           />
+
+          {/* Adaptive Planning Info & Generate Next Week */}
+          {workouts.length > 0 && (
+            <div className="mt-6 space-y-4">
+              {/* Show adaptive planning message if only Week 1 exists */}
+              {workouts.every(w => w.weekIndex === 0) && (
+                <div className="rounded-lg border border-line1 bg-bg1 p-4">
+                  <p className="text-sm text-fg1">
+                    <span className="font-medium text-fg0">Adaptive Planning: </span>
+                    Your plan adapts week-by-week based on performance. Complete Week 1 to unlock Week 2 generation.
+                  </p>
+                </div>
+              )}
+
+              {/* Show Generate Next Week button if current week has progress */}
+              {(() => {
+                const maxWeek = Math.max(...workouts.map(w => w.weekNumber));
+                const currentWeekWorkouts = workouts.filter(w => w.weekNumber === maxWeek);
+                const currentWeekLogs = calendarLogs.filter(log =>
+                  currentWeekWorkouts.some(w => w.id === log.workoutId)
+                );
+                const hasAnyProgress = currentWeekLogs.length > 0;
+                const canGenerateNext = maxWeek < activePlan.durationWeeks;
+
+                return hasAnyProgress && canGenerateNext && (
+                  <div className="rounded-lg border border-line1 bg-bg1 p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-fg0">Ready for Week {maxWeek + 1}?</p>
+                        <p className="mt-1 text-xs text-fg2">
+                          Week {maxWeek} progress detected. Generate your next week based on performance.
+                        </p>
+                      </div>
+                      <PrimaryButton
+                        onClick={handleGenerateNextWeek}
+                        loading={isGeneratingNextWeek}
+                        className="ml-4 whitespace-nowrap"
+                      >
+                        Generate Week {maxWeek + 1}
+                      </PrimaryButton>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
         </div>
       </Card>
 

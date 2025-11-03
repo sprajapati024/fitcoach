@@ -1,6 +1,6 @@
 import { Agent, run } from '@openai/agents';
-import { plannerResponseSchema } from '@/lib/validation';
-import { plannerSystemPrompt } from '@/lib/ai/prompts';
+import { plannerResponseSchema, adaptiveWeekResponseSchema } from '@/lib/validation';
+import { plannerSystemPrompt, initialWeekPromptTemplate, subsequentWeekPromptTemplate } from '@/lib/ai/prompts';
 import { queryExercisesTool, getExerciseDetailsTool, validateTimeBudgetTool } from './tools';
 import type { profiles } from '@/drizzle/schema';
 
@@ -98,4 +98,150 @@ function calculateAge(dateOfBirth: string | null): number {
     age--;
   }
   return age;
+}
+
+// ============================================================================
+// Phase 3: Adaptive Planning Agent Modes
+// ============================================================================
+
+/**
+ * Adaptive planner agent for week-by-week generation
+ * Uses adaptiveWeekResponseSchema for structured weekly output
+ */
+export const adaptivePlannerAgent = new Agent({
+  name: 'FitCoach Adaptive Planner',
+  instructions: `You are FitCoach Adaptive Planner. You generate training weeks one at a time, adapting to user performance.
+
+Key Responsibilities:
+- Generate structured weekly training plans with RPE targets
+- Adapt volume and intensity based on previous week performance
+- Respect PCOS guardrails and user constraints
+- Provide detailed progression rationale for each week
+
+Output Format:
+- Use adaptiveWeekResponseSchema
+- Include targetRPE and progressionNotes for each exercise
+- Provide coachingNotes for the week explaining adaptations
+- Keep cues short (<= 10 words) and actionable
+
+Never assign specific weights - only RPE targets.`,
+  model: 'gpt-4o',
+  tools: [queryExercisesTool, getExerciseDetailsTool, validateTimeBudgetTool],
+  outputType: adaptiveWeekResponseSchema,
+});
+
+/**
+ * Generate initial week (Week 1) with baseline assessment
+ * This is the entry point for a new training plan
+ */
+export async function generateInitialWeek(profile: Profile) {
+  const userContext = {
+    experience: profile.experienceLevel as "beginner" | "intermediate" | "advanced",
+    hasPcos: profile.hasPcos,
+    daysPerWeek: profile.scheduleDaysPerWeek || 3,
+    minutesPerSession: profile.scheduleMinutesPerSession || 60,
+    equipment: profile.equipment || [],
+    avoidList: profile.avoidList || [],
+    noHighImpact: profile.noHighImpact,
+  };
+
+  const prompt = initialWeekPromptTemplate(userContext);
+
+  const workflowSteps = `
+WORKFLOW - Follow these steps:
+1. Use query_exercises to find exercises for: squat, hinge, push, pull, core
+   ${userContext.hasPcos ? '   - Also query for low-impact conditioning (pcosFriendly: true)' : ''}
+   ${userContext.noHighImpact ? '   - Use impact: "low" or "medium" only' : ''}
+
+2. Use get_exercise_details to get full info for your top 8-12 choices
+
+3. Design ${userContext.daysPerWeek} training days with:
+   - Warm-up (5-10 min): mobility, activation
+   - Primary strength (20-30 min): compound movements with targetRPE
+   - Accessory work (10-15 min): isolation or secondary compounds
+   - Optional conditioning (5-15 min): ${userContext.hasPcos ? 'Zone-2 steady-state' : 'metabolic finisher'}
+
+4. Use validate_time_budget to ensure each day fits ${userContext.minutesPerSession} minutes
+
+5. Return JSON matching adaptiveWeekResponseSchema
+
+${userContext.avoidList.length > 0 ? `AVOID: ${userContext.avoidList.join(', ')}` : ''}
+`;
+
+  const fullPrompt = prompt + '\n\n' + workflowSteps;
+
+  const result = await run(adaptivePlannerAgent, fullPrompt, { maxTurns: 15 });
+
+  return {
+    success: true,
+    data: result.finalOutput,
+  };
+}
+
+/**
+ * Generate next week based on previous week performance
+ * Uses performance data to adapt volume/intensity progressively
+ */
+export async function generateNextWeek(
+  profile: Profile,
+  weekNumber: number,
+  phase: "accumulation" | "intensification" | "deload" | "realization",
+  previousWeekData: {
+    workouts: Array<{
+      focus: string;
+      completedSets: number;
+      targetSets: number;
+      avgRPE: number;
+      notes?: string;
+    }>;
+    overallAdherence: number;
+    avgRPEAcrossWeek: number;
+    userFeedback?: string;
+  }
+) {
+  const userContext = {
+    experience: profile.experienceLevel as "beginner" | "intermediate" | "advanced",
+    hasPcos: profile.hasPcos,
+    daysPerWeek: profile.scheduleDaysPerWeek || 3,
+    minutesPerSession: profile.scheduleMinutesPerSession || 60,
+  };
+
+  const prompt = subsequentWeekPromptTemplate(
+    weekNumber,
+    phase,
+    previousWeekData,
+    userContext
+  );
+
+  const workflowSteps = `
+WORKFLOW - Follow these steps:
+1. Analyze previous week performance to determine progression strategy:
+   - If adherence >= 90% and RPE appropriate: increase volume or intensity
+   - If adherence 75-90%: maintain current difficulty
+   - If adherence < 75%: reduce volume or intensity
+
+2. Use query_exercises if you need to substitute exercises (only if user struggled)
+   - Otherwise, maintain exercise selection for consistency
+
+3. Adjust targetRPE based on ${phase} phase:
+   ${phase === 'accumulation' ? '- Target RPE 7-8' : ''}
+   ${phase === 'intensification' ? '- Target RPE 8-9' : ''}
+   ${phase === 'deload' ? '- Target RPE 6-7 (recovery week)' : ''}
+   ${phase === 'realization' ? '- Target RPE 9-10 (peak testing)' : ''}
+
+4. Use validate_time_budget to ensure each day fits ${userContext.minutesPerSession} minutes
+
+5. Return JSON matching adaptiveWeekResponseSchema with detailed progressionRationale
+
+${userContext.hasPcos ? 'CRITICAL: Maintain PCOS-friendly programming (low-impact, Zone-2 cardio)' : ''}
+`;
+
+  const fullPrompt = prompt + '\n\n' + workflowSteps;
+
+  const result = await run(adaptivePlannerAgent, fullPrompt, { maxTurns: 15 });
+
+  return {
+    success: true,
+    data: result.finalOutput,
+  };
 }
