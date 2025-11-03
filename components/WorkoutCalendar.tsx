@@ -85,89 +85,98 @@ export function WorkoutCalendar({
               )}
             </div>
 
-            {/* Week Grid */}
-            <div className="grid grid-cols-7 gap-2">
-              {Array.from({ length: 7 }).map((_, dayIndex) => {
-                const dayDate = getDateString(weekStartDate, dayIndex);
+            {/* Week Grid - Horizontal scroll on mobile, grid on desktop */}
+            <div className="relative">
+              {/* Scroll container for mobile */}
+              <div className="scroll-smooth-mobile -mx-4 overflow-x-auto px-4 md:mx-0 md:overflow-visible md:px-0">
+                <div className="grid min-w-max grid-cols-7 gap-2 md:min-w-0">
+                  {Array.from({ length: 7 }).map((_, dayIndex) => {
+                    const dayDate = getDateString(weekStartDate, dayIndex);
 
-                // Find workout for this day
-                // If sessionDate is set (plan activated), match by sessionDate
-                // If sessionDate is null (plan not activated), calculate expected date from workout's dayIndex
-                const workout = weekWorkouts.find((w) => {
-                  if (w.sessionDate) {
-                    // Plan is activated - use actual sessionDate
-                    return w.sessionDate === dayDate;
-                  } else {
-                    // Plan not activated - calculate expected date from dayIndex
-                    const expectedDate = getDateString(startDate, w.dayIndex);
-                    return expectedDate === dayDate;
-                  }
-                });
+                    // Find workout for this day
+                    // If sessionDate is set (plan activated), match by sessionDate
+                    // If sessionDate is null (plan not activated), calculate expected date from workout's dayIndex
+                    const workout = weekWorkouts.find((w) => {
+                      if (w.sessionDate) {
+                        // Plan is activated - use actual sessionDate
+                        return w.sessionDate === dayDate;
+                      } else {
+                        // Plan not activated - calculate expected date from dayIndex
+                        const expectedDate = getDateString(startDate, w.dayIndex);
+                        return expectedDate === dayDate;
+                      }
+                    });
 
-                const isToday = dayDate === today;
-                const status = workout ? statusByWorkout.get(workout.id) : undefined;
+                    const isToday = dayDate === today;
+                    const status = workout ? statusByWorkout.get(workout.id) : undefined;
 
-                return (
-                  <div
-                    key={dayIndex}
-                    className={`
-                      relative rounded-lg border p-2 min-h-[80px] flex flex-col
-                      ${isToday ? "border-fg0 bg-bg1 ring-2 ring-fg0" : "border-line1 bg-bg0"}
-                      ${workout ? "cursor-pointer hover:shadow-md transition-shadow" : ""}
-                    `}
-                  >
-                    {/* Day Label */}
-                    <div className="text-xs text-fg2 font-medium mb-1">
-                      {getDayOfWeek(dayDate)}
-                    </div>
-                    <div className={`text-xs ${isToday ? "text-fg0 font-bold" : "text-fg2"}`}>
-                      {formatDateShort(dayDate)}
-                    </div>
-
-                    {/* Workout Info */}
-                    {workout ? (
-                      <Link
-                        href={`/workout/${workout.id}`}
-                        className="mt-2 flex-1 flex flex-col"
+                    return (
+                      <div
+                        key={dayIndex}
+                        className={`
+                          scroll-snap-item relative flex min-h-[100px] w-[120px] flex-col rounded-lg border p-3 transition-all md:min-h-[80px] md:w-auto
+                          ${isToday ? "border-[var(--neon-primary)] bg-bg1 shadow-[0_0_8px_rgba(0,212,255,0.2)]" : "border-line1 bg-bg0"}
+                          ${workout ? "touch-feedback cursor-pointer active:shadow-lg" : ""}
+                        `}
                       >
-                        <div className="text-xs font-medium text-fg0 line-clamp-2 mb-1">
-                          {workout.focus}
+                        {/* Day Label */}
+                        <div className="mb-1 text-xs font-medium text-fg2">
+                          {getDayOfWeek(dayDate)}
                         </div>
-                        <div className="text-xs text-fg2 mt-auto">
-                          {workout.durationMinutes} min
+                        <div className={`text-xs ${isToday ? "font-bold text-[var(--neon-primary)]" : "text-fg2"}`}>
+                          {formatDateShort(dayDate)}
                         </div>
 
-                        {status ? (
-                          <div className="absolute top-1 right-1">
-                            <div
-                              className={`h-2 w-2 rounded-full ${
-                                status === "completed" ? "bg-green-400" : "bg-amber-400"
-                              }`}
-                            />
-                          </div>
-                        ) : null}
-
-                        {status ? (
-                          <span
-                            className={`mt-1 text-[10px] font-semibold uppercase tracking-wide ${
-                              status === "completed" ? "text-green-300" : "text-amber-300"
-                            }`}
+                        {/* Workout Info */}
+                        {workout ? (
+                          <Link
+                            href={`/workout/${workout.id}`}
+                            className="mt-2 flex flex-1 flex-col"
                           >
-                            {status === "completed" ? "Completed" : "Skipped"}
-                          </span>
-                        ) : null}
-                      </Link>
-                    ) : (
-                      <div className="text-xs text-fg2 mt-2">Rest</div>
-                    )}
+                            <div className="mb-1 line-clamp-2 text-xs font-medium text-fg0">
+                              {workout.focus}
+                            </div>
+                            <div className="mt-auto text-xs text-fg2">
+                              {workout.durationMinutes} min
+                            </div>
 
-                    {/* Today indicator */}
-                    {isToday && (
-                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-fg0 rounded-full" />
-                    )}
-                  </div>
-                );
-              })}
+                            {status ? (
+                              <div className="absolute right-1 top-1">
+                                <div
+                                  className={`h-2 w-2 rounded-full ${
+                                    status === "completed" ? "bg-green-400 shadow-[0_0_4px_rgba(74,222,128,0.5)]" : "bg-amber-400"
+                                  }`}
+                                />
+                              </div>
+                            ) : null}
+
+                            {status ? (
+                              <span
+                                className={`mt-1 text-[10px] font-semibold uppercase tracking-wide ${
+                                  status === "completed" ? "text-green-300" : "text-amber-300"
+                                }`}
+                              >
+                                {status === "completed" ? "Completed" : "Skipped"}
+                              </span>
+                            ) : null}
+                          </Link>
+                        ) : (
+                          <div className="mt-2 text-xs text-fg2">Rest</div>
+                        )}
+
+                        {/* Today indicator - neon accent */}
+                        {isToday && (
+                          <div className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-[var(--neon-primary)] shadow-[0_0_6px_var(--neon-glow)]" />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Scroll fade indicators for mobile */}
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-bg-0 to-transparent md:hidden" />
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-bg-0 to-transparent md:hidden" />
             </div>
           </div>
         );

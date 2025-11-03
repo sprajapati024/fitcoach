@@ -170,7 +170,7 @@ export function TodayView({ workout, userId }: TodayViewProps) {
           <span>{feedback.message}</span>
           <button
             onClick={() => setFeedback(null)}
-            className="rounded-full p-1 text-xs uppercase tracking-wide text-fg2 transition hover:text-fg0"
+            className="touch-feedback rounded-full p-1 text-xs uppercase tracking-wide text-fg2 transition-all active:text-fg0"
           >
             Dismiss
           </button>
@@ -220,7 +220,7 @@ export function TodayView({ workout, userId }: TodayViewProps) {
       {!isSkipping ? (
         <button
           onClick={() => setIsSkipping(true)}
-          className="w-full text-sm font-medium text-fg2 transition hover:text-fg0"
+          className="touch-feedback w-full text-sm font-medium text-fg2 transition-all active:text-fg0"
         >
           Skip Today
         </button>
@@ -230,7 +230,7 @@ export function TodayView({ workout, userId }: TodayViewProps) {
           <select
             value={skipReason}
             onChange={(e) => setSkipReason(e.target.value)}
-            className="w-full rounded-md border border-line1 bg-bg0 px-3 py-2 text-sm text-fg0 focus:border-fg0 focus:outline-none focus:ring-1 focus:ring-fg0"
+            className="w-full rounded-md border border-line1 bg-bg0 px-3 py-2 text-sm text-fg0 transition-all focus:border-[var(--neon-primary)] focus:shadow-[0_0_0_1px_var(--neon-primary)] focus:outline-none"
           >
             <option value="">Select a reason...</option>
             <option value="rest">Planned rest day</option>
@@ -242,7 +242,7 @@ export function TodayView({ workout, userId }: TodayViewProps) {
           <div className="flex flex-col gap-2 sm:flex-row">
             <button
               onClick={() => setIsSkipping(false)}
-              className="flex-1 rounded-full border border-line1 bg-bg0 px-4 py-2 text-sm font-semibold text-fg0 transition hover:bg-bg1"
+              className="touch-feedback flex-1 rounded-full border border-line1 bg-bg0 px-4 py-2 text-sm font-semibold text-fg0 transition-all active:bg-bg1"
             >
               Cancel
             </button>

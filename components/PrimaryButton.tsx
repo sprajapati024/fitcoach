@@ -13,7 +13,15 @@ export function PrimaryButton({ loading = false, className, children, disabled, 
     <button
       type="button"
       className={cn(
-        "inline-flex h-12 items-center justify-center gap-2 rounded-full bg-fg0 px-6 text-sm font-semibold uppercase tracking-wide text-bg0 transition hover:bg-fg1 disabled:cursor-not-allowed disabled:opacity-70",
+        "touch-feedback inline-flex h-12 items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold uppercase tracking-wide transition-all duration-200",
+        // Neon gradient background
+        "bg-gradient-to-r from-[var(--neon-primary)] to-[var(--neon-glow)] text-bg0",
+        // Subtle depth with multi-layer shadow
+        "shadow-[0_2px_8px_rgba(0,212,255,0.3),0_4px_16px_rgba(0,212,255,0.15),0_0_1px_rgba(0,0,0,0.1)_inset]",
+        // Active state - pressed effect
+        "active:shadow-[0_1px_4px_rgba(0,212,255,0.4),0_0_8px_rgba(0,212,255,0.2)_inset]",
+        // Disabled state
+        "disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none disabled:from-fg2 disabled:to-fg2",
         className,
       )}
       disabled={disabled || loading}

@@ -17,11 +17,11 @@ export function Stepper({ steps, current }: StepperProps) {
           <li key={step} className="flex flex-1 items-center gap-3">
             <div
               className={cn(
-                "flex h-8 w-8 items-center justify-center rounded-full border text-sm font-medium transition",
+                "flex h-8 w-8 items-center justify-center rounded-full border text-sm font-medium transition-all duration-200",
                 isCompleted
-                  ? "border-fg1 bg-fg1 text-bg0"
+                  ? "border-[var(--neon-dark)] bg-gradient-to-br from-[var(--neon-primary)] to-[var(--neon-glow)] text-bg0 shadow-[0_0_8px_rgba(0,212,255,0.2)]"
                   : isActive
-                    ? "border-fg0 text-fg0"
+                    ? "border-[var(--neon-primary)] text-[var(--neon-primary)] shadow-[0_0_12px_rgba(0,212,255,0.3)]"
                     : "border-line2 text-fg2",
               )}
             >
@@ -30,13 +30,19 @@ export function Stepper({ steps, current }: StepperProps) {
             <span
               className={cn(
                 "hidden text-sm uppercase tracking-wide md:block",
-                isActive ? "text-fg0" : "text-fg2",
+                isActive ? "font-semibold text-[var(--neon-primary)]" : isCompleted ? "text-fg0" : "text-fg2",
               )}
             >
               {step}
             </span>
             {index < steps.length - 1 ? (
-              <div className="mx-2 hidden h-px flex-1 bg-line2 md:block" aria-hidden />
+              <div
+                className={cn(
+                  "mx-2 hidden h-px flex-1 md:block",
+                  isCompleted ? "bg-[var(--neon-primary)]" : "bg-line2",
+                )}
+                aria-hidden
+              />
             ) : null}
           </li>
         );

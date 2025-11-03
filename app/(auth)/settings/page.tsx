@@ -8,7 +8,7 @@ export default async function SettingsPage() {
   const userPlans = await getUserPlansAction();
 
   return (
-    <div className="min-h-screen bg-bg0 p-6 text-fg0">
+    <div className="min-h-screen bg-bg0 p-4 text-fg0 md:p-6">
       <div className="mx-auto max-w-4xl space-y-6">
         <div>
           <h1 className="text-2xl font-semibold">Settings</h1>
@@ -22,7 +22,7 @@ export default async function SettingsPage() {
           <form action={signOutAction}>
             <button
               type="submit"
-              className="inline-flex h-11 items-center justify-center rounded-full border border-line1 px-5 text-sm font-medium uppercase tracking-wide text-fg0 transition hover:bg-bg1"
+              className="touch-feedback inline-flex h-11 items-center justify-center rounded-full border border-line1 px-5 text-sm font-medium uppercase tracking-wide text-fg0 transition-all active:bg-bg2"
             >
               Sign out
             </button>

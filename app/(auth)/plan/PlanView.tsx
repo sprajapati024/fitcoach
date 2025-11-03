@@ -309,14 +309,14 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
               value={selectedStartDate}
               onChange={(e) => setSelectedStartDate(e.target.value)}
               min={new Date().toISOString().slice(0, 10)}
-              className="h-12 w-full rounded border border-line1 bg-bg2 px-4 text-fg0 focus:border-fg0 focus:outline-none"
+              className="h-12 w-full rounded border border-line1 bg-bg2 px-4 text-fg0 focus:border-[var(--neon-primary)] focus:shadow-[0_0_0_1px_var(--neon-primary)] focus:outline-none"
             />
             <p className="mt-2 text-xs text-fg2">
               Workouts will align to this date once you activate the plan. Local timezone: {timezoneLabel}.
             </p>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row">
             <PrimaryButton
               onClick={() => handleActivatePlan(latestPlan.id)}
               loading={isActivating}
@@ -326,7 +326,7 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
             </PrimaryButton>
             <button
               onClick={() => handleDeletePlan(latestPlan.id)}
-              className="rounded border border-line1 px-4 text-sm text-fg2 hover:bg-bg2"
+              className="touch-feedback flex h-12 items-center justify-center rounded border border-line1 px-4 text-sm text-fg2 transition-all active:bg-bg2 sm:w-auto"
             >
               <Trash2 className="h-4 w-4" />
             </button>
@@ -365,11 +365,11 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
       )}
 
       <Card>
-        <div className="mb-4 flex items-start justify-between">
-          <div>
+        <div className="mb-4 flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+          <div className="flex-1">
             <h2 className="text-lg font-semibold">{activePlan.title}</h2>
             <p className="text-sm text-fg2">{activePlan.summary}</p>
-            <div className="mt-2 flex gap-4 text-sm text-fg2">
+            <div className="mt-2 flex flex-wrap gap-4 text-sm text-fg2">
               <span>{activePlan.durationWeeks} weeks</span>
               <span>{activePlan.daysPerWeek} days/week</span>
               <span>Started: {activePlan.startDate || "Not set"}</span>
@@ -378,14 +378,14 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
               Calendar times shown in your local timezone: {timezoneLabel}.
             </p>
           </div>
-          <div className="mt-6 rounded border border-line1 bg-bg2 p-4">
+          <div className="w-full rounded border border-line1 bg-bg2 p-4 md:mt-0 md:w-auto md:min-w-[320px]">
             <h3 className="text-sm font-medium text-fg0">Adjust start date</h3>
             <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center">
               <input
                 type="date"
                 value={startDateUpdate}
                 onChange={(e) => setStartDateUpdate(e.target.value)}
-                className="h-12 rounded border border-line1 bg-bg0 px-4 text-sm text-fg0 focus:border-fg0 focus:outline-none"
+                className="h-12 rounded border border-line1 bg-bg0 px-4 text-sm text-fg0 focus:border-[var(--neon-primary)] focus:shadow-[0_0_0_1px_var(--neon-primary)] focus:outline-none"
               />
               <PrimaryButton
                 onClick={handleUpdateStartDate}

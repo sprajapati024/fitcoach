@@ -271,7 +271,7 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                   type="text"
                   value={form.fullName}
                   onChange={(event) => setForm((prev) => ({ ...prev, fullName: event.target.value }))}
-                  className="mt-1 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 focus:outline-none focus:ring-1 focus:ring-fg0"
+                  className="mt-1 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 transition-all focus:border-[var(--neon-primary)] focus:shadow-[0_0_0_1px_var(--neon-primary)] focus:outline-none"
                   placeholder="Your name"
                 />
                 {errors.fullName ? <span className="mt-1 block text-xs text-fg2">{errors.fullName}</span> : null}
@@ -284,7 +284,7 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                   max={80}
                   value={form.age}
                   onChange={(event) => setForm((prev) => ({ ...prev, age: Number(event.target.value) }))}
-                  className="mt-1 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 focus:outline-none focus:ring-1 focus:ring-fg0"
+                  className="mt-1 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 transition-all focus:border-[var(--neon-primary)] focus:shadow-[0_0_0_1px_var(--neon-primary)] focus:outline-none"
                 />
                 {errors.age ? <span className="mt-1 block text-xs text-fg2">{errors.age}</span> : null}
               </label>
@@ -338,7 +338,7 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                       height: { ...prev.height, value: Number(event.target.value) },
                     }))
                   }
-                  className="mt-1 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 focus:outline-none focus:ring-1 focus:ring-fg0"
+                  className="mt-1 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 transition-all focus:border-[var(--neon-primary)] focus:shadow-[0_0_0_1px_var(--neon-primary)] focus:outline-none"
                 />
                 {errors.height ? <span className="mt-1 block text-xs text-fg2">{errors.height}</span> : null}
               </label>
@@ -353,7 +353,7 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                       weight: { ...prev.weight, value: Number(event.target.value) },
                     }))
                   }
-                  className="mt-1 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 focus:outline-none focus:ring-1 focus:ring-fg0"
+                  className="mt-1 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 transition-all focus:border-[var(--neon-primary)] focus:shadow-[0_0_0_1px_var(--neon-primary)] focus:outline-none"
                 />
                 {errors.weight ? <span className="mt-1 block text-xs text-fg2">{errors.weight}</span> : null}
               </label>
@@ -436,7 +436,7 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                       schedule: { ...prev.schedule, daysPerWeek: Number(event.target.value) },
                     }))
                   }
-                  className="mt-1 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 focus:outline-none focus:ring-1 focus:ring-fg0"
+                  className="mt-1 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 transition-all focus:border-[var(--neon-primary)] focus:shadow-[0_0_0_1px_var(--neon-primary)] focus:outline-none"
                 />
                 {errors.daysPerWeek ? <span className="mt-1 block text-xs text-fg2">{errors.daysPerWeek}</span> : null}
               </label>
@@ -454,7 +454,7 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                       schedule: { ...prev.schedule, minutesPerSession: Number(event.target.value) },
                     }))
                   }
-                  className="mt-1 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 focus:outline-none focus:ring-1 focus:ring-fg0"
+                  className="mt-1 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 transition-all focus:border-[var(--neon-primary)] focus:shadow-[0_0_0_1px_var(--neon-primary)] focus:outline-none"
                 />
               </label>
               <label className="block text-sm">
@@ -470,7 +470,7 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                       schedule: { ...prev.schedule, programWeeks: Number(event.target.value) },
                     }))
                   }
-                  className="mt-1 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 focus:outline-none focus:ring-1 focus:ring-fg0"
+                  className="mt-1 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 transition-all focus:border-[var(--neon-primary)] focus:shadow-[0_0_0_1px_var(--neon-primary)] focus:outline-none"
                 />
               </label>
             </div>
@@ -509,7 +509,7 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                           };
                         });
                       }}
-                      className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wide transition ${isActive ? "border-fg0 bg-fg0 text-bg0 shadow-lg" : "border-line1 bg-bg2 text-fg1 hover:border-fg0 hover:bg-bg1"}`}
+                      className={`touch-feedback rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wide transition-all duration-200 ${isActive ? "border-[var(--neon-primary)] bg-gradient-to-br from-[var(--neon-primary)] to-[var(--neon-glow)] text-bg0 shadow-[0_2px_8px_rgba(0,212,255,0.3),0_0_12px_rgba(0,212,255,0.15)]" : "border-line1 bg-bg2 text-fg1 active:bg-bg1"}`}
                     >
                       {isActive ? "✓ " : ""}{day.label}
                     </button>
@@ -537,7 +537,7 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                   return (
                     <label
                       key={option.value}
-                      className={`flex items-center gap-2 rounded-[var(--radius-md)] border px-3 py-2 text-sm font-medium transition cursor-pointer ${checked ? "border-fg0 bg-fg0 text-bg0 shadow-md" : "border-line1 bg-bg2 text-fg1 hover:border-fg0 hover:bg-bg1"}`}
+                      className={`touch-feedback flex items-center gap-2 rounded-[var(--radius-md)] border px-3 py-2 text-sm font-medium transition-all duration-200 cursor-pointer ${checked ? "border-[var(--neon-primary)] bg-gradient-to-br from-[var(--neon-primary)] to-[var(--neon-glow)] text-bg0 shadow-[0_2px_8px_rgba(0,212,255,0.3),0_0_12px_rgba(0,212,255,0.15)]" : "border-line1 bg-bg2 text-fg1 active:bg-bg1"}`}
                     >
                       <input
                         type="checkbox"
@@ -576,7 +576,7 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                             : [...prev.avoidList, option.value],
                         }))
                       }
-                      className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wide transition ${active ? "border-fg0 bg-fg0 text-bg0 shadow-lg" : "border-line1 bg-bg2 text-fg1 hover:border-fg0 hover:bg-bg1"}`}
+                      className={`touch-feedback rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wide transition-all duration-200 ${active ? "border-[var(--neon-primary)] bg-gradient-to-br from-[var(--neon-primary)] to-[var(--neon-glow)] text-bg0 shadow-[0_2px_8px_rgba(0,212,255,0.3),0_0_12px_rgba(0,212,255,0.15)]" : "border-line1 bg-bg2 text-fg1 active:bg-bg1"}`}
                     >
                       {active ? "✓ " : ""}{option.label}
                     </button>
@@ -646,7 +646,7 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                 rows={3}
                 value={form.coachNotes ?? ""}
                 onChange={(event) => setForm((prev) => ({ ...prev, coachNotes: event.target.value }))}
-                className="mt-2 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 focus:outline-none focus:ring-1 focus:ring-fg0"
+                className="mt-2 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 transition-all focus:border-[var(--neon-primary)] focus:shadow-[0_0_0_1px_var(--neon-primary)] focus:outline-none"
                 placeholder="Anything unique we should know?"
               />
             </div>

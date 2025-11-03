@@ -40,10 +40,10 @@ export function Segmented<T extends string>({
               }
             }}
             className={cn(
-              "flex h-full flex-col items-start gap-1 rounded-[var(--radius-sm)] border px-3 py-3 text-left transition",
+              "touch-feedback flex h-full flex-col items-start gap-1 rounded-[var(--radius-sm)] border px-3 py-3 text-left transition-all duration-200",
               isActive
-                ? "border-fg0 bg-fg0 text-bg0"
-                : "border-line1 bg-bg2 text-fg1 hover:border-fg0 hover:bg-bg1",
+                ? "border-[var(--neon-primary)] bg-gradient-to-br from-[var(--neon-primary)] to-[var(--neon-glow)] text-bg0 shadow-[0_2px_8px_rgba(0,212,255,0.3),0_0_12px_rgba(0,212,255,0.15)]"
+                : "border-line1 bg-bg2 text-fg1 active:bg-bg1",
             )}
           >
             <span className="text-sm font-medium uppercase tracking-wide">
