@@ -54,6 +54,11 @@ export default function Home() {
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-br from-gray-950 via-black to-gray-900 text-white">
+      {/* AI Pulse Breathing Background */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-0 animate-ai-pulse bg-gradient-to-br from-gray-950 via-gray-900 to-black" />
+      </div>
+
       {/* Hero Section - Full Viewport */}
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 py-20 text-center">
         <div className="mx-auto w-full max-w-3xl space-y-12">
@@ -148,8 +153,21 @@ export default function Home() {
           }
         }
 
+        @keyframes ai-pulse {
+          0%, 100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.85;
+          }
+        }
+
         .animate-fade-in {
           animation: fade-in 0.6s ease-out;
+        }
+
+        .animate-ai-pulse {
+          animation: ai-pulse 6s ease-in-out infinite;
         }
       `}</style>
     </div>
