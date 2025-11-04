@@ -52,8 +52,8 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-4 left-1/2 z-40 w-full max-w-md -translate-x-1/2 px-4 md:hidden">
-      {/* Clean, floating navigation bar */}
-      <div className="flex items-center justify-between rounded-full border border-line1 bg-bg0/95 px-4 py-2 shadow-lg backdrop-blur-xl">
+      {/* Clean, floating navigation bar with v3.0 neural precision */}
+      <div className="flex items-center justify-between rounded-full border border-surface-border bg-surface-0/95 px-4 py-2 shadow-lg backdrop-blur-xl">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const active = isActive(pathname ?? "", item);
@@ -65,14 +65,14 @@ export function BottomNav() {
               className={cn(
                 "touch-feedback flex flex-1 flex-col items-center gap-1 rounded-full px-3 py-2 text-xs font-medium transition-all duration-150",
                 active
-                  ? "text-accent"
-                  : "text-fg2 hover:text-fg1 active:bg-bg2"
+                  ? "text-cyan-500"
+                  : "text-text-muted hover:text-text-secondary active:bg-surface-2"
               )}
             >
               <Icon
                 className={cn(
                   "h-6 w-6 transition-all",
-                  active ? "text-accent" : "text-fg1"
+                  active ? "text-cyan-500" : "text-text-secondary"
                 )}
                 aria-hidden
               />

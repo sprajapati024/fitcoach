@@ -9,9 +9,9 @@ export function DesktopNav() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-30 hidden border-b border-line1 bg-bg0 px-8 py-4 shadow-md md:block">
+    <header className="sticky top-0 z-30 hidden border-b border-surface-border bg-surface-0 px-8 py-4 shadow-md md:block">
       <nav className="mx-auto flex max-w-6xl items-center justify-between">
-        <span className="text-xl font-bold tracking-tight text-fg0">
+        <span className="bg-gradient-to-r from-cyan-500 to-indigo-600 bg-clip-text text-xl font-bold tracking-tight text-transparent">
           FitCoach
         </span>
         <div className="flex items-center gap-2">
@@ -28,8 +28,8 @@ export function DesktopNav() {
                 className={cn(
                   "touch-feedback rounded-md px-4 py-2 text-sm font-medium transition-all duration-150",
                   active
-                    ? "bg-accent text-gray-950"
-                    : "text-fg2 hover:bg-bg2 hover:text-fg0"
+                    ? "bg-gradient-to-r from-cyan-500 to-indigo-600 text-gray-950 shadow-[0_0_10px_rgba(79,70,229,0.1)]"
+                    : "text-text-muted hover:bg-surface-2 hover:text-text-primary"
                 )}
               >
                 {item.label}
