@@ -93,27 +93,27 @@ export default async function ProgressPage() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-lg border border-line1/60 bg-bg0 p-4 shadow-[0_2px_8px_rgba(0,0,0,0.1),0_0_1px_rgba(0,212,255,0.05)] transition-all">
+            <div className="rounded-lg border border-line1 bg-bg0 p-4 shadow-md transition-all">
               <p className="text-xs uppercase tracking-wide text-fg2">Workouts completed</p>
-              <p className="mt-1 text-2xl font-semibold text-[var(--neon-primary)]">{totalCompleted}</p>
+              <p className="mt-1 text-2xl font-semibold text-accent">{totalCompleted}</p>
               <p className="text-xs text-fg2">Last workout {lastWorkoutDate ?? "—"}</p>
             </div>
 
-            <div className="rounded-lg border border-line1/60 bg-bg0 p-4 shadow-[0_2px_8px_rgba(0,0,0,0.1),0_0_1px_rgba(0,212,255,0.05)] transition-all">
+            <div className="rounded-lg border border-line1 bg-bg0 p-4 shadow-md transition-all">
               <p className="text-xs uppercase tracking-wide text-fg2">Workouts skipped</p>
               <p className="mt-1 text-2xl font-semibold text-fg0">{totalSkipped}</p>
               <p className="text-xs text-fg2">Includes logged rest or missed sessions.</p>
             </div>
 
-            <div className="rounded-lg border border-line1/60 bg-bg0 p-4 shadow-[0_2px_8px_rgba(0,0,0,0.1),0_0_1px_rgba(0,212,255,0.05)] transition-all">
+            <div className="rounded-lg border border-line1 bg-bg0 p-4 shadow-md transition-all">
               <p className="text-xs uppercase tracking-wide text-fg2">Sets logged</p>
               <p className="mt-1 text-2xl font-semibold text-fg0">{Number(totalSets)}</p>
               <p className="text-xs text-fg2">All time recorded sets.</p>
             </div>
 
-            <div className={`rounded-lg border p-4 shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-all ${windowCompliance && windowCompliance >= 80 ? 'border-[var(--neon-primary)]/40 shadow-[0_0_12px_rgba(0,212,255,0.15)]' : 'border-line1/60 shadow-[0_0_1px_rgba(0,212,255,0.05)]'}`}>
+            <div className={`rounded-lg border bg-bg0 p-4 shadow-md transition-all ${windowCompliance && windowCompliance >= 80 ? 'border-accent-light' : 'border-line1'}`}>
               <p className="text-xs uppercase tracking-wide text-fg2">7-day adherence</p>
-              <p className={`mt-1 text-2xl font-semibold ${windowCompliance && windowCompliance >= 80 ? 'text-[var(--neon-primary)]' : 'text-fg0'}`}>
+              <p className={`mt-1 text-2xl font-semibold ${windowCompliance && windowCompliance >= 80 ? 'text-accent' : 'text-fg0'}`}>
                 {windowCompliance !== null ? `${windowCompliance}%` : "—"}
               </p>
               <p className="text-xs text-fg2">

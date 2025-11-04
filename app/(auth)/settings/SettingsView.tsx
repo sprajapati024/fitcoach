@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { deletePlanAction } from "@/app/actions/plan";
 import { updateCustomInstructionsAction } from "@/app/actions/profile";
 import type { profiles, plans } from "@/drizzle/schema";
+import { PrimaryButton } from "@/components/PrimaryButton";
 
 type Profile = typeof profiles.$inferSelect;
 type Plan = typeof plans.$inferSelect;
@@ -71,19 +72,19 @@ export function SettingsView({ profile, userPlans }: SettingsViewProps) {
             value={customInstructions}
             onChange={(e) => setCustomInstructions(e.target.value)}
             placeholder="E.g., Focus on posterior chain, avoid overhead movements, prefer dumbbell variations..."
-            className="w-full rounded-md border border-line1 bg-bg1 p-3 text-sm text-fg0 placeholder-fg3 transition-all focus:border-[var(--neon-primary)] focus:shadow-[0_0_0_1px_var(--neon-primary)] focus:outline-none"
+            className="w-full rounded-md border border-line1 bg-bg1 p-3 text-sm text-fg0 placeholder:text-fg2 transition-all focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
             rows={4}
             maxLength={maxChars + 50} // Allow typing a bit over to show error
           />
           <div className="flex items-center justify-between">
-            <span className={`text-xs ${isOverLimit ? "text-red-500" : "text-fg3"}`}>
+            <span className={`text-xs ${isOverLimit ? "text-error" : "text-fg2"}`}>
               {charCount}/{maxChars} characters
             </span>
             {saveSuccess && (
-              <span className="text-xs text-green-500">✓ Saved successfully</span>
+              <span className="text-xs text-success">✓ Saved successfully</span>
             )}
             {saveError && (
-              <span className="text-xs text-red-500">{saveError}</span>
+              <span className="text-xs text-error">{saveError}</span>
             )}
           </div>
           <p className="text-xs text-fg3">
@@ -91,13 +92,13 @@ export function SettingsView({ profile, userPlans }: SettingsViewProps) {
             Be specific about preferences, limitations, or focus areas.
           </p>
 
-          <button
+          <PrimaryButton
             onClick={handleSaveInstructions}
             disabled={isPending || isOverLimit}
-            className="touch-feedback inline-flex h-12 items-center justify-center rounded-full bg-gradient-to-r from-[var(--neon-primary)] to-[var(--neon-glow)] px-6 text-sm font-semibold uppercase tracking-wide text-bg0 shadow-[0_2px_8px_rgba(0,212,255,0.3),0_4px_16px_rgba(0,212,255,0.15)] transition-all duration-200 active:shadow-[0_1px_4px_rgba(0,212,255,0.4),0_0_8px_rgba(0,212,255,0.2)_inset] disabled:cursor-not-allowed disabled:opacity-50 disabled:from-fg2 disabled:to-fg2 disabled:shadow-none"
+            loading={isPending}
           >
-            {isPending ? "Saving..." : "Save Preferences"}
-          </button>
+            Save Preferences
+          </PrimaryButton>
         </div>
       </div>
 

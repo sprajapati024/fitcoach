@@ -363,7 +363,7 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
             stopRestTimer();
             onCancel();
           }}
-          className="inline-flex items-center gap-2 rounded-full px-4 py-2 transition hover:bg-bg2 hover:text-fg0"
+          className="inline-flex items-center gap-2 rounded-md px-4 py-2 text-fg2 transition hover:bg-bg2 hover:text-fg0"
         >
           ← Cancel
         </button>
@@ -376,11 +376,11 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
         <Card
           className={`flex items-center justify-between border ${
             feedback.type === 'error'
-              ? 'border-red-500/40 text-red-200'
+              ? 'border-error bg-error-bg text-error-light'
               : feedback.type === 'success'
-                ? 'border-green-500/40 text-green-200'
+                ? 'border-success bg-success-bg text-success-light'
                 : 'border-fg2 text-fg1'
-          } bg-bg1/80 text-sm`}
+          } bg-bg1 text-sm`}
         >
           <span>{feedback.message}</span>
           <button
@@ -392,7 +392,7 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
         </Card>
       ) : null}
 
-      <Card className="space-y-2 bg-bg1/80">
+      <Card className="space-y-2">
         <p className="text-xs font-medium uppercase tracking-wide text-fg2">
           {currentExercise.blockTitle}
         </p>

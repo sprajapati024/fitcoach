@@ -230,7 +230,7 @@ export function TodayView({ workout, userId }: TodayViewProps) {
           <select
             value={skipReason}
             onChange={(e) => setSkipReason(e.target.value)}
-            className="w-full rounded-md border border-line1 bg-bg0 px-3 py-2 text-sm text-fg0 transition-all focus:border-[var(--neon-primary)] focus:shadow-[0_0_0_1px_var(--neon-primary)] focus:outline-none"
+            className="w-full rounded-md border border-line1 bg-bg0 px-3 py-2 text-sm text-fg0 transition-all focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
           >
             <option value="">Select a reason...</option>
             <option value="rest">Planned rest day</option>
