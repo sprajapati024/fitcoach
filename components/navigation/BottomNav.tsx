@@ -51,9 +51,9 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-4 left-1/2 z-40 w-full max-w-md -translate-x-1/2 px-4 md:hidden">
-      {/* Enhanced glassmorphism container with subtle neon hint */}
-      <div className="flex items-center justify-between rounded-full border border-line1 bg-bg0/95 px-4 py-2 shadow-[0_10px_40px_rgba(0,0,0,0.35),0_0_1px_rgba(0,212,255,0.1)] backdrop-blur-xl">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden">
+      {/* Clean, elevated navigation bar */}
+      <div className="flex items-center justify-between border-t border-line1 bg-bg0 px-2 py-2 shadow-lg">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const active = isActive(pathname ?? "", item);
@@ -63,20 +63,20 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "touch-feedback flex flex-1 flex-col items-center gap-1 rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-wide transition-all duration-200",
+                "touch-feedback flex flex-1 flex-col items-center gap-1 rounded-md px-3 py-2 text-xs font-medium transition-all duration-150",
                 active
-                  ? "bg-gradient-to-br from-[var(--neon-primary)] to-[var(--neon-glow)] text-bg0 shadow-[0_2px_8px_rgba(0,212,255,0.3),0_0_12px_rgba(0,212,255,0.15)]"
-                  : "text-fg2 active:bg-bg2"
+                  ? "text-accent"
+                  : "text-fg2 hover:text-fg1 active:bg-bg2"
               )}
             >
               <Icon
                 className={cn(
-                  "h-5 w-5 transition-all",
-                  active ? "text-bg0 drop-shadow-[0_0_2px_rgba(255,255,255,0.5)]" : "text-fg1"
+                  "h-6 w-6 transition-all",
+                  active ? "text-accent" : "text-fg1"
                 )}
                 aria-hidden
               />
-              <span className={active ? "drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]" : ""}>{item.label}</span>
+              <span>{item.label}</span>
             </Link>
           );
         })}
