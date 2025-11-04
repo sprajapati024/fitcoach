@@ -309,7 +309,7 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
               value={selectedStartDate}
               onChange={(e) => setSelectedStartDate(e.target.value)}
               min={new Date().toISOString().slice(0, 10)}
-              className="h-12 w-full rounded border border-line1 bg-bg2 px-4 text-fg0 focus:border-[var(--neon-primary)] focus:shadow-[0_0_0_1px_var(--neon-primary)] focus:outline-none"
+              className="h-12 w-full rounded border border-line1 bg-bg2 px-4 text-fg0 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
             />
             <p className="mt-2 text-xs text-fg2">
               Workouts will align to this date once you activate the plan. Local timezone: {timezoneLabel}.
@@ -385,7 +385,7 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
                 type="date"
                 value={startDateUpdate}
                 onChange={(e) => setStartDateUpdate(e.target.value)}
-                className="h-12 rounded border border-line1 bg-bg0 px-4 text-sm text-fg0 focus:border-[var(--neon-primary)] focus:shadow-[0_0_0_1px_var(--neon-primary)] focus:outline-none"
+                className="h-12 rounded border border-line1 bg-bg0 px-4 text-sm text-fg0 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
               />
               <PrimaryButton
                 onClick={handleUpdateStartDate}

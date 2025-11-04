@@ -9,7 +9,7 @@ export function DesktopNav() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-30 hidden border-b border-line1 bg-bg0/80 px-8 py-4 shadow-md backdrop-blur-lg md:block">
+    <header className="sticky top-0 z-30 hidden border-b border-line1 bg-bg0 px-8 py-4 shadow-md md:block">
       <nav className="mx-auto flex max-w-6xl items-center justify-between">
         <span className="text-xl font-bold tracking-tight text-fg0">
           FitCoach

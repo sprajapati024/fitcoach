@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ExerciseLogger, type LoggerResult } from "@/app/(auth)/dashboard/ExerciseLogger";
+import { PrimaryButton } from "@/components/PrimaryButton";
 import type { workouts, WorkoutPayload } from "@/drizzle/schema";
 
 type Workout = typeof workouts.$inferSelect;
@@ -186,12 +187,12 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
       {/* Action Buttons */}
       <div className="space-y-3">
         {!isPast && (
-          <button
+          <PrimaryButton
             onClick={() => setIsLogging(true)}
-            className="w-full bg-fg0 text-bg0 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity"
+            className="w-full"
           >
             Start Workout
-          </button>
+          </PrimaryButton>
         )}
 
         {isFuture && (

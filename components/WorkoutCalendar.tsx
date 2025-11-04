@@ -115,15 +115,15 @@ export function WorkoutCalendar({
                         key={dayIndex}
                         className={`
                           scroll-snap-item relative flex min-h-[100px] w-[120px] flex-col rounded-lg border p-3 transition-all md:min-h-[80px] md:w-auto
-                          ${isToday ? "border-[var(--neon-primary)] bg-bg1 shadow-[0_0_8px_rgba(0,212,255,0.2)]" : "border-line1 bg-bg0"}
-                          ${workout ? "touch-feedback cursor-pointer active:shadow-lg" : ""}
+                          ${isToday ? "border-accent bg-bg1 shadow-md" : "border-line1 bg-bg0"}
+                          ${workout ? "touch-feedback cursor-pointer hover:border-accent hover:shadow-md" : ""}
                         `}
                       >
                         {/* Day Label */}
                         <div className="mb-1 text-xs font-medium text-fg2">
                           {getDayOfWeek(dayDate)}
                         </div>
-                        <div className={`text-xs ${isToday ? "font-bold text-[var(--neon-primary)]" : "text-fg2"}`}>
+                        <div className={`text-xs ${isToday ? "font-bold text-accent" : "text-fg2"}`}>
                           {formatDateShort(dayDate)}
                         </div>
 
@@ -144,7 +144,7 @@ export function WorkoutCalendar({
                               <div className="absolute right-1 top-1">
                                 <div
                                   className={`h-2 w-2 rounded-full ${
-                                    status === "completed" ? "bg-green-400 shadow-[0_0_4px_rgba(74,222,128,0.5)]" : "bg-amber-400"
+                                    status === "completed" ? "bg-success-light" : "bg-warning-light"
                                   }`}
                                 />
                               </div>
