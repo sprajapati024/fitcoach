@@ -59,19 +59,6 @@ export default function Home() {
         <div className="absolute inset-0 animate-ai-pulse bg-gradient-to-br from-gray-950 via-gray-900 to-black" />
       </div>
 
-      {/* Drifting Orbs */}
-      <div className="pointer-events-none absolute inset-0 opacity-30">
-        <div className="absolute left-1/4 top-1/4 h-96 w-96 animate-drift rounded-full bg-cyan-500/10 blur-3xl" />
-        <div
-          className="absolute bottom-1/4 right-1/4 h-96 w-96 animate-drift-slow rounded-full bg-indigo-600/10 blur-3xl"
-          style={{ animationDelay: '3s' }}
-        />
-        <div
-          className="absolute left-1/2 top-1/2 h-80 w-80 animate-drift-slower rounded-full bg-purple-500/5 blur-3xl"
-          style={{ animationDelay: '6s' }}
-        />
-      </div>
-
       {/* Hero Section - Full Viewport */}
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 py-20 text-center">
         <div className="mx-auto w-full max-w-3xl space-y-12">
@@ -175,54 +162,12 @@ export default function Home() {
           }
         }
 
-        @keyframes drift {
-          0%, 100% {
-            transform: translate(0, 0);
-          }
-          33% {
-            transform: translate(30px, -30px);
-          }
-          66% {
-            transform: translate(-20px, 20px);
-          }
-        }
-
-        @keyframes drift-slow {
-          0%, 100% {
-            transform: translate(0, 0);
-          }
-          50% {
-            transform: translate(-40px, 40px);
-          }
-        }
-
-        @keyframes drift-slower {
-          0%, 100% {
-            transform: translate(0, 0);
-          }
-          50% {
-            transform: translate(50px, -50px);
-          }
-        }
-
         .animate-fade-in {
           animation: fade-in 0.6s ease-out;
         }
 
         .animate-ai-pulse {
           animation: ai-pulse 6s ease-in-out infinite;
-        }
-
-        .animate-drift {
-          animation: drift 20s ease-in-out infinite;
-        }
-
-        .animate-drift-slow {
-          animation: drift-slow 25s ease-in-out infinite;
-        }
-
-        .animate-drift-slower {
-          animation: drift-slower 30s ease-in-out infinite;
         }
       `}</style>
     </div>
