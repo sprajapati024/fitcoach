@@ -6,126 +6,152 @@
   --radius: 8px;
 }
 
-/* Dark Theme (Default) - Refined Gray Scale */
+/* ========================================
+   🧠 FITCOACH DESIGN SYSTEM v3.0
+   "Mindful Intelligence" – Calm • Adaptive • Futuristic
+   ======================================== */
+
+/* Dark Theme (Default) - Neural Surfaces */
 :root[data-theme="dark"] {
-  /* Background layers */
-  --gray-950: #0a0a0a;
-  --gray-900: #1a1a1a;
-  --gray-800: #262626;
-  --gray-700: #404040;
-  --gray-600: #525252;
+  /* Surface Layers */
+  --surface-0: #0B0D0E;
+  --surface-1: #111315;
+  --surface-2: #16191B;
+  --surface-border: #242729;
 
-  /* Foreground layers */
-  --gray-400: #a3a3a3;
-  --gray-200: #e5e5e5;
-  --gray-50: #fafafa;
+  /* Text Hierarchy */
+  --text-primary: #F1F5F9;
+  --text-secondary: #A3A3A3;
+  --text-muted: #6B7280;
 
-  /* Semantic mapping */
-  --bg-0: var(--gray-950);
-  --bg-1: var(--gray-900);
-  --bg-2: var(--gray-800);
-  --fg-0: var(--gray-200);
-  --fg-1: var(--gray-400);
-  --fg-2: var(--gray-600);
-  --line-1: var(--gray-800);
-  --line-2: var(--gray-700);
+  /* Semantic mapping for backward compatibility */
+  --bg-0: var(--surface-0);
+  --bg-1: var(--surface-1);
+  --bg-2: var(--surface-2);
+  --fg-0: var(--text-primary);
+  --fg-1: var(--text-secondary);
+  --fg-2: var(--text-muted);
+  --fg3: var(--text-muted);
+  --line-1: var(--surface-border);
+  --line-2: var(--surface-border);
 }
 
-/* Light Theme */
+/* Light Theme (Minimal - Future-proofed) */
 :root[data-theme="light"] {
-  /* Background layers */
-  --gray-50: #fafafa;
-  --gray-100: #f5f5f5;
-  --gray-200: #e5e5e5;
-  --gray-300: #d4d4d4;
-  --gray-400: #a3a3a3;
+  --surface-0: #FFFFFF;
+  --surface-1: #F8F9FA;
+  --surface-2: #E9ECEF;
+  --surface-border: #DEE2E6;
 
-  /* Foreground layers */
-  --gray-600: #525252;
-  --gray-800: #262626;
-  --gray-900: #1a1a1a;
-  --gray-950: #0a0a0a;
+  --text-primary: #0B0D0E;
+  --text-secondary: #6B7280;
+  --text-muted: #9CA3AF;
 
-  /* Semantic mapping */
-  --bg-0: var(--gray-50);
-  --bg-1: var(--gray-100);
-  --bg-2: var(--gray-200);
-  --fg-0: var(--gray-800);
-  --fg-1: var(--gray-600);
-  --fg-2: var(--gray-400);
-  --line-1: var(--gray-200);
-  --line-2: var(--gray-300);
+  --bg-0: var(--surface-0);
+  --bg-1: var(--surface-1);
+  --bg-2: var(--surface-2);
+  --fg-0: var(--text-primary);
+  --fg-1: var(--text-secondary);
+  --fg-2: var(--text-muted);
+  --fg3: var(--text-muted);
+  --line-1: var(--surface-border);
+  --line-2: var(--surface-border);
 }
 
 /* Shared tokens across themes */
 :root,
 :root[data-theme="dark"],
 :root[data-theme="light"] {
-  /* Border radius system - 8px base */
+  /* Border radius system */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
+  --radius-2xl: 20px;
 
-  /* Accent color - Subtle Cyan (Used sparingly) */
+  /* ========================================
+     🎨 ACCENT GRADIENT SYSTEM
+     Neural Shimmer: Cyan → Indigo
+     ======================================== */
+  --accent-gradient-start: #06B6D4;
+  --accent-gradient-end: #4F46E5;
+
+  /* Solid fallbacks for non-gradient contexts */
   --accent-primary: #06b6d4;
   --accent-light: #22d3ee;
   --accent-dark: #0891b2;
   --accent-subtle: rgba(6, 182, 212, 0.1);
   --accent-muted: rgba(6, 182, 212, 0.15);
 
-  /* Semantic colors - Functional feedback */
+  /* Gradient definitions */
+  --accent-gradient: linear-gradient(90deg, var(--accent-gradient-start) 0%, var(--accent-gradient-end) 100%);
+  --accent-gradient-hover: linear-gradient(90deg, #22D3EE 0%, #6366F1 100%);
+  --accent-gradient-active: linear-gradient(90deg, #0891B2 0%, #4338CA 100%);
+
+  /* ========================================
+     🔊 SEMANTIC COLORS - Feedback States
+     ======================================== */
   --success: #10b981;
   --success-light: #34d399;
-  --success-bg: #064e3b;
-  --error: #ef4444;
-  --error-light: #f87171;
-  --error-bg: #7f1d1d;
+  --success-bg: rgba(16, 185, 129, 0.1);
+
   --warning: #f59e0b;
   --warning-light: #fbbf24;
-  --warning-bg: #78350f;
+  --warning-bg: rgba(245, 158, 11, 0.1);
+
+  --error: #ef4444;
+  --error-light: #f87171;
+  --error-bg: rgba(239, 68, 68, 0.1);
+
   --info: #3b82f6;
   --info-light: #60a5fa;
-  --info-bg: #1e3a8a;
+  --info-bg: rgba(59, 130, 246, 0.1);
 
-  /* Shadows - Subtle, no heavy glows */
+  /* ========================================
+     ✨ ELEVATION & DEPTH - Neural Shimmer
+     ======================================== */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-accent: 0 0 20px rgba(6, 182, 212, 0.15);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.3);
+
+  /* Neural shimmer shadows */
+  --shadow-hover: 0 1px 4px rgba(79, 70, 229, 0.08);
+  --shadow-active: 0 0 25px rgba(6, 182, 212, 0.15);
+  --shadow-neural: 0 0 15px rgba(79, 70, 229, 0.15);
+  --shadow-neural-strong: 0 0 25px rgba(79, 70, 229, 0.25);
 
   /* Shadcn/ui compatibility tokens */
-  --background: var(--bg-0);
-  --foreground: var(--fg-0);
-  --card: var(--bg-1);
-  --card-foreground: var(--fg-0);
-  --popover: var(--bg-1);
-  --popover-foreground: var(--fg-0);
+  --background: var(--surface-0);
+  --foreground: var(--text-primary);
+  --card: var(--surface-1);
+  --card-foreground: var(--text-primary);
+  --popover: var(--surface-1);
+  --popover-foreground: var(--text-primary);
   --primary: var(--accent-primary);
-  --primary-foreground: var(--gray-950);
-  --secondary: var(--bg-2);
-  --secondary-foreground: var(--fg-0);
-  --muted: var(--bg-2);
-  --muted-foreground: var(--fg-2);
+  --primary-foreground: #0a0a0a;
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--surface-2);
+  --muted-foreground: var(--text-muted);
   --accent: var(--accent-primary);
-  --accent-foreground: var(--gray-950);
+  --accent-foreground: #0a0a0a;
   --destructive: var(--error);
-  --destructive-foreground: var(--gray-50);
-  --border: var(--line-1);
-  --input: var(--line-1);
+  --destructive-foreground: #F1F5F9;
+  --border: var(--surface-border);
+  --input: var(--surface-border);
   --ring: var(--accent-primary);
   --chart-1: var(--accent-primary);
   --chart-2: var(--success);
   --chart-3: var(--warning);
   --chart-4: var(--info);
-  --chart-5: var(--fg-1);
+  --chart-5: var(--text-secondary);
 }
 
 html,
 body {
   min-height: 100%;
-  background: var(--bg-0);
-  color: var(--fg-0);
+  background: var(--surface-0);
+  color: var(--text-primary);
   font-family: var(--font-sans, "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
 }
 
@@ -175,7 +201,57 @@ body {
   }
 }
 
-/* Mobile-friendly animations - Fast & Purposeful */
+/* ========================================
+   ✨ MOTION SYSTEM - Neural Shimmer
+   Signature brand animations
+   ======================================== */
+
+/* 1. Focus Wave - Horizontal shimmer on buttons */
+@keyframes focusWave {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+/* 2. AI Pulse - Breathing glow for awareness */
+@keyframes aiPulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0px rgba(79, 70, 229, 0);
+  }
+  50% {
+    opacity: 0.9;
+    box-shadow: 0 0 25px rgba(79, 70, 229, 0.2);
+  }
+}
+
+/* 3. Flow - Diagonal moving gradient for progress */
+@keyframes flow {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+/* 4. Drift - Subtle background element motion */
+@keyframes drift {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  33% {
+    transform: translate(-30px, 30px);
+  }
+  66% {
+    transform: translate(30px, -20px);
+  }
+}
+
+/* Mobile-friendly animations */
 @keyframes scale-in {
   0% {
     transform: scale(0.95);
@@ -207,14 +283,39 @@ body {
   }
 }
 
-/* Touch feedback utility class */
+/* ========================================
+   🎯 UTILITY CLASSES
+   ======================================== */
+
+/* Touch feedback with neural precision */
 .touch-feedback {
   transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
 }
 
 .touch-feedback:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
+}
+
+/* Neural shimmer button effect */
+.neural-shimmer {
+  position: relative;
+  overflow: hidden;
+  background: var(--accent-gradient);
+}
+
+.neural-shimmer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(79, 70, 229, 0.3),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: focusWave 3s linear infinite;
 }
 
 /* Smooth scrolling for horizontal calendars */
@@ -229,7 +330,10 @@ body {
   scroll-snap-stop: always;
 }
 
-/* Respect reduced motion preferences */
+/* ========================================
+   ♿ ACCESSIBILITY
+   Respect reduced motion preferences
+   ======================================== */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -242,5 +346,9 @@ body {
 
   .touch-feedback:active {
     transform: none;
+  }
+
+  .neural-shimmer::before {
+    animation: none;
   }
 }
