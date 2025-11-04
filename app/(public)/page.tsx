@@ -53,19 +53,19 @@ export default function Home() {
   }, [supabase]);
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-black text-white">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-br from-gray-950 via-black to-gray-900 text-white">
       {/* Hero Section - Full Viewport */}
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 py-20 text-center">
         <div className="mx-auto w-full max-w-3xl space-y-12">
           {/* Eyebrow */}
-          <div>
+          <div className="animate-fade-in opacity-0" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
             <p className="text-xs uppercase tracking-[0.3em] text-gray-500">
               AI-Powered Training
             </p>
           </div>
 
           {/* Logo / Title */}
-          <div className="space-y-6">
+          <div className="animate-fade-in space-y-6 opacity-0" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
             <h1 className="text-6xl font-bold tracking-tight text-white sm:text-7xl md:text-8xl">
               FitCoach
             </h1>
@@ -74,21 +74,27 @@ export default function Home() {
             </p>
           </div>
 
-          {/* CTA Button */}
-          <div className="space-y-6">
+          {/* CTA Button - Neural Shimmer */}
+          <div className="animate-fade-in space-y-6 opacity-0" style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
             <button
               type="button"
               onClick={handleSignIn}
               disabled={isLoading || !supabase}
-              className="inline-flex h-14 items-center justify-center gap-3 rounded-md bg-gradient-to-r from-cyan-500 to-indigo-600 px-10 text-base font-semibold text-black transition-all duration-200 hover:shadow-lg active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+              className="group relative inline-flex h-14 items-center justify-center gap-3 overflow-hidden rounded-md bg-gradient-to-r from-cyan-500 to-indigo-600 px-10 text-base font-semibold text-black shadow-[0_0_20px_rgba(79,70,229,0.2)] transition-all duration-200 hover:scale-105 hover:shadow-[0_0_30px_rgba(79,70,229,0.3)] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
             >
+              {/* Neural Shimmer Effect */}
+              <div
+                className="absolute inset-0 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-all duration-500 group-hover:translate-x-[100%] group-hover:opacity-100"
+                style={{ transition: 'transform 0.6s ease-in-out, opacity 0.3s ease-in-out' }}
+              />
+
               {isLoading ? (
                 <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  <span>Getting ready...</span>
+                  <Loader2 className="relative z-10 h-5 w-5 animate-spin" />
+                  <span className="relative z-10">Getting ready...</span>
                 </>
               ) : (
-                <span>Start Training</span>
+                <span className="relative z-10">Start Training</span>
               )}
             </button>
 
@@ -102,7 +108,7 @@ export default function Home() {
           </div>
 
           {/* Cycling Tagline */}
-          <div>
+          <div className="animate-fade-in opacity-0" style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}>
             <div className="relative h-8 overflow-hidden">
               {CYCLING_TAGLINES.map((tagline, index) => (
                 <p
@@ -129,6 +135,23 @@ export default function Home() {
           © FitCoach {new Date().getFullYear()}. Not medical advice. Train smart.
         </p>
       </footer>
+
+      <style jsx>{`
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-fade-in {
+          animation: fade-in 0.6s ease-out;
+        }
+      `}</style>
     </div>
   );
 }
