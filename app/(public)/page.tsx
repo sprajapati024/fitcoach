@@ -17,7 +17,6 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [currentTagline, setCurrentTagline] = useState(0);
-  const [scrollProgress, setScrollProgress] = useState(0);
 
   // Auto-cycle taglines every 3 seconds
   useEffect(() => {
@@ -25,18 +24,6 @@ export default function Home() {
       setCurrentTagline((prev) => (prev + 1) % CYCLING_TAGLINES.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
-
-  // Track scroll progress
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrolled = window.scrollY;
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = Math.min(scrolled / Math.max(maxScroll, 1), 1);
-      setScrollProgress(progress);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleSignIn = useCallback(async () => {
@@ -66,80 +53,61 @@ export default function Home() {
   }, [supabase]);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#0B0D0E]">
-      {/* Breathing Background - AI Pulse */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0B0D0E] via-[#111315] to-[#0B0D0E] animate-ai-pulse" />
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute left-1/4 top-1/4 h-96 w-96 animate-drift rounded-full bg-[#06B6D4]/10 blur-3xl" />
-          <div className="absolute bottom-1/4 right-1/4 h-96 w-96 animate-drift rounded-full bg-[#4F46E5]/10 blur-3xl" style={{ animationDelay: '10s' }} />
-        </div>
-      </div>
-
-      {/* Subtle Noise Texture */}
-      <div className="pointer-events-none absolute inset-0 opacity-[0.015] mix-blend-overlay">
-        <div className="h-full w-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=')]" />
-      </div>
-
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-black text-white">
       {/* Hero Section - Full Viewport */}
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 py-20 text-center">
         <div className="mx-auto w-full max-w-3xl space-y-12">
           {/* Eyebrow */}
-          <div className="animate-fade-in opacity-0" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
-            <p className="text-xs uppercase tracking-[0.3em] text-[#6B7280]">
+          <div>
+            <p className="text-xs uppercase tracking-[0.3em] text-gray-500">
               AI-Powered Training
             </p>
           </div>
 
           {/* Logo / Title */}
-          <div className="animate-fade-in space-y-6 opacity-0" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
-            <h1 className="text-6xl font-bold tracking-tight text-[#F1F5F9] sm:text-7xl md:text-8xl">
+          <div className="space-y-6">
+            <h1 className="text-6xl font-bold tracking-tight text-white sm:text-7xl md:text-8xl">
               FitCoach
             </h1>
-            <p className="text-xl text-[#A3A3A3] sm:text-2xl">
+            <p className="text-xl text-gray-400 sm:text-2xl">
               AI builds your plan. You build your strength.
             </p>
           </div>
 
-          {/* CTA Button - Neural Shimmer */}
-          <div className="animate-fade-in space-y-6 opacity-0" style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
+          {/* CTA Button */}
+          <div className="space-y-6">
             <button
               type="button"
               onClick={handleSignIn}
               disabled={isLoading || !supabase}
-              className="group relative inline-flex h-14 items-center justify-center gap-3 overflow-hidden rounded-md bg-gradient-to-r from-[#06B6D4] to-[#4F46E5] px-10 text-base font-semibold text-gray-950 shadow-[0_0_15px_rgba(79,70,229,0.15)] transition-all duration-200 hover:shadow-[0_0_25px_rgba(79,70,229,0.25)] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex h-14 items-center justify-center gap-3 rounded-md bg-gradient-to-r from-cyan-500 to-indigo-600 px-10 text-base font-semibold text-black transition-all duration-200 hover:shadow-lg active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {/* Neural Shimmer Effect */}
-              <div className="absolute inset-0 bg-[length:200%_100%] opacity-0 transition-opacity duration-500 group-hover:animate-focus-wave group-hover:opacity-100"
-                style={{ backgroundImage: 'linear-gradient(120deg, transparent, rgba(79, 70, 229, 0.3), transparent)' }}
-              />
-
               {isLoading ? (
                 <>
-                  <Loader2 className="relative z-10 h-5 w-5 animate-spin" />
-                  <span className="relative z-10">Getting ready...</span>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span>Getting ready...</span>
                 </>
               ) : (
-                <span className="relative z-10">Start Training</span>
+                <span>Start Training</span>
               )}
             </button>
 
             {errorMessage ? (
-              <p className="text-sm text-[#EF4444]">{errorMessage}</p>
+              <p className="text-sm text-red-400">{errorMessage}</p>
             ) : (
-              <p className="text-sm tracking-wide text-[#6B7280]">
+              <p className="text-sm tracking-wide text-gray-500">
                 Adaptive. Private. Offline-ready.
               </p>
             )}
           </div>
 
           {/* Cycling Tagline */}
-          <div className="animate-fade-in opacity-0" style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}>
+          <div>
             <div className="relative h-8 overflow-hidden">
               {CYCLING_TAGLINES.map((tagline, index) => (
                 <p
                   key={tagline}
-                  className={`absolute inset-0 flex items-center justify-center text-base text-[#A3A3A3] transition-all duration-700 ${
+                  className={`absolute inset-0 flex items-center justify-center text-base text-gray-400 transition-all duration-700 ${
                     index === currentTagline
                       ? 'translate-y-0 opacity-100'
                       : index < currentTagline
@@ -155,68 +123,9 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Scroll Fade Sections */}
-      <div className="relative z-10 space-y-96 px-6 pb-96 pt-32">
-        {/* Section 1 */}
-        <div
-          className="mx-auto max-w-3xl text-center transition-opacity duration-1000"
-          style={{ opacity: Math.min(scrollProgress * 3, 1) }}
-        >
-          <h2 className="mb-4 text-4xl font-bold text-[#F1F5F9] sm:text-5xl">
-            AI-Generated Fitness Plans.
-            <br />
-            <span className="text-[#A3A3A3]">Smarter every workout.</span>
-          </h2>
-          <p className="text-lg text-[#6B7280]">
-            No subscriptions. No uploads. Just you and your data.
-          </p>
-        </div>
-
-        {/* Section 2 */}
-        <div
-          className="mx-auto max-w-3xl text-center transition-opacity duration-1000"
-          style={{ opacity: Math.min((scrollProgress - 0.3) * 3, 1) }}
-        >
-          <h2 className="mb-4 text-4xl font-bold text-[#F1F5F9] sm:text-5xl">
-            Made for real people.
-          </h2>
-          <p className="text-lg text-[#A3A3A3]">
-            Beginner to athlete — FitCoach adjusts your volume, intensity, and recovery as you log workouts.
-          </p>
-        </div>
-
-        {/* Final CTA */}
-        <div
-          className="mx-auto max-w-3xl text-center transition-opacity duration-1000"
-          style={{ opacity: Math.min((scrollProgress - 0.6) * 3, 1) }}
-        >
-          <p className="mb-8 text-2xl text-[#A3A3A3]">
-            Join lifters training smarter
-          </p>
-          <button
-            type="button"
-            onClick={handleSignIn}
-            disabled={isLoading || !supabase}
-            className="group relative inline-flex h-14 items-center justify-center gap-3 overflow-hidden rounded-md bg-gradient-to-r from-[#06B6D4] to-[#4F46E5] px-10 text-base font-semibold text-gray-950 shadow-[0_0_15px_rgba(79,70,229,0.15)] transition-all duration-200 hover:shadow-[0_0_25px_rgba(79,70,229,0.25)] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <div className="absolute inset-0 bg-[length:200%_100%] opacity-0 transition-opacity duration-500 group-hover:animate-focus-wave group-hover:opacity-100"
-              style={{ backgroundImage: 'linear-gradient(120deg, transparent, rgba(79, 70, 229, 0.3), transparent)' }}
-            />
-            {isLoading ? (
-              <>
-                <Loader2 className="relative z-10 h-5 w-5 animate-spin" />
-                <span className="relative z-10">Getting ready...</span>
-              </>
-            ) : (
-              <span className="relative z-10">Start Training</span>
-            )}
-          </button>
-        </div>
-      </div>
-
       {/* Footer */}
       <footer className="relative z-10 pb-8 text-center">
-        <p className="text-xs text-[#6B7280]">
+        <p className="text-xs text-gray-600">
           © FitCoach {new Date().getFullYear()}. Not medical advice. Train smart.
         </p>
       </footer>
