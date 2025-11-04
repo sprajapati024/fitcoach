@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { deletePlanAction } from "@/app/actions/plan";
 import { updateCustomInstructionsAction } from "@/app/actions/profile";
 import type { profiles, plans } from "@/drizzle/schema";
@@ -15,6 +16,7 @@ interface SettingsViewProps {
 }
 
 export function SettingsView({ profile, userPlans }: SettingsViewProps) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [customInstructions, setCustomInstructions] = useState(profile?.coachNotes || "");
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -41,6 +43,8 @@ export function SettingsView({ profile, userPlans }: SettingsViewProps) {
       try {
         await deletePlanAction(planId);
         setDeleteConfirmId(null);
+        // Refresh the page to show updated plan list
+        router.refresh();
       } catch (error) {
         console.error("Failed to delete plan:", error);
         alert("Failed to delete plan. Please try again.");

@@ -51,9 +51,9 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden">
-      {/* Clean, elevated navigation bar */}
-      <div className="flex items-center justify-between border-t border-line1 bg-bg0 px-2 py-2 shadow-lg">
+    <nav className="fixed bottom-4 left-1/2 z-40 w-full max-w-md -translate-x-1/2 px-4 md:hidden">
+      {/* Clean, floating navigation bar */}
+      <div className="flex items-center justify-between rounded-full border border-line1 bg-bg0/95 px-4 py-2 shadow-lg backdrop-blur-xl">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const active = isActive(pathname ?? "", item);
@@ -63,7 +63,7 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "touch-feedback flex flex-1 flex-col items-center gap-1 rounded-md px-3 py-2 text-xs font-medium transition-all duration-150",
+                "touch-feedback flex flex-1 flex-col items-center gap-1 rounded-full px-3 py-2 text-xs font-medium transition-all duration-150",
                 active
                   ? "text-accent"
                   : "text-fg2 hover:text-fg1 active:bg-bg2"
