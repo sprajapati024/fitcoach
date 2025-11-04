@@ -1,14 +1,43 @@
 'use client';
 
-import { useCallback, useState } from 'react';
-import { Loader2, Zap, Target, Wifi } from 'lucide-react';
+import { useCallback, useState, useEffect } from 'react';
+import { Loader2, Zap } from 'lucide-react';
 import { publicEnv } from '@/lib/env/public';
 import { useSupabase } from '@/components/providers/SupabaseProvider';
+
+const CYCLING_TAGLINES = [
+  "Learns your habits. Evolves your plan.",
+  "Tracks every rep. Adapts every week.",
+  "Offline-first. Train anywhere.",
+  "Built for lifters. Backed by AI.",
+];
 
 export default function Home() {
   const supabase = useSupabase();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [currentTagline, setCurrentTagline] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  // Auto-cycle taglines every 3 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTagline((prev) => (prev + 1) % CYCLING_TAGLINES.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Track scroll progress
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrolled = window.scrollY;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = Math.min(scrolled / Math.max(maxScroll, 1), 1);
+      setScrollProgress(progress);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleSignIn = useCallback(async () => {
     if (!supabase) {
@@ -37,166 +66,169 @@ export default function Home() {
   }, [supabase]);
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-bg0 text-fg0">
-      {/* Animated Gradient Orbs */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div
-          className="absolute -left-1/4 top-1/4 h-96 w-96 animate-float-slow rounded-full bg-gradient-to-br from-accent/20 via-accent/10 to-transparent blur-3xl"
-          style={{ animationDelay: '0s' }}
-        />
-        <div
-          className="absolute right-0 top-0 h-[32rem] w-[32rem] animate-float-slower rounded-full bg-gradient-to-bl from-purple-500/15 via-accent/10 to-transparent blur-3xl"
-          style={{ animationDelay: '2s' }}
-        />
-        <div
-          className="absolute -bottom-48 left-1/3 h-80 w-80 animate-float rounded-full bg-gradient-to-tr from-accent/15 via-cyan-400/10 to-transparent blur-3xl"
-          style={{ animationDelay: '4s' }}
-        />
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-gray-950 via-black to-gray-900">
+      {/* Animated Background Gradient */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(6,182,212,0.03),transparent_50%)] animate-pulse-slow" />
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute left-1/4 top-1/4 h-96 w-96 animate-drift-slow rounded-full bg-accent/5 blur-3xl" />
+          <div className="absolute bottom-1/4 right-1/4 h-96 w-96 animate-drift-slower rounded-full bg-purple-500/5 blur-3xl" />
+        </div>
       </div>
 
-      {/* Content */}
-      <main className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center gap-12 px-6 py-20 sm:px-8 md:gap-16 md:py-24">
-        {/* Hero Section */}
-        <div className="space-y-8 text-center fade-in">
-          <div className="space-y-4">
-            <p className="text-xs uppercase tracking-[0.25em] text-fg2 md:text-sm">
+      {/* Noise Texture Overlay */}
+      <div className="pointer-events-none absolute inset-0 opacity-[0.015]">
+        <div className="h-full w-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=')]" />
+      </div>
+
+      {/* Hero Section - Full Viewport */}
+      <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 py-20 text-center">
+        <div className="mx-auto w-full max-w-3xl space-y-12">
+          {/* Eyebrow */}
+          <div className="animate-fade-in-up opacity-0" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
+            <p className="text-xs uppercase tracking-[0.3em] text-gray-500">
               AI-Powered Training
             </p>
-            <h1 className="bg-gradient-to-br from-fg0 via-fg0 to-fg1 bg-clip-text text-5xl font-bold leading-tight text-transparent sm:text-6xl md:text-7xl">
-              Train like you have
-              <br />
-              a coach.
-            </h1>
-            <p className="mx-auto max-w-2xl text-lg text-fg1 md:text-xl">
+          </div>
+
+          {/* Logo / Title */}
+          <div className="animate-fade-in-up space-y-6 opacity-0" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+            <div className="relative inline-flex items-center justify-center">
+              <div className="absolute inset-0 animate-pulse-glow rounded-full bg-accent/10 blur-2xl" />
+              <h1 className="relative text-6xl font-bold tracking-tight text-white sm:text-7xl md:text-8xl">
+                FitCoach
+              </h1>
+            </div>
+            <p className="text-xl text-gray-400 sm:text-2xl">
               AI builds your plan. You build your strength.
             </p>
           </div>
 
-          {/* CTA */}
-          <div className="flex flex-col items-center gap-4">
+          {/* CTA Button */}
+          <div className="animate-fade-in-up space-y-6 opacity-0" style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
             <button
               type="button"
               onClick={handleSignIn}
               disabled={isLoading || !supabase}
-              className="group relative inline-flex h-14 items-center justify-center gap-2 overflow-hidden rounded-full bg-accent px-10 text-base font-semibold text-gray-950 shadow-lg shadow-accent/25 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-accent/30 active:scale-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+              className="group relative inline-flex h-16 items-center justify-center gap-3 overflow-hidden rounded-full bg-accent px-12 text-lg font-semibold text-gray-950 shadow-[0_0_40px_rgba(6,182,212,0.3)] transition-all duration-300 hover:scale-105 hover:shadow-[0_0_60px_rgba(6,182,212,0.5)] active:scale-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
             >
-              <div className="absolute inset-0 -z-10 bg-gradient-to-r from-accent-light to-accent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              <div className="absolute inset-0 -z-10 bg-gradient-to-r from-accent-light via-accent to-accent-dark opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
               {isLoading ? (
                 <>
-                  <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+                  <Loader2 className="h-5 w-5 animate-spin" />
                   <span>Getting ready...</span>
                 </>
               ) : (
                 <>
-                  <span>Start Training Free</span>
+                  <span>Start Training — Free</span>
                   <Zap className="h-5 w-5" />
                 </>
               )}
             </button>
 
             {errorMessage ? (
-              <p className="text-sm text-error">{errorMessage}</p>
+              <p className="text-sm text-red-400">{errorMessage}</p>
             ) : (
-              <p className="text-xs text-fg2 md:text-sm">
-                Free. Fast. Offline-ready.
+              <p className="text-sm tracking-wide text-gray-500">
+                Adaptive. Private. Offline-ready.
               </p>
             )}
           </div>
-        </div>
 
-        {/* Features - Glassmorphic Cards */}
-        <div className="grid gap-4 sm:grid-cols-3 md:gap-6">
-          <div className="glass-card group flex flex-col gap-3 rounded-2xl border border-line1/50 bg-bg1/40 p-6 backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:border-accent/30 hover:bg-bg1/60 hover:shadow-lg hover:shadow-accent/10">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 transition-colors group-hover:bg-accent/20">
-              <Zap className="h-6 w-6 text-accent" />
+          {/* Cycling Tagline */}
+          <div className="animate-fade-in-up opacity-0" style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}>
+            <div className="relative h-8 overflow-hidden">
+              {CYCLING_TAGLINES.map((tagline, index) => (
+                <p
+                  key={tagline}
+                  className={`absolute inset-0 flex items-center justify-center text-base text-gray-400 transition-all duration-700 ${
+                    index === currentTagline
+                      ? 'translate-y-0 opacity-100'
+                      : index < currentTagline
+                        ? '-translate-y-full opacity-0'
+                        : 'translate-y-full opacity-0'
+                  }`}
+                >
+                  {tagline}
+                </p>
+              ))}
             </div>
-            <h3 className="text-lg font-semibold text-fg0">Smart Plans</h3>
-            <p className="text-sm leading-relaxed text-fg2">
-              AI generates personalized workout programs based on your goals and experience.
-            </p>
           </div>
-
-          <div className="glass-card group flex flex-col gap-3 rounded-2xl border border-line1/50 bg-bg1/40 p-6 backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:border-accent/30 hover:bg-bg1/60 hover:shadow-lg hover:shadow-accent/10">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 transition-colors group-hover:bg-accent/20">
-              <Target className="h-6 w-6 text-accent" />
-            </div>
-            <h3 className="text-lg font-semibold text-fg0">PCOS-Safe</h3>
-            <p className="text-sm leading-relaxed text-fg2">
-              Built-in safety guardrails for PCOS-aware programming. Train confidently.
-            </p>
-          </div>
-
-          <div className="glass-card group flex flex-col gap-3 rounded-2xl border border-line1/50 bg-bg1/40 p-6 backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:border-accent/30 hover:bg-bg1/60 hover:shadow-lg hover:shadow-accent/10">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 transition-colors group-hover:bg-accent/20">
-              <Wifi className="h-6 w-6 rotate-45 text-accent" />
-            </div>
-            <h3 className="text-lg font-semibold text-fg0">Works Offline</h3>
-            <p className="text-sm leading-relaxed text-fg2">
-              Add to home screen. Log workouts anywhere. Syncs when you're back online.
-            </p>
-          </div>
-        </div>
-
-        {/* Social Proof */}
-        <div className="flex flex-col items-center gap-4 text-center">
-          <div className="glass-card inline-flex items-center gap-2 rounded-full border border-line1/50 bg-bg1/30 px-6 py-3 backdrop-blur-xl">
-            <div className="flex -space-x-2">
-              <div className="h-8 w-8 rounded-full border-2 border-bg0 bg-gradient-to-br from-accent to-accent-dark" />
-              <div className="h-8 w-8 rounded-full border-2 border-bg0 bg-gradient-to-br from-purple-500 to-accent" />
-              <div className="h-8 w-8 rounded-full border-2 border-bg0 bg-gradient-to-br from-cyan-400 to-accent" />
-            </div>
-            <p className="text-sm text-fg1">
-              Join lifters training smarter
-            </p>
-          </div>
-          <p className="max-w-md text-xs text-fg2">
-            By continuing you agree this is not medical advice. Just a really good training tool.
-          </p>
         </div>
       </main>
 
+      {/* Scroll Fade Sections */}
+      <div className="relative z-10 space-y-96 px-6 pb-96 pt-32">
+        {/* Section 1 */}
+        <div
+          className="mx-auto max-w-3xl text-center transition-opacity duration-1000"
+          style={{ opacity: Math.min(scrollProgress * 3, 1) }}
+        >
+          <h2 className="mb-4 text-4xl font-bold text-white sm:text-5xl">
+            AI-Generated Fitness Plans.
+            <br />
+            <span className="text-gray-400">Smarter every workout.</span>
+          </h2>
+          <p className="text-lg text-gray-500">
+            No subscriptions. No uploads. Just you and your data.
+          </p>
+        </div>
+
+        {/* Section 2 */}
+        <div
+          className="mx-auto max-w-3xl text-center transition-opacity duration-1000"
+          style={{ opacity: Math.min((scrollProgress - 0.3) * 3, 1) }}
+        >
+          <h2 className="mb-4 text-4xl font-bold text-white sm:text-5xl">
+            Made for real people.
+          </h2>
+          <p className="text-lg text-gray-400">
+            Beginner to athlete — FitCoach adjusts your volume, intensity, and recovery as you log workouts.
+          </p>
+        </div>
+
+        {/* Final CTA */}
+        <div
+          className="mx-auto max-w-3xl text-center transition-opacity duration-1000"
+          style={{ opacity: Math.min((scrollProgress - 0.6) * 3, 1) }}
+        >
+          <p className="mb-8 text-2xl text-gray-400">
+            Join lifters training smarter →
+          </p>
+          <button
+            type="button"
+            onClick={handleSignIn}
+            disabled={isLoading || !supabase}
+            className="group relative inline-flex h-16 items-center justify-center gap-3 overflow-hidden rounded-full bg-accent px-12 text-lg font-semibold text-gray-950 shadow-[0_0_40px_rgba(6,182,212,0.3)] transition-all duration-300 hover:scale-105 hover:shadow-[0_0_60px_rgba(6,182,212,0.5)] active:scale-100 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <div className="absolute inset-0 -z-10 bg-gradient-to-r from-accent-light via-accent to-accent-dark opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+            {isLoading ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span>Getting ready...</span>
+              </>
+            ) : (
+              <>
+                <span>Start Training Free</span>
+                <Zap className="h-5 w-5" />
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+
       {/* Footer */}
-      <footer className="relative z-10 px-6 pb-8 text-center text-xs text-fg2 sm:px-8">
-        <span>
-          © {new Date().getFullYear()} {publicEnv.NEXT_PUBLIC_APP_NAME}
-        </span>
+      <footer className="relative z-10 pb-8 text-center">
+        <p className="text-xs text-gray-600">
+          © FitCoach {new Date().getFullYear()}. Not medical advice. Train smart.
+        </p>
       </footer>
 
       <style jsx>{`
-        @keyframes float {
-          0%, 100% {
-            transform: translate(0, 0) scale(1);
-          }
-          33% {
-            transform: translate(30px, -30px) scale(1.1);
-          }
-          66% {
-            transform: translate(-20px, 20px) scale(0.9);
-          }
-        }
-
-        @keyframes float-slow {
-          0%, 100% {
-            transform: translate(0, 0) scale(1);
-          }
-          50% {
-            transform: translate(-40px, 40px) scale(1.15);
-          }
-        }
-
-        @keyframes float-slower {
-          0%, 100% {
-            transform: translate(0, 0) scale(1);
-          }
-          50% {
-            transform: translate(60px, -50px) scale(0.85);
-          }
-        }
-
-        @keyframes fade-in {
+        @keyframes fade-in-up {
           from {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(30px);
           }
           to {
             opacity: 1;
@@ -204,39 +236,65 @@ export default function Home() {
           }
         }
 
-        .animate-float {
-          animation: float 20s ease-in-out infinite;
+        @keyframes pulse-slow {
+          0%, 100% {
+            opacity: 0.3;
+          }
+          50% {
+            opacity: 0.5;
+          }
         }
 
-        .animate-float-slow {
-          animation: float-slow 25s ease-in-out infinite;
+        @keyframes pulse-glow {
+          0%, 100% {
+            opacity: 0.4;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.6;
+            transform: scale(1.05);
+          }
         }
 
-        .animate-float-slower {
-          animation: float-slower 30s ease-in-out infinite;
+        @keyframes drift-slow {
+          0%, 100% {
+            transform: translate(0, 0);
+          }
+          33% {
+            transform: translate(-50px, 50px);
+          }
+          66% {
+            transform: translate(50px, -30px);
+          }
         }
 
-        .fade-in {
-          animation: fade-in 0.8s ease-out forwards;
+        @keyframes drift-slower {
+          0%, 100% {
+            transform: translate(0, 0);
+          }
+          50% {
+            transform: translate(80px, -80px);
+          }
         }
 
-        .glass-card {
-          animation: fade-in 0.8s ease-out forwards;
+        .animate-fade-in-up {
+          animation: fade-in-up 0.8s ease-out;
         }
 
-        .glass-card:nth-child(1) {
-          animation-delay: 0.1s;
-          opacity: 0;
+        .animate-pulse-slow {
+          animation: pulse-slow 8s ease-in-out infinite;
         }
 
-        .glass-card:nth-child(2) {
-          animation-delay: 0.2s;
-          opacity: 0;
+        .animate-pulse-glow {
+          animation: pulse-glow 4s ease-in-out infinite;
         }
 
-        .glass-card:nth-child(3) {
-          animation-delay: 0.3s;
-          opacity: 0;
+        .animate-drift-slow {
+          animation: drift-slow 30s ease-in-out infinite;
+        }
+
+        .animate-drift-slower {
+          animation: drift-slower 40s ease-in-out infinite;
         }
       `}</style>
     </div>
