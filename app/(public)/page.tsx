@@ -79,29 +79,36 @@ export default function Home() {
             </p>
           </div>
 
-          {/* CTA Button - Neural Shimmer */}
+          {/* CTA Button - Neural Shimmer + Radial Pulse */}
           <div className="animate-fade-in space-y-6 opacity-0" style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
-            <button
-              type="button"
-              onClick={handleSignIn}
-              disabled={isLoading || !supabase}
-              className="group relative inline-flex h-14 items-center justify-center gap-3 overflow-hidden rounded-md bg-gradient-to-r from-cyan-500 to-indigo-600 px-10 text-base font-semibold text-black shadow-[0_0_20px_rgba(79,70,229,0.2)] transition-all duration-200 hover:scale-105 hover:shadow-[0_0_30px_rgba(79,70,229,0.3)] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
-            >
-              {/* Neural Shimmer Effect */}
-              <div
-                className="absolute inset-0 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-all duration-500 group-hover:translate-x-[100%] group-hover:opacity-100"
-                style={{ transition: 'transform 0.6s ease-in-out, opacity 0.3s ease-in-out' }}
-              />
+            <div className="relative inline-block">
+              {/* Radial Pulse Ring */}
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                <div className="animate-radial-pulse h-14 w-[200px] rounded-md border-2 border-cyan-500/30" />
+              </div>
 
-              {isLoading ? (
-                <>
-                  <Loader2 className="relative z-10 h-5 w-5 animate-spin" />
-                  <span className="relative z-10">Getting ready...</span>
-                </>
-              ) : (
-                <span className="relative z-10">Start Training</span>
-              )}
-            </button>
+              <button
+                type="button"
+                onClick={handleSignIn}
+                disabled={isLoading || !supabase}
+                className="group relative inline-flex h-14 items-center justify-center gap-3 overflow-hidden rounded-md bg-gradient-to-r from-cyan-500 to-indigo-600 px-10 text-base font-semibold text-black shadow-[0_0_20px_rgba(79,70,229,0.2)] transition-all duration-200 hover:scale-105 hover:shadow-[0_0_30px_rgba(79,70,229,0.3)] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+              >
+                {/* Neural Shimmer Effect */}
+                <div
+                  className="absolute inset-0 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-all duration-500 group-hover:translate-x-[100%] group-hover:opacity-100"
+                  style={{ transition: 'transform 0.6s ease-in-out, opacity 0.3s ease-in-out' }}
+                />
+
+                {isLoading ? (
+                  <>
+                    <Loader2 className="relative z-10 h-5 w-5 animate-spin" />
+                    <span className="relative z-10">Getting ready...</span>
+                  </>
+                ) : (
+                  <span className="relative z-10">Start Training</span>
+                )}
+              </button>
+            </div>
 
             {errorMessage ? (
               <p className="text-sm text-red-400">{errorMessage}</p>
@@ -112,7 +119,7 @@ export default function Home() {
             )}
           </div>
 
-          {/* Cycling Tagline */}
+          {/* Cycling Tagline with Typing Cursor */}
           <div className="animate-fade-in opacity-0" style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}>
             <div className="relative h-8 overflow-hidden">
               {CYCLING_TAGLINES.map((tagline, index) => (
@@ -127,6 +134,9 @@ export default function Home() {
                   }`}
                 >
                   {tagline}
+                  {index === currentTagline && (
+                    <span className="ml-1 inline-block h-4 w-[2px] animate-cursor-blink bg-cyan-500" />
+                  )}
                 </p>
               ))}
             </div>
@@ -162,12 +172,40 @@ export default function Home() {
           }
         }
 
+        @keyframes cursor-blink {
+          0%, 49% {
+            opacity: 1;
+          }
+          50%, 100% {
+            opacity: 0;
+          }
+        }
+
+        @keyframes radial-pulse {
+          0% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0.6;
+          }
+          100% {
+            transform: translate(-50%, -50%) scale(1.3);
+            opacity: 0;
+          }
+        }
+
         .animate-fade-in {
           animation: fade-in 0.6s ease-out;
         }
 
         .animate-ai-pulse {
           animation: ai-pulse 6s ease-in-out infinite;
+        }
+
+        .animate-cursor-blink {
+          animation: cursor-blink 1s step-end infinite;
+        }
+
+        .animate-radial-pulse {
+          animation: radial-pulse 4s ease-out infinite;
         }
       `}</style>
     </div>
