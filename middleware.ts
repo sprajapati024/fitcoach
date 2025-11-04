@@ -1,7 +1,33 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { AuthApiError } from "@supabase/supabase-js";
 import { publicEnv } from "@/lib/env/public";
+
+const SUPABASE_COOKIE_PREFIX = "sb-";
+
+function transferCookies(source: NextResponse, target: NextResponse) {
+  for (const cookie of source.cookies.getAll()) {
+    target.cookies.set(cookie);
+  }
+}
+
+function clearSupabaseCookies(request: NextRequest, response: NextResponse) {
+  const supabaseCookies = request.cookies
+    .getAll()
+    .filter((cookie) => cookie.name.startsWith(SUPABASE_COOKIE_PREFIX));
+
+  for (const cookie of supabaseCookies) {
+    request.cookies.delete(cookie.name);
+    response.cookies.set({
+      name: cookie.name,
+      value: "",
+      path: "/",
+      expires: new Date(0),
+      maxAge: 0,
+    });
+  }
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -10,17 +36,7 @@ export async function middleware(request: NextRequest) {
   const protectedRoutes = ["/dashboard", "/plan", "/progress", "/settings", "/workout"];
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
 
-  // Skip middleware for non-protected routes
-  if (!isProtectedRoute) {
-    return NextResponse.next();
-  }
-
-  // Create Supabase client for middleware
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  });
+  let response = NextResponse.next();
 
   const supabase = createServerClient(
     publicEnv.NEXT_PUBLIC_SUPABASE_URL,
@@ -31,52 +47,44 @@ export async function middleware(request: NextRequest) {
           return request.cookies.get(name)?.value;
         },
         set(name: string, value: string, options) {
-          request.cookies.set({
-            name,
-            value,
-            ...options,
-          });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
-          response.cookies.set({
-            name,
-            value,
-            ...options,
-          });
+          response.cookies.set({ name, value, ...options });
         },
         remove(name: string, options) {
-          request.cookies.set({
-            name,
-            value: "",
-            ...options,
-          });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
           response.cookies.set({
             name,
             value: "",
             ...options,
+            maxAge: 0,
           });
         },
       },
     }
   );
 
-  // Check for session
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
 
-  // If no user session, redirect to home (public layout will handle this)
-  if (!user) {
-    const redirectUrl = new URL("/", request.url);
-    return NextResponse.redirect(redirectUrl);
+  if (
+    sessionError &&
+    sessionError instanceof AuthApiError &&
+    sessionError.code === "refresh_token_not_found"
+  ) {
+    const redirectResponse = NextResponse.redirect(new URL("/", request.url));
+    clearSupabaseCookies(request, redirectResponse);
+    transferCookies(response, redirectResponse);
+    return redirectResponse;
+  }
+
+  if (!isProtectedRoute) {
+    return response;
+  }
+
+  if (!session?.user) {
+    const redirectResponse = NextResponse.redirect(new URL("/", request.url));
+    transferCookies(response, redirectResponse);
+    return redirectResponse;
   }
 
   // Check if user has a profile using Supabase (Edge-compatible)
@@ -84,13 +92,14 @@ export async function middleware(request: NextRequest) {
     const { data: profile, error } = await supabase
       .from("profiles")
       .select("user_id")
-      .eq("user_id", user.id)
+      .eq("user_id", session.user.id)
       .single();
 
     // Redirect to onboarding if no profile exists
     if (error || !profile) {
-      const redirectUrl = new URL("/onboarding", request.url);
-      return NextResponse.redirect(redirectUrl);
+      const redirectResponse = NextResponse.redirect(new URL("/onboarding", request.url));
+      transferCookies(response, redirectResponse);
+      return redirectResponse;
     }
   } catch (error) {
     console.error("Error checking profile:", error);
