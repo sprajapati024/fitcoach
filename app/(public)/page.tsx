@@ -66,13 +66,13 @@ export default function Home() {
   }, [supabase]);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-surface-0">
+    <div className="relative min-h-screen overflow-hidden bg-[#0B0D0E]">
       {/* Breathing Background - AI Pulse */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-surface-0 via-surface-1 to-surface-0 animate-ai-pulse" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0B0D0E] via-[#111315] to-[#0B0D0E] animate-ai-pulse" />
         <div className="absolute inset-0 opacity-20">
-          <div className="absolute left-1/4 top-1/4 h-96 w-96 animate-drift rounded-full bg-accent-gradient-start/10 blur-3xl" />
-          <div className="absolute bottom-1/4 right-1/4 h-96 w-96 animate-drift rounded-full bg-accent-gradient-end/10 blur-3xl" style={{ animationDelay: '10s' }} />
+          <div className="absolute left-1/4 top-1/4 h-96 w-96 animate-drift rounded-full bg-[#06B6D4]/10 blur-3xl" />
+          <div className="absolute bottom-1/4 right-1/4 h-96 w-96 animate-drift rounded-full bg-[#4F46E5]/10 blur-3xl" style={{ animationDelay: '10s' }} />
         </div>
       </div>
 
@@ -86,17 +86,17 @@ export default function Home() {
         <div className="mx-auto w-full max-w-3xl space-y-12">
           {/* Eyebrow */}
           <div className="animate-fade-in opacity-0" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
-            <p className="text-xs uppercase tracking-[0.3em] text-text-muted">
+            <p className="text-xs uppercase tracking-[0.3em] text-[#6B7280]">
               AI-Powered Training
             </p>
           </div>
 
           {/* Logo / Title */}
           <div className="animate-fade-in space-y-6 opacity-0" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
-            <h1 className="text-6xl font-bold tracking-tight text-text-primary sm:text-7xl md:text-8xl">
+            <h1 className="text-6xl font-bold tracking-tight text-[#F1F5F9] sm:text-7xl md:text-8xl">
               FitCoach
             </h1>
-            <p className="text-xl text-text-secondary sm:text-2xl">
+            <p className="text-xl text-[#A3A3A3] sm:text-2xl">
               AI builds your plan. You build your strength.
             </p>
           </div>
@@ -107,10 +107,12 @@ export default function Home() {
               type="button"
               onClick={handleSignIn}
               disabled={isLoading || !supabase}
-              className="group relative inline-flex h-14 items-center justify-center gap-3 overflow-hidden rounded-md bg-accent-gradient px-10 text-base font-semibold text-gray-950 shadow-neural transition-all duration-200 hover:shadow-neural-strong active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:shadow-neural"
+              className="group relative inline-flex h-14 items-center justify-center gap-3 overflow-hidden rounded-md bg-gradient-to-r from-[#06B6D4] to-[#4F46E5] px-10 text-base font-semibold text-gray-950 shadow-[0_0_15px_rgba(79,70,229,0.15)] transition-all duration-200 hover:shadow-[0_0_25px_rgba(79,70,229,0.25)] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {/* Neural Shimmer Effect */}
-              <div className="absolute inset-0 bg-neural-shimmer bg-[length:200%_100%] opacity-0 transition-opacity duration-500 group-hover:animate-focus-wave group-hover:opacity-100" />
+              <div className="absolute inset-0 bg-[length:200%_100%] opacity-0 transition-opacity duration-500 group-hover:animate-focus-wave group-hover:opacity-100"
+                style={{ backgroundImage: 'linear-gradient(120deg, transparent, rgba(79, 70, 229, 0.3), transparent)' }}
+              />
 
               {isLoading ? (
                 <>
@@ -123,9 +125,9 @@ export default function Home() {
             </button>
 
             {errorMessage ? (
-              <p className="text-sm text-error">{errorMessage}</p>
+              <p className="text-sm text-[#EF4444]">{errorMessage}</p>
             ) : (
-              <p className="text-sm tracking-wide text-text-muted">
+              <p className="text-sm tracking-wide text-[#6B7280]">
                 Adaptive. Private. Offline-ready.
               </p>
             )}
@@ -137,7 +139,7 @@ export default function Home() {
               {CYCLING_TAGLINES.map((tagline, index) => (
                 <p
                   key={tagline}
-                  className={`absolute inset-0 flex items-center justify-center text-base text-text-secondary transition-all duration-700 ${
+                  className={`absolute inset-0 flex items-center justify-center text-base text-[#A3A3A3] transition-all duration-700 ${
                     index === currentTagline
                       ? 'translate-y-0 opacity-100'
                       : index < currentTagline
@@ -160,12 +162,12 @@ export default function Home() {
           className="mx-auto max-w-3xl text-center transition-opacity duration-1000"
           style={{ opacity: Math.min(scrollProgress * 3, 1) }}
         >
-          <h2 className="mb-4 text-4xl font-bold text-text-primary sm:text-5xl">
+          <h2 className="mb-4 text-4xl font-bold text-[#F1F5F9] sm:text-5xl">
             AI-Generated Fitness Plans.
             <br />
-            <span className="text-text-secondary">Smarter every workout.</span>
+            <span className="text-[#A3A3A3]">Smarter every workout.</span>
           </h2>
-          <p className="text-lg text-text-muted">
+          <p className="text-lg text-[#6B7280]">
             No subscriptions. No uploads. Just you and your data.
           </p>
         </div>
@@ -175,10 +177,10 @@ export default function Home() {
           className="mx-auto max-w-3xl text-center transition-opacity duration-1000"
           style={{ opacity: Math.min((scrollProgress - 0.3) * 3, 1) }}
         >
-          <h2 className="mb-4 text-4xl font-bold text-text-primary sm:text-5xl">
+          <h2 className="mb-4 text-4xl font-bold text-[#F1F5F9] sm:text-5xl">
             Made for real people.
           </h2>
-          <p className="text-lg text-text-secondary">
+          <p className="text-lg text-[#A3A3A3]">
             Beginner to athlete — FitCoach adjusts your volume, intensity, and recovery as you log workouts.
           </p>
         </div>
@@ -188,16 +190,18 @@ export default function Home() {
           className="mx-auto max-w-3xl text-center transition-opacity duration-1000"
           style={{ opacity: Math.min((scrollProgress - 0.6) * 3, 1) }}
         >
-          <p className="mb-8 text-2xl text-text-secondary">
+          <p className="mb-8 text-2xl text-[#A3A3A3]">
             Join lifters training smarter
           </p>
           <button
             type="button"
             onClick={handleSignIn}
             disabled={isLoading || !supabase}
-            className="group relative inline-flex h-14 items-center justify-center gap-3 overflow-hidden rounded-md bg-accent-gradient px-10 text-base font-semibold text-gray-950 shadow-neural transition-all duration-200 hover:shadow-neural-strong active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+            className="group relative inline-flex h-14 items-center justify-center gap-3 overflow-hidden rounded-md bg-gradient-to-r from-[#06B6D4] to-[#4F46E5] px-10 text-base font-semibold text-gray-950 shadow-[0_0_15px_rgba(79,70,229,0.15)] transition-all duration-200 hover:shadow-[0_0_25px_rgba(79,70,229,0.25)] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <div className="absolute inset-0 bg-neural-shimmer bg-[length:200%_100%] opacity-0 transition-opacity duration-500 group-hover:animate-focus-wave group-hover:opacity-100" />
+            <div className="absolute inset-0 bg-[length:200%_100%] opacity-0 transition-opacity duration-500 group-hover:animate-focus-wave group-hover:opacity-100"
+              style={{ backgroundImage: 'linear-gradient(120deg, transparent, rgba(79, 70, 229, 0.3), transparent)' }}
+            />
             {isLoading ? (
               <>
                 <Loader2 className="relative z-10 h-5 w-5 animate-spin" />
@@ -212,7 +216,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="relative z-10 pb-8 text-center">
-        <p className="text-xs text-text-muted">
+        <p className="text-xs text-[#6B7280]">
           © FitCoach {new Date().getFullYear()}. Not medical advice. Train smart.
         </p>
       </footer>
