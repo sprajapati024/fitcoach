@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file type
+    // Validate file type (check base type, ignoring codec parameters)
     const validTypes = [
       "audio/webm",
       "audio/mp4",
@@ -43,7 +43,8 @@ export async function POST(request: NextRequest) {
       "audio/m4a",
       "audio/ogg",
     ];
-    if (!validTypes.includes(audioFile.type)) {
+    const baseType = audioFile.type.split(";")[0]; // Remove codec parameters
+    if (!validTypes.includes(baseType)) {
       return NextResponse.json(
         {
           error: `Invalid audio format. Supported formats: ${validTypes.join(", ")}`,
