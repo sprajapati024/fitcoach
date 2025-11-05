@@ -11,16 +11,16 @@ interface PlanGenerationProgressProps {
 
 // Define all stages in order
 const stages = [
-  { key: "initializing", label: "Starting up" },
-  { key: "authenticating", label: "Verifying account" },
-  { key: "loading_profile", label: "Loading fitness profile" },
-  { key: "analyzing", label: "Assessing goals" },
-  { key: "finding_exercises", label: "Finding exercises" },
-  { key: "matching_strength", label: "Selecting strength moves" },
-  { key: "matching_cardio", label: "Selecting cardio" },
-  { key: "optimizing", label: "Optimizing schedule" },
-  { key: "building", label: "Building Week 1" },
-  { key: "saving", label: "Finalizing plan" },
+  { key: "initializing", label: "Starting up", shortLabel: "Started" },
+  { key: "authenticating", label: "Verifying account", shortLabel: "Verified" },
+  { key: "loading_profile", label: "Loading fitness profile", shortLabel: "Loaded" },
+  { key: "analyzing", label: "Assessing goals", shortLabel: "Assessed" },
+  { key: "finding_exercises", label: "Finding exercises", shortLabel: "Found exercises" },
+  { key: "matching_strength", label: "Selecting strength moves", shortLabel: "Selected strength" },
+  { key: "matching_cardio", label: "Selecting cardio", shortLabel: "Selected cardio" },
+  { key: "optimizing", label: "Optimizing schedule", shortLabel: "Optimized" },
+  { key: "building", label: "Building Week 1", shortLabel: "Built Week 1" },
+  { key: "saving", label: "Finalizing plan", shortLabel: "Finalized" },
 ];
 
 export default function PlanGenerationProgress({
@@ -46,6 +46,10 @@ export default function PlanGenerationProgress({
 
   // Determine current stage index
   const currentStageIndex = stages.findIndex(s => s.key === stage);
+
+  const completedStages = stages.filter((_, index) => index < currentStageIndex);
+  const currentStage = currentStageIndex >= 0 ? stages[currentStageIndex] : null;
+  const upcomingStages = stages.filter((_, index) => index > currentStageIndex);
 
   return (
     <div className="mx-auto w-full max-w-md rounded-lg border border-line1 bg-bg1 p-6 shadow-lg">
@@ -76,76 +80,64 @@ export default function PlanGenerationProgress({
       </div>
 
       {/* Current Stage Highlight */}
-      <div className="mb-6 rounded-lg border border-accent-subtle bg-accent-subtle/10 p-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent">
-            <div className="h-2 w-2 animate-pulse rounded-full bg-white" />
-          </div>
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-fg2">
-              Now Working On
-            </p>
-            <p className="font-semibold text-fg0">
-              {message}
-            </p>
+      {currentStage && (
+        <div className="mb-6 animate-fade-in rounded-lg border border-accent-subtle bg-accent-subtle/10 p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-accent">
+              <div className="h-2 w-2 animate-pulse rounded-full bg-white" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-medium uppercase tracking-wide text-fg2">
+                Now Working On
+              </p>
+              <p className="font-semibold text-fg0">
+                {message}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Stage Checklist */}
-      <div className="space-y-2">
-        <p className="mb-3 text-xs font-medium uppercase tracking-wide text-fg2">
-          Steps
-        </p>
-        {stages.map((s, index) => {
-          const isCompleted = index < currentStageIndex;
-          const isCurrent = index === currentStageIndex;
-          const isPending = index > currentStageIndex;
-
-          return (
-            <div
-              key={s.key}
-              className={`flex items-center gap-3 rounded-md px-3 py-2 transition-all ${
-                isCurrent
-                  ? "bg-bg2"
-                  : isCompleted
-                  ? "bg-bg1"
-                  : "bg-bg1 opacity-50"
-              }`}
-            >
-              {/* Icon */}
+      {/* Completed Stages - Compact Chips */}
+      {completedStages.length > 0 && (
+        <div className="mb-4 animate-slide-down">
+          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-fg2">
+            Completed
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {completedStages.map((s) => (
               <div
-                className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full transition-all ${
-                  isCompleted
-                    ? "bg-success text-white"
-                    : isCurrent
-                    ? "border-2 border-accent bg-transparent"
-                    : "border-2 border-line2 bg-transparent"
-                }`}
+                key={s.key}
+                className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1 text-xs font-medium text-success transition-all duration-300 ease-out"
               >
-                {isCompleted ? (
-                  <Check className="h-3 w-3" strokeWidth={3} />
-                ) : isCurrent ? (
-                  <div className="h-2 w-2 animate-pulse rounded-full bg-accent" />
-                ) : null}
+                <Check className="h-3 w-3" strokeWidth={2.5} />
+                <span>{s.shortLabel}</span>
               </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-              {/* Label */}
-              <span
-                className={`text-sm ${
-                  isCurrent
-                    ? "font-semibold text-fg0"
-                    : isCompleted
-                    ? "text-fg1"
-                    : "text-fg2"
-                }`}
+      {/* Upcoming Stages - Compact List */}
+      {upcomingStages.length > 0 && (
+        <div className="animate-fade-in">
+          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-fg2">
+            Up Next
+          </p>
+          <div className="space-y-1.5">
+            {upcomingStages.map((s, index) => (
+              <div
+                key={s.key}
+                className="flex items-center gap-2 px-2 py-1.5 transition-all duration-300 ease-out"
+                style={{ opacity: 0.6 - (index * 0.1) }}
               >
-                {s.label}
-              </span>
-            </div>
-          );
-        })}
-      </div>
+                <div className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-line2" />
+                <span className="text-xs text-fg2">{s.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Footer note */}
       <div className="mt-6 rounded-md border border-line2 bg-bg2 p-3">
