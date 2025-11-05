@@ -4,7 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ExerciseLogger, type LoggerResult } from "@/app/(auth)/dashboard/ExerciseLogger";
 import { PrimaryButton } from "@/components/PrimaryButton";
+import { WorkoutEditor } from "@/components/WorkoutEditor";
 import type { workouts, WorkoutPayload } from "@/drizzle/schema";
+import { Edit2 } from "lucide-react";
 
 type Workout = typeof workouts.$inferSelect;
 
@@ -15,6 +17,7 @@ interface WorkoutDetailViewProps {
 export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
   const router = useRouter();
   const [isLogging, setIsLogging] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const workoutPayload = workout.payload as WorkoutPayload;
   const today = new Date().toISOString().split("T")[0];
@@ -186,14 +189,24 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
 
       {/* Action Buttons */}
       <div className="space-y-3">
-        {!isPast && (
-          <PrimaryButton
-            onClick={() => setIsLogging(true)}
-            className="w-full"
+        <div className="flex gap-3">
+          {!isPast && (
+            <PrimaryButton
+              onClick={() => setIsLogging(true)}
+              className="flex-1"
+            >
+              Start Workout
+            </PrimaryButton>
+          )}
+
+          <button
+            onClick={() => setIsEditing(true)}
+            className="flex items-center gap-2 px-6 py-3 bg-surface-2 hover:bg-surface-3 text-neutral-200 rounded-lg border border-border"
           >
-            Start Workout
-          </PrimaryButton>
-        )}
+            <Edit2 className="h-5 w-5" />
+            Edit Workout
+          </button>
+        </div>
 
         {isFuture && (
           <div className="text-center text-sm text-fg2">
@@ -215,6 +228,17 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
           </div>
         )}
       </div>
+
+      {/* Workout Editor Modal */}
+      <WorkoutEditor
+        workout={workout}
+        isOpen={isEditing}
+        onClose={() => setIsEditing(false)}
+        onSave={() => {
+          setIsEditing(false);
+          router.refresh();
+        }}
+      />
     </div>
   );
 }

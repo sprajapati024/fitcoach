@@ -7,8 +7,9 @@ import { PrimaryButton } from "@/components/PrimaryButton";
 import { activatePlanAction, deletePlanAction } from "@/app/actions/plan";
 import PlanGenerationProgress from "@/components/PlanGenerationProgress";
 import { WorkoutCalendar } from "@/components/WorkoutCalendar";
+import { CustomPlanBuilder } from "@/components/CustomPlanBuilder";
 import type { plans, workouts, workoutLogs as workoutLogsTable } from "@/drizzle/schema";
-import { Calendar, Trash2, CheckCircle } from "lucide-react";
+import { Calendar, Trash2, CheckCircle, Plus } from "lucide-react";
 
 type Plan = typeof plans.$inferSelect;
 type Workout = typeof workouts.$inferSelect;
@@ -45,6 +46,7 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
   const [isUpdatingStartDate, setIsUpdatingStartDate] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showCustomPlanBuilder, setShowCustomPlanBuilder] = useState(false);
   const timezoneLabel = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const calendarLogs = useMemo(
@@ -251,11 +253,29 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
                 {error}
               </div>
             )}
-            <PrimaryButton onClick={handleGeneratePlan} loading={isGenerating}>
-              Generate My Plan
-            </PrimaryButton>
+            <div className="flex flex-col gap-3">
+              <PrimaryButton onClick={handleGeneratePlan} loading={isGenerating}>
+                Generate My Plan with AI
+              </PrimaryButton>
+              <button
+                onClick={() => setShowCustomPlanBuilder(true)}
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-surface-2 hover:bg-surface-3 text-neutral-200 rounded-lg border border-border"
+              >
+                <Plus className="h-5 w-5" />
+                Create Custom Plan
+              </button>
+            </div>
           </Card>
         )}
+
+        <CustomPlanBuilder
+          isOpen={showCustomPlanBuilder}
+          onClose={() => setShowCustomPlanBuilder(false)}
+          onSuccess={() => {
+            setShowCustomPlanBuilder(false);
+            setSuccess("Custom plan created successfully!");
+          }}
+        />
       </div>
     );
   }
