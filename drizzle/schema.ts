@@ -25,6 +25,8 @@ export const workoutKindEnum = pgEnum("workout_kind", ["strength", "conditioning
 export const coachContextEnum = pgEnum("coach_context", ["today", "debrief", "weekly", "substitution"]);
 export const weekStatusEnum = pgEnum("week_status", ["pending", "active", "completed"]);
 export const blockTypeEnum = pgEnum("block_type", ["accumulation", "intensification", "deload", "realization"]);
+export const mealTypeEnum = pgEnum("meal_type", ["breakfast", "lunch", "dinner", "snack"]);
+export const nutritionCoachContextEnum = pgEnum("nutrition_coach_context", ["meal_analysis", "daily_summary", "weekly_review", "macro_guidance"]);
 
 export type PreferredDay = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
 
@@ -425,6 +427,123 @@ export const userExercises = pgTable(
   }),
 );
 
+export const meals = pgTable(
+  "meals",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    mealDate: date("meal_date").notNull(),
+    mealTime: timestamp("meal_time", { withTimezone: true }).notNull(),
+    mealType: mealTypeEnum("meal_type").notNull(),
+    description: text("description"),
+    photoUrl: text("photo_url"),
+    calories: integer("calories"),
+    proteinGrams: numeric("protein_grams", { precision: 5, scale: 1 }),
+    carbsGrams: numeric("carbs_grams", { precision: 5, scale: 1 }),
+    fatGrams: numeric("fat_grams", { precision: 5, scale: 1 }),
+    fiberGrams: numeric("fiber_grams", { precision: 5, scale: 1 }),
+    notes: text("notes"),
+    source: text("source").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    userDateIdx: index("meals_user_date_idx").on(table.userId, table.mealDate),
+  }),
+);
+
+export const nutritionGoals = pgTable(
+  "nutrition_goals",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull()
+      .unique(),
+    targetCalories: integer("target_calories"),
+    targetProteinGrams: numeric("target_protein_grams", { precision: 5, scale: 1 }),
+    targetCarbsGrams: numeric("target_carbs_grams", { precision: 5, scale: 1 }),
+    targetFatGrams: numeric("target_fat_grams", { precision: 5, scale: 1 }),
+    targetWaterLiters: numeric("target_water_liters", { precision: 3, scale: 1 }),
+    calculationMethod: text("calculation_method"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+);
+
+export const waterLogs = pgTable(
+  "water_logs",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    logDate: date("log_date").notNull(),
+    amountMl: integer("amount_ml").notNull(),
+    loggedAt: timestamp("logged_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    userDateIdx: index("water_logs_user_date_idx").on(table.userId, table.logDate),
+  }),
+);
+
+export const dailyNutritionSummaries = pgTable(
+  "daily_nutrition_summaries",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    summaryDate: date("summary_date").notNull(),
+    totalCalories: integer("total_calories").default(0).notNull(),
+    totalProtein: numeric("total_protein", { precision: 6, scale: 1 }).default(sql`0`).notNull(),
+    totalCarbs: numeric("total_carbs", { precision: 6, scale: 1 }).default(sql`0`).notNull(),
+    totalFat: numeric("total_fat", { precision: 6, scale: 1 }).default(sql`0`).notNull(),
+    totalFiber: numeric("total_fiber", { precision: 6, scale: 1 }).default(sql`0`).notNull(),
+    totalWaterMl: integer("total_water_ml").default(0).notNull(),
+    mealsLogged: smallint("meals_logged").default(0).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    uniqueUserDate: uniqueIndex("daily_nutrition_unique").on(table.userId, table.summaryDate),
+  }),
+);
+
+export const nutritionCoachCache = pgTable(
+  "nutrition_coach_cache",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    context: nutritionCoachContextEnum("context").notNull(),
+    cacheKey: text("cache_key").notNull(),
+    targetDate: date("target_date"),
+    payload: jsonb("payload").$type<Record<string, unknown>>().notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    uniquePerKey: uniqueIndex("nutrition_coach_cache_unique").on(
+      table.userId,
+      table.context,
+      table.cacheKey,
+    ),
+  }),
+);
+
 export const rlsPolicies = {
   users: {
     select: "CREATE POLICY \"Users select\" ON users FOR SELECT USING ( auth.uid() = id );",
@@ -473,6 +592,31 @@ export const rlsPolicies = {
     insert: "CREATE POLICY \"Week performance summaries insert\" ON week_performance_summaries FOR INSERT WITH CHECK ( auth.uid() IN (SELECT user_id FROM plans WHERE plans.id = plan_id) );",
     update: "CREATE POLICY \"Week performance summaries update\" ON week_performance_summaries FOR UPDATE USING ( auth.uid() IN (SELECT user_id FROM plans WHERE plans.id = plan_id) );",
   },
+  meals: {
+    select: "CREATE POLICY \"Meals select\" ON meals FOR SELECT USING ( auth.uid() = user_id );",
+    insert: "CREATE POLICY \"Meals insert\" ON meals FOR INSERT WITH CHECK ( auth.uid() = user_id );",
+    update: "CREATE POLICY \"Meals update\" ON meals FOR UPDATE USING ( auth.uid() = user_id );",
+    delete: "CREATE POLICY \"Meals delete\" ON meals FOR DELETE USING ( auth.uid() = user_id );",
+  },
+  nutritionGoals: {
+    select: "CREATE POLICY \"Nutrition goals select\" ON nutrition_goals FOR SELECT USING ( auth.uid() = user_id );",
+    insert: "CREATE POLICY \"Nutrition goals insert\" ON nutrition_goals FOR INSERT WITH CHECK ( auth.uid() = user_id );",
+    update: "CREATE POLICY \"Nutrition goals update\" ON nutrition_goals FOR UPDATE USING ( auth.uid() = user_id );",
+  },
+  waterLogs: {
+    select: "CREATE POLICY \"Water logs select\" ON water_logs FOR SELECT USING ( auth.uid() = user_id );",
+    insert: "CREATE POLICY \"Water logs insert\" ON water_logs FOR INSERT WITH CHECK ( auth.uid() = user_id );",
+  },
+  dailyNutritionSummaries: {
+    select: "CREATE POLICY \"Daily nutrition summaries select\" ON daily_nutrition_summaries FOR SELECT USING ( auth.uid() = user_id );",
+    insert: "CREATE POLICY \"Daily nutrition summaries insert\" ON daily_nutrition_summaries FOR INSERT WITH CHECK ( auth.uid() = user_id );",
+    update: "CREATE POLICY \"Daily nutrition summaries update\" ON daily_nutrition_summaries FOR UPDATE USING ( auth.uid() = user_id );",
+  },
+  nutritionCoachCache: {
+    select: "CREATE POLICY \"Nutrition coach cache select\" ON nutrition_coach_cache FOR SELECT USING ( auth.uid() = user_id );",
+    insert: "CREATE POLICY \"Nutrition coach cache insert\" ON nutrition_coach_cache FOR INSERT WITH CHECK ( auth.uid() = user_id );",
+    update: "CREATE POLICY \"Nutrition coach cache update\" ON nutrition_coach_cache FOR UPDATE USING ( auth.uid() = user_id );",
+  },
 };
 
 export type Profile = typeof profiles.$inferSelect;
@@ -487,3 +631,11 @@ export type WeekPerformanceSummary = typeof weekPerformanceSummaries.$inferSelec
 export type WeekPerformanceSummaryInsert = typeof weekPerformanceSummaries.$inferInsert;
 export type UserExercise = typeof userExercises.$inferSelect;
 export type UserExerciseInsert = typeof userExercises.$inferInsert;
+export type Meal = typeof meals.$inferSelect;
+export type MealInsert = typeof meals.$inferInsert;
+export type NutritionGoal = typeof nutritionGoals.$inferSelect;
+export type NutritionGoalInsert = typeof nutritionGoals.$inferInsert;
+export type WaterLog = typeof waterLogs.$inferSelect;
+export type WaterLogInsert = typeof waterLogs.$inferInsert;
+export type DailyNutritionSummary = typeof dailyNutritionSummaries.$inferSelect;
+export type DailyNutritionSummaryInsert = typeof dailyNutritionSummaries.$inferInsert;
