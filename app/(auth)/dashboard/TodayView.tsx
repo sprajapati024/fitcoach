@@ -7,6 +7,8 @@ import { ExerciseLogger, type LoggerResult } from './ExerciseLogger';
 import { CoachBrief } from './CoachBrief';
 import { MacroRings } from './MacroRings';
 import { Card } from '@/components/Card';
+import { useToast } from '@/components/Toast';
+import { Tooltip } from '@/components/Tooltip';
 import type { workouts, WorkoutPayload } from '@/drizzle/schema';
 import { enqueueLog } from '@/lib/offlineQueue';
 import type { WorkoutLogRequest } from '@/lib/validation';
@@ -21,39 +23,30 @@ interface TodayViewProps {
   nutrition: Awaited<ReturnType<typeof import('@/app/actions/nutrition').getTodayNutrition>>;
 }
 
-type Feedback = {
-  type: 'success' | 'error' | 'info';
-  message: string;
-};
-
 export function TodayView({ workout, userId, userName, nutrition }: TodayViewProps) {
   const router = useRouter();
+  const toast = useToast();
   const [isLogging, setIsLogging] = useState(false);
   const [isSkipping, setIsSkipping] = useState(false);
   const [skipReason, setSkipReason] = useState('');
-  const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [isSkipSubmitting, setIsSkipSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (!feedback) return;
-    const timeout = window.setTimeout(() => setFeedback(null), 3200);
-    return () => window.clearTimeout(timeout);
-  }, [feedback]);
 
   const handleLoggerComplete = (result: LoggerResult) => {
     setIsLogging(false);
     setSkipReason('');
     setIsSkipping(false);
     router.refresh();
-    setFeedback({
-      type: result.status === 'completed' ? 'success' : 'info',
-      message: result.message,
-    });
+
+    if (result.status === 'completed') {
+      toast.success('Workout Complete! 💪', result.message);
+    } else {
+      toast.info('Workout Logged', result.message);
+    }
   };
 
   const handleSkipToday = async () => {
     if (!workout || !skipReason) {
-      setFeedback({ type: 'error', message: 'Select a reason before skipping.' });
+      toast.error('Missing Information', 'Please select a reason before skipping.');
       return;
     }
 
@@ -69,10 +62,7 @@ export function TodayView({ workout, userId, userName, nutrition }: TodayViewPro
     try {
       if (typeof navigator !== 'undefined' && !navigator.onLine) {
         await enqueueLog(payload);
-        setFeedback({
-          type: 'info',
-          message: 'Offline — skip queued. We will sync it once you reconnect.',
-        });
+        toast.info('Offline Mode', 'Skip queued. We will sync it once you reconnect.');
         setIsSkipping(false);
         setSkipReason('');
         router.refresh();
@@ -87,10 +77,7 @@ export function TodayView({ workout, userId, userName, nutrition }: TodayViewPro
 
       if (response.ok) {
         const result = await response.json().catch(() => ({}));
-        setFeedback({
-          type: 'success',
-          message: result.message ?? 'Workout skipped. Enjoy the recovery.',
-        });
+        toast.success('Workout Skipped', result.message ?? 'Enjoy the recovery day!');
         router.refresh();
         setIsSkipping(false);
         setSkipReason('');
@@ -101,19 +88,13 @@ export function TodayView({ workout, userId, userName, nutrition }: TodayViewPro
     } catch (error) {
       try {
         await enqueueLog(payload);
-        setFeedback({
-          type: 'info',
-          message: 'Connection issue — skip saved offline and will sync soon.',
-        });
+        toast.info('Saved Offline', 'Skip saved offline and will sync when connected.');
         setIsSkipping(false);
         setSkipReason('');
         router.refresh();
       } catch (queueError) {
         console.error('Error skipping workout:', error, queueError);
-        setFeedback({
-          type: 'error',
-          message: error instanceof Error ? error.message : 'Failed to skip workout. Please try again.',
-        });
+        toast.error('Failed to Skip', error instanceof Error ? error.message : 'Please try again.');
       }
     } finally {
       setIsSkipSubmitting(false);
@@ -173,26 +154,6 @@ export function TodayView({ workout, userId, userName, nutrition }: TodayViewPro
 
   return (
     <div className="mx-auto w-full max-w-3xl space-y-8 p-4 pb-24">
-      {feedback && (
-        <div
-          className={`flex items-center justify-between rounded-2xl border p-4 text-sm ${
-            feedback.type === 'error'
-              ? 'border-error/40 bg-error/10 text-error-light'
-              : feedback.type === 'success'
-                ? 'border-success/40 bg-success/10 text-success-light'
-                : 'border-info/40 bg-info/10 text-info-light'
-          }`}
-        >
-          <span>{feedback.message}</span>
-          <button
-            onClick={() => setFeedback(null)}
-            className="touch-feedback text-xs font-medium uppercase tracking-wide opacity-70 hover:opacity-100"
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
-
       <CoachBrief userId={userId} userName={userName} />
 
       {/* Macro Rings Card */}
