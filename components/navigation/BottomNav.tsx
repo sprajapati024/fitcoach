@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
-import { CalendarDays, Home, LineChart, Settings, Dumbbell, Apple } from "lucide-react";
+import { CalendarDays, Home, LineChart, Settings, Dumbbell, Apple, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
@@ -13,6 +13,7 @@ type NavItem = {
   match?: string | string[];
 };
 
+// All navigation items for desktop
 export const NAV_ITEMS: NavItem[] = [
   {
     href: "/dashboard",
@@ -47,6 +48,37 @@ export const NAV_ITEMS: NavItem[] = [
   },
 ];
 
+// Mobile navigation items (4 main + More)
+const MOBILE_NAV_ITEMS: NavItem[] = [
+  {
+    href: "/dashboard",
+    label: "Today",
+    icon: Home,
+    match: ["/dashboard", "/workout"],
+  },
+  {
+    href: "/plan",
+    label: "Plan",
+    icon: CalendarDays,
+  },
+  {
+    href: "/nutrition",
+    label: "Nutrition",
+    icon: Apple,
+  },
+  {
+    href: "/progress",
+    label: "Progress",
+    icon: LineChart,
+  },
+  {
+    href: "/more",
+    label: "More",
+    icon: MoreHorizontal,
+    match: ["/more", "/exercises", "/settings"],
+  },
+];
+
 function isActive(pathname: string, item: NavItem) {
   if (Array.isArray(item.match)) {
     return item.match.some((route) => pathname === route || pathname.startsWith(`${route}/`));
@@ -64,7 +96,7 @@ export function BottomNav() {
     <nav className="fixed bottom-4 left-1/2 z-40 w-full max-w-md -translate-x-1/2 px-4 md:hidden">
       {/* Clean, floating navigation bar with v3.0 neural precision */}
       <div className="flex items-center justify-between rounded-full border border-surface-border bg-surface-0/95 px-4 py-2 shadow-lg backdrop-blur-xl">
-        {NAV_ITEMS.map((item) => {
+        {MOBILE_NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const active = isActive(pathname ?? "", item);
 
