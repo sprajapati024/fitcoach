@@ -189,7 +189,7 @@ export function MyExercises({ onExercisesChange }: MyExercisesProps) {
           onClick={() => setSelectedExercise(null)}
         >
           <div
-            className="bg-surface-0 border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-gray-900 border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {(selectedExercise.imageUrl || selectedExercise.gifUrl) && (
