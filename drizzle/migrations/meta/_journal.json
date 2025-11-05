@@ -22,6 +22,20 @@
       "when": 1762124862016,
       "tag": "0002_milky_peter_parker",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1762311941792,
+      "tag": "0003_great_sauron",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1762348992359,
+      "tag": "0004_cloudy_hedge_knight",
+      "breakpoints": true
     }
   ]
 }
