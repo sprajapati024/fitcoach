@@ -8,7 +8,7 @@ import { z } from "zod";
 export const mealTypeSchema = z.enum(["breakfast", "lunch", "dinner", "snack"]);
 
 // Source enum
-export const mealSourceSchema = z.enum(["manual", "ai", "photo"]);
+export const mealSourceSchema = z.enum(["manual", "ai", "photo", "voice"]);
 
 // Log meal request
 export const logMealRequestSchema = z.object({
