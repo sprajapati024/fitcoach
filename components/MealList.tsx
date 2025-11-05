@@ -88,14 +88,14 @@ export function MealList({ date, refreshTrigger, onMealDeleted }: MealListProps)
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="bg-surface-overlay border border-border rounded-lg p-4 animate-pulse"
+            className="bg-surface-1 border border-border rounded-lg p-4 animate-pulse"
           >
             <div className="flex items-start gap-3">
-              <div className="h-10 w-10 bg-surface-hover rounded-lg" />
+              <div className="h-10 w-10 bg-surface-2 rounded-lg" />
               <div className="flex-1 space-y-2">
-                <div className="h-4 bg-surface-hover rounded w-32" />
-                <div className="h-3 bg-surface-hover rounded w-full" />
-                <div className="h-3 bg-surface-hover rounded w-3/4" />
+                <div className="h-4 bg-surface-2 rounded w-32" />
+                <div className="h-3 bg-surface-2 rounded w-full" />
+                <div className="h-3 bg-surface-2 rounded w-3/4" />
               </div>
             </div>
           </div>
@@ -106,7 +106,7 @@ export function MealList({ date, refreshTrigger, onMealDeleted }: MealListProps)
 
   if (meals.length === 0) {
     return (
-      <div className="text-center py-12 bg-surface-overlay border border-border rounded-lg">
+      <div className="text-center py-12 bg-surface-1 border border-border rounded-lg">
         <Cookie className="h-12 w-12 text-neutral-500 mx-auto mb-3" />
         <p className="text-neutral-400">No meals logged yet</p>
         <p className="text-sm text-neutral-500 mt-1">Click "Log Meal" to get started</p>
@@ -127,11 +127,11 @@ export function MealList({ date, refreshTrigger, onMealDeleted }: MealListProps)
         return (
           <div
             key={meal.id}
-            className="bg-surface-overlay border border-border rounded-lg p-4 hover:border-neural-400 transition-colors"
+            className="bg-surface-1 border border-border rounded-lg p-4 hover:border-cyan-400 transition-colors"
           >
             <div className="flex items-start gap-3">
               {/* Icon */}
-              <div className="p-2 bg-surface-hover rounded-lg">
+              <div className="p-2 bg-surface-2 rounded-lg">
                 <Icon className={`h-5 w-5 ${iconColor}`} />
               </div>
 

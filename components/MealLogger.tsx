@@ -115,12 +115,12 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-surface border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-surface border-b border-border p-4 flex items-center justify-between">
+      <div className="bg-surface-0 border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-surface-0 border-b border-border p-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold">Log Meal</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-surface-hover rounded-lg transition-colors"
+            className="p-2 hover:bg-surface-1 rounded-lg transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -137,8 +137,8 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
                   onClick={() => setMealType(type)}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                     mealType === type
-                      ? "bg-neural-400 text-gray-950"
-                      : "bg-surface-hover hover:bg-surface-border"
+                      ? "bg-gradient-to-r from-cyan-500 to-indigo-600 text-gray-950"
+                      : "bg-surface-1 hover:bg-surface-2"
                   }`}
                 >
                   {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -154,7 +154,7 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="E.g., Grilled chicken breast, brown rice, steamed broccoli with olive oil"
-              className="w-full px-4 py-3 bg-surface-overlay border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-neural-400 min-h-[100px]"
+              className="w-full px-4 py-3 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 min-h-[100px]"
               maxLength={1000}
             />
             <div className="flex items-center justify-between mt-2">
@@ -192,7 +192,7 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
                   value={calories}
                   onChange={(e) => setCalories(e.target.value)}
                   placeholder="0"
-                  className="w-full px-3 py-2 bg-surface-overlay border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-neural-400"
+                  className="w-full px-3 py-2 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
                   min="0"
                   max="10000"
                 />
@@ -204,7 +204,7 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
                   value={protein}
                   onChange={(e) => setProtein(e.target.value)}
                   placeholder="0"
-                  className="w-full px-3 py-2 bg-surface-overlay border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-neural-400"
+                  className="w-full px-3 py-2 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
                   min="0"
                   max="500"
                   step="0.1"
@@ -217,7 +217,7 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
                   value={carbs}
                   onChange={(e) => setCarbs(e.target.value)}
                   placeholder="0"
-                  className="w-full px-3 py-2 bg-surface-overlay border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-neural-400"
+                  className="w-full px-3 py-2 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
                   min="0"
                   max="1000"
                   step="0.1"
@@ -230,7 +230,7 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
                   value={fat}
                   onChange={(e) => setFat(e.target.value)}
                   placeholder="0"
-                  className="w-full px-3 py-2 bg-surface-overlay border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-neural-400"
+                  className="w-full px-3 py-2 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
                   min="0"
                   max="500"
                   step="0.1"
@@ -243,7 +243,7 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
                   value={fiber}
                   onChange={(e) => setFiber(e.target.value)}
                   placeholder="0"
-                  className="w-full px-3 py-2 bg-surface-overlay border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-neural-400"
+                  className="w-full px-3 py-2 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
                   min="0"
                   max="200"
                   step="0.1"
@@ -259,7 +259,7 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="How did you feel? Any observations?"
-              className="w-full px-4 py-3 bg-surface-overlay border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-neural-400 min-h-[80px]"
+              className="w-full px-4 py-3 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 min-h-[80px]"
               maxLength={500}
             />
             <span className="text-xs text-neutral-500">{notes.length}/500</span>
@@ -276,7 +276,7 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
           <div className="flex gap-3 pt-4">
             <button
               onClick={onClose}
-              className="flex-1 px-4 py-3 bg-surface-hover hover:bg-surface-border rounded-lg font-medium transition-colors"
+              className="flex-1 px-4 py-3 bg-surface-1 hover:bg-surface-2 rounded-lg font-medium transition-colors"
             >
               Cancel
             </button>

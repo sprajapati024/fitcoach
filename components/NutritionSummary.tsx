@@ -71,10 +71,10 @@ export function NutritionSummary({ date, refreshTrigger }: NutritionSummaryProps
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="bg-surface-overlay border border-border rounded-lg p-4 animate-pulse">
-            <div className="h-8 w-8 bg-surface-hover rounded-lg mb-3" />
-            <div className="h-4 bg-surface-hover rounded w-20 mb-2" />
-            <div className="h-8 bg-surface-hover rounded w-24" />
+          <div key={i} className="bg-surface-1 border border-border rounded-lg p-4 animate-pulse">
+            <div className="h-8 w-8 bg-surface-2 rounded-lg mb-3" />
+            <div className="h-4 bg-surface-2 rounded w-20 mb-2" />
+            <div className="h-8 bg-surface-2 rounded w-24" />
           </div>
         ))}
       </div>
@@ -103,7 +103,7 @@ export function NutritionSummary({ date, refreshTrigger }: NutritionSummaryProps
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {/* Calories */}
-      <div className="bg-surface-overlay border border-border rounded-lg p-4 hover:border-neural-400 transition-colors">
+      <div className="bg-surface-1 border border-border rounded-lg p-4 hover:border-cyan-400 transition-colors">
         <div className="flex items-center gap-3 mb-3">
           <div className="p-2 bg-orange-900/20 rounded-lg">
             <Flame className="h-5 w-5 text-orange-400" />
@@ -115,7 +115,7 @@ export function NutritionSummary({ date, refreshTrigger }: NutritionSummaryProps
             <span className="text-2xl font-bold">{calories}</span>
             <span className="text-sm text-neutral-400">/ {targetCalories}</span>
           </div>
-          <div className="h-2 bg-surface-hover rounded-full overflow-hidden">
+          <div className="h-2 bg-surface-2 rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-orange-500 to-orange-600 transition-all duration-500"
               style={{ width: `${caloriesPercent}%` }}
@@ -126,7 +126,7 @@ export function NutritionSummary({ date, refreshTrigger }: NutritionSummaryProps
       </div>
 
       {/* Protein */}
-      <div className="bg-surface-overlay border border-border rounded-lg p-4 hover:border-neural-400 transition-colors">
+      <div className="bg-surface-1 border border-border rounded-lg p-4 hover:border-cyan-400 transition-colors">
         <div className="flex items-center gap-3 mb-3">
           <div className="p-2 bg-red-900/20 rounded-lg">
             <Beef className="h-5 w-5 text-red-400" />
@@ -138,7 +138,7 @@ export function NutritionSummary({ date, refreshTrigger }: NutritionSummaryProps
             <span className="text-2xl font-bold">{protein.toFixed(0)}g</span>
             <span className="text-sm text-neutral-400">/ {targetProtein}g</span>
           </div>
-          <div className="h-2 bg-surface-hover rounded-full overflow-hidden">
+          <div className="h-2 bg-surface-2 rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-red-500 to-red-600 transition-all duration-500"
               style={{ width: `${proteinPercent}%` }}
@@ -149,7 +149,7 @@ export function NutritionSummary({ date, refreshTrigger }: NutritionSummaryProps
       </div>
 
       {/* Carbs */}
-      <div className="bg-surface-overlay border border-border rounded-lg p-4 hover:border-neural-400 transition-colors">
+      <div className="bg-surface-1 border border-border rounded-lg p-4 hover:border-cyan-400 transition-colors">
         <div className="flex items-center gap-3 mb-3">
           <div className="p-2 bg-yellow-900/20 rounded-lg">
             <Wheat className="h-5 w-5 text-yellow-400" />
@@ -161,7 +161,7 @@ export function NutritionSummary({ date, refreshTrigger }: NutritionSummaryProps
             <span className="text-2xl font-bold">{carbs.toFixed(0)}g</span>
             <span className="text-sm text-neutral-400">/ {targetCarbs}g</span>
           </div>
-          <div className="h-2 bg-surface-hover rounded-full overflow-hidden">
+          <div className="h-2 bg-surface-2 rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-yellow-500 to-yellow-600 transition-all duration-500"
               style={{ width: `${carbsPercent}%` }}
@@ -172,7 +172,7 @@ export function NutritionSummary({ date, refreshTrigger }: NutritionSummaryProps
       </div>
 
       {/* Water */}
-      <div className="bg-surface-overlay border border-border rounded-lg p-4 hover:border-neural-400 transition-colors">
+      <div className="bg-surface-1 border border-border rounded-lg p-4 hover:border-cyan-400 transition-colors">
         <div className="flex items-center gap-3 mb-3">
           <div className="p-2 bg-cyan-900/20 rounded-lg">
             <Droplet className="h-5 w-5 text-cyan-400" />
@@ -184,7 +184,7 @@ export function NutritionSummary({ date, refreshTrigger }: NutritionSummaryProps
             <span className="text-2xl font-bold">{waterL}L</span>
             <span className="text-sm text-neutral-400">/ {targetWater}L</span>
           </div>
-          <div className="h-2 bg-surface-hover rounded-full overflow-hidden">
+          <div className="h-2 bg-surface-2 rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-cyan-500 to-cyan-600 transition-all duration-500"
               style={{ width: `${waterPercent}%` }}
