@@ -39,7 +39,7 @@ export async function POST(request: Request) {
       };
 
       try {
-          sendProgress('initializing', 'Starting plan generation...', 0);
+          sendProgress('initializing', 'Starting up...', 0);
           // Authenticate user
           sendProgress('authenticating', 'Verifying your account...', 5);
           const supabase = await createSupabaseServerClient();
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
           }
 
           // Get user profile
-          sendProgress('loading_profile', 'Loading your profile...', 10);
+          sendProgress('loading_profile', 'Loading your fitness profile...', 10);
           const [userProfile] = await db
             .select()
             .from(profiles)
@@ -79,9 +79,9 @@ export async function POST(request: Request) {
           console.log("[Plan Generation] Starting for user:", user.id);
           console.log("[Plan Generation] Using OpenAI Agents SDK...");
 
-          sendProgress('analyzing', 'Analyzing your profile and goals...', 15);
+          sendProgress('analyzing', 'Assessing your goals...', 15);
 
-          // Call OpenAI planner agent with retry logic
+          // Call OpenAI planner agent with retry logic and simulated progress
           let aiResult;
           let attemptNumber = 1;
           const maxAttempts = 2;
@@ -91,12 +91,36 @@ export async function POST(request: Request) {
               console.log(`[Plan Generation] Attempt ${attemptNumber}/${maxAttempts}...`);
 
               if (attemptNumber === 1) {
-                sendProgress('querying', 'Finding suitable exercises...', 25);
+                sendProgress('finding_exercises', 'Finding suitable exercises...', 25);
               } else {
                 sendProgress('retrying', 'Retrying plan generation...', 25);
               }
 
+              // Start simulated progress updates during AI execution
+              let progressValue = 25;
+              const progressStages = [
+                { stage: 'matching_strength', message: 'Selecting strength exercises...', percent: 35, delay: 3000 },
+                { stage: 'matching_cardio', message: 'Selecting cardio exercises...', percent: 50, delay: 6000 },
+                { stage: 'optimizing', message: 'Optimizing your schedule...', percent: 60, delay: 9000 },
+              ];
+
+              // Set up timed progress updates
+              const progressTimers: NodeJS.Timeout[] = [];
+              progressStages.forEach(({ stage, message, percent, delay }) => {
+                const timer = setTimeout(() => {
+                  if (progressValue < 70) { // Only update if we haven't finished yet
+                    progressValue = percent;
+                    sendProgress(stage, message, percent);
+                  }
+                }, delay);
+                progressTimers.push(timer);
+              });
+
+              // Run the AI agent
               aiResult = await runPlannerAgent(userProfile);
+
+              // Clear all timers
+              progressTimers.forEach(timer => clearTimeout(timer));
 
               if (!aiResult.success || !aiResult.data) {
                 throw new Error('Agent returned unsuccessful result or no data');
@@ -104,7 +128,7 @@ export async function POST(request: Request) {
 
               // Success! Break out of retry loop
               console.log("[Plan Generation] Agent completed successfully");
-              sendProgress('validating', 'Validating your plan...', 70);
+              sendProgress('optimizing', 'Optimizing your schedule...', 70);
               break;
             } catch (error) {
               console.error(`[Plan Generation] Attempt ${attemptNumber} failed:`, error);
@@ -143,7 +167,7 @@ export async function POST(request: Request) {
           }
 
           console.log("[Plan Generation] AI response received, post-processing...");
-          sendProgress('processing', 'Processing your plan...', 75);
+          sendProgress('optimizing', 'Optimizing your schedule...', 75);
 
           // Post-process response (enforce PCOS guardrails, time budgets)
           const postProcessResult = postProcessPlannerResponse(aiResult.data, {
@@ -169,7 +193,7 @@ export async function POST(request: Request) {
 
           // Expand planner response for Week 1 only (adaptive planning)
           console.log("[Plan Generation] Generating Week 1 workouts...");
-          sendProgress('building', 'Building Week 1...', 85);
+          sendProgress('building', 'Building Week 1 workouts...', 85);
 
           const { microcycle, workouts: workoutInstances } = expandPlannerResponseInitialWeek(
             plannerResponse,
@@ -187,7 +211,7 @@ export async function POST(request: Request) {
 
           // Save plan to database
           console.log("[Plan Generation] Saving to database...");
-          sendProgress('saving', 'Saving your plan...', 95);
+          sendProgress('saving', 'Finalizing your plan...', 95);
 
           const [createdPlan] = await db
             .insert(plans)
