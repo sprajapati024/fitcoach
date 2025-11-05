@@ -342,11 +342,11 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
   if (!currentExercise) {
     return (
       <div className="mx-auto w-full max-w-3xl p-6">
-        <Card className="flex flex-col items-center gap-4 bg-bg1 text-center">
-          <p className="text-sm text-fg2">No exercises found in this workout.</p>
+        <Card className="flex flex-col items-center gap-4 bg-surface-1 text-center">
+          <p className="text-sm text-text-muted">No exercises found in this workout.</p>
           <PrimaryButton
             onClick={onCancel}
-            className="w-full max-w-xs bg-bg2 text-fg0 normal-case hover:bg-line2"
+            className="w-full max-w-xs bg-surface-2 text-text-primary normal-case hover:bg-surface-border"
           >
             Go back
           </PrimaryButton>
@@ -357,13 +357,13 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
 
   return (
     <div className="mx-auto w-full max-w-3xl space-y-6 p-4">
-      <div className="flex items-center justify-between text-sm text-fg2">
+      <div className="flex items-center justify-between text-sm text-text-muted">
         <button
           onClick={() => {
             stopRestTimer();
             onCancel();
           }}
-          className="inline-flex items-center gap-2 rounded-md px-4 py-2 text-fg2 transition hover:bg-bg2 hover:text-fg0"
+          className="inline-flex items-center gap-2 rounded-md px-4 py-2 text-text-muted transition hover:bg-surface-2 hover:text-text-primary"
         >
           ← Cancel
         </button>
@@ -379,13 +379,13 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
               ? 'border-error bg-error-bg text-error-light'
               : feedback.type === 'success'
                 ? 'border-success bg-success-bg text-success-light'
-                : 'border-fg2 text-fg1'
-          } bg-bg1 text-sm`}
+                : 'border-text-muted text-text-secondary'
+          } bg-surface-1 text-sm`}
         >
           <span>{feedback.message}</span>
           <button
             onClick={() => setFeedback(null)}
-            className="rounded-full p-1 text-xs uppercase tracking-wide text-fg2 transition hover:text-fg0"
+            className="rounded-full p-1 text-xs uppercase tracking-wide text-text-muted transition hover:text-text-primary"
           >
             Dismiss
           </button>
@@ -393,18 +393,18 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
       ) : null}
 
       <Card className="space-y-2">
-        <p className="text-xs font-medium uppercase tracking-wide text-fg2">
+        <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
           {currentExercise.blockTitle}
         </p>
-        <h2 className="text-xl font-semibold text-fg0">
+        <h2 className="text-xl font-semibold text-text-primary">
           {currentExercise.name || currentExercise.id}
         </h2>
-        <p className="text-sm text-fg1">
+        <p className="text-sm text-text-secondary">
           Target: {currentExercise.sets}×{currentExercise.reps}
           {currentExercise.tempo ? ` • Tempo: ${currentExercise.tempo}` : ''}
         </p>
         {currentExercise.cues && currentExercise.cues.length > 0 ? (
-          <div className="mt-2 space-y-1 text-xs text-fg2">
+          <div className="mt-2 space-y-1 text-xs text-text-muted">
             {currentExercise.cues.map((cue, index) => (
               <div key={index}>• {cue}</div>
             ))}
@@ -413,29 +413,29 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
       </Card>
 
       {restRemaining !== null ? (
-        <Card className="flex items-center justify-between bg-bg0">
+        <Card className="flex items-center justify-between bg-surface-0">
           <div>
-            <p className="text-xs uppercase tracking-wide text-fg2">Rest timer</p>
-            <p className="text-lg font-semibold text-fg0">{formatSeconds(restRemaining)}</p>
+            <p className="text-xs uppercase tracking-wide text-text-muted">Rest timer</p>
+            <p className="text-lg font-semibold text-text-primary">{formatSeconds(restRemaining)}</p>
           </div>
           <button
             onClick={stopRestTimer}
-            className="inline-flex items-center gap-2 rounded-full border border-line1 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-fg2 transition hover:text-fg0"
+            className="inline-flex items-center gap-2 rounded-full border border-surface-border px-4 py-2 text-xs font-semibold uppercase tracking-wide text-text-muted transition hover:text-text-primary"
           >
             Skip
           </button>
         </Card>
       ) : null}
 
-      <Card className="space-y-4 bg-bg0">
+      <Card className="space-y-4 bg-surface-0">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-fg0">
+          <h3 className="text-sm font-semibold text-text-primary">
             {editingEntry ? `Edit set ${editingEntry.set}` : `Log set ${nextSetNumber}`}
           </h3>
           {editingEntry ? (
             <button
               onClick={resetInputs}
-              className="text-xs font-semibold uppercase tracking-wide text-fg2 transition hover:text-fg0"
+              className="text-xs font-semibold uppercase tracking-wide text-text-muted transition hover:text-text-primary"
             >
               Cancel edit
             </button>
@@ -444,32 +444,32 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
 
         <div className="grid gap-3 sm:grid-cols-3">
           <label className="space-y-1">
-            <span className="block text-xs font-medium text-fg2">Weight (kg)</span>
+            <span className="block text-xs font-medium text-text-muted">Weight (kg)</span>
             <input
               type="number"
               step="0.5"
               inputMode="decimal"
               value={weight}
               onChange={(event) => setWeight(event.target.value)}
-              className="w-full rounded-md border border-line1 bg-bg0 px-3 py-2 text-sm text-fg0 placeholder:text-fg2 focus:border-fg0 focus:outline-none focus:ring-1 focus:ring-fg0"
+              className="w-full rounded-md border border-surface-border bg-surface-0 px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
               placeholder="0"
             />
           </label>
 
           <label className="space-y-1">
-            <span className="block text-xs font-medium text-fg2">Reps</span>
+            <span className="block text-xs font-medium text-text-muted">Reps</span>
             <input
               type="number"
               inputMode="numeric"
               value={reps}
               onChange={(event) => setReps(event.target.value)}
-              className="w-full rounded-md border border-line1 bg-bg0 px-3 py-2 text-sm text-fg0 placeholder:text-fg2 focus:border-fg0 focus:outline-none focus:ring-1 focus:ring-fg0"
+              className="w-full rounded-md border border-surface-border bg-surface-0 px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
               placeholder="0"
             />
           </label>
 
           <label className="space-y-1">
-            <span className="block text-xs font-medium text-fg2">RPE (5-10)</span>
+            <span className="block text-xs font-medium text-text-muted">RPE (5-10)</span>
             <input
               type="number"
               step="0.5"
@@ -478,19 +478,19 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
               min={5}
               max={10}
               onChange={(event) => setRpe(event.target.value)}
-              className="w-full rounded-md border border-line1 bg-bg0 px-3 py-2 text-sm text-fg0 placeholder:text-fg2 focus:border-fg0 focus:outline-none focus:ring-1 focus:ring-fg0"
+              className="w-full rounded-md border border-surface-border bg-surface-0 px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
               placeholder="7.5"
             />
           </label>
         </div>
 
         <label className="space-y-1">
-          <span className="block text-xs font-medium text-fg2">Notes (optional)</span>
+          <span className="block text-xs font-medium text-text-muted">Notes (optional)</span>
           <input
             type="text"
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
-            className="w-full rounded-md border border-line1 bg-bg0 px-3 py-2 text-sm text-fg0 placeholder:text-fg2 focus:border-fg0 focus:outline-none focus:ring-1 focus:ring-fg0"
+            className="w-full rounded-md border border-surface-border bg-surface-0 px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
             placeholder="Felt strong, smooth tempo"
           />
         </label>
@@ -504,19 +504,19 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
       </Card>
 
       {currentExerciseSets.length > 0 ? (
-        <Card className="space-y-3 bg-bg0">
-          <h4 className="text-sm font-semibold text-fg0">Logged sets</h4>
+        <Card className="space-y-3 bg-surface-0">
+          <h4 className="text-sm font-semibold text-text-primary">Logged sets</h4>
           <div className="space-y-1.5">
             {currentExerciseSets.map((set) => (
               <div
                 key={set.set}
-                className="flex items-center justify-between rounded-md border border-line1/60 px-3 py-2 text-sm text-fg1"
+                className="flex items-center justify-between rounded-md border border-surface-border/60 px-3 py-2 text-sm text-text-secondary"
               >
                 <div>
-                  <p className="font-semibold text-fg0">
+                  <p className="font-semibold text-text-primary">
                     Set {set.set}: {set.weight}kg × {set.reps}
                   </p>
-                  <p className="text-xs text-fg2">
+                  <p className="text-xs text-text-muted">
                     {set.rpe ? `@ ${set.rpe} RPE` : 'RPE —'}
                     {set.notes ? ` • ${set.notes}` : ''}
                   </p>
@@ -524,14 +524,14 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => handleEditEntry(set.set)}
-                    className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide text-fg2 transition hover:text-fg0"
+                    className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide text-text-muted transition hover:text-text-primary"
                   >
                     <Pencil className="h-3 w-3" aria-hidden />
                     Edit
                   </button>
                   <button
                     onClick={() => handleDeleteEntry(set.set)}
-                    className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide text-fg2 transition hover:text-red-400"
+                    className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide text-text-muted transition hover:text-red-400"
                   >
                     <Trash2 className="h-3 w-3" aria-hidden />
                     Delete
@@ -549,7 +549,7 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
             {currentExerciseIndex > 0 ? (
               <button
                 onClick={handlePreviousExercise}
-                className="flex-1 rounded-full border border-line1 bg-bg0 px-4 py-3 text-sm font-semibold text-fg0 transition hover:bg-bg1"
+                className="flex-1 rounded-full border border-surface-border bg-surface-0 px-4 py-3 text-sm font-semibold text-text-primary transition hover:bg-surface-1"
               >
                 ← Previous
               </button>
@@ -562,8 +562,8 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
             </PrimaryButton>
           </div>
         ) : (
-          <Card className="space-y-3 bg-bg0">
-            <label className="block text-sm font-medium text-fg0">
+          <Card className="space-y-3 bg-surface-0">
+            <label className="block text-sm font-medium text-text-primary">
               Overall workout RPE
             </label>
             <input
@@ -574,7 +574,7 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
               max={10}
               value={rpeLastSet}
               onChange={(event) => setRpeLastSet(event.target.value)}
-              className="w-full rounded-md border border-line1 bg-bg0 px-3 py-2 text-sm text-fg0 placeholder:text-fg2 focus:border-fg0 focus:outline-none focus:ring-1 focus:ring-fg0"
+              className="w-full rounded-md border border-surface-border bg-surface-0 px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
               placeholder="7.5"
             />
             <PrimaryButton
@@ -587,7 +587,7 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
           </Card>
         )}
 
-        <p className="text-center text-xs text-fg2">
+        <p className="text-center text-xs text-text-muted">
           {totalSetsLogged} {totalSetsLogged === 1 ? 'set logged' : 'sets logged'}
         </p>
       </div>

@@ -23,7 +23,7 @@ export function PlanWeekGrid({ calendar, currentDayIndex, onDayClick }: PlanWeek
             <div className="flex items-center gap-2 text-sm font-medium">
               <span>Week {week.weekIndex + 1}</span>
               {isDeloadWeek && (
-                <span className="rounded border border-line1 bg-bg2 px-2 py-0.5 text-xs text-fg2">
+                <span className="rounded border border-surface-border bg-surface-2 px-2 py-0.5 text-xs text-text-muted">
                   Deload
                 </span>
               )}
@@ -38,8 +38,8 @@ export function PlanWeekGrid({ calendar, currentDayIndex, onDayClick }: PlanWeek
                 <Card
                   key={day.dayIndex}
                   className={cn(
-                    "cursor-pointer transition-all hover:border-fg1 hover:shadow-lg",
-                    isToday && "border-fg0 bg-bg2",
+                    "cursor-pointer transition-all hover:border-text-secondary hover:shadow-lg",
+                    isToday && "border-text-primary bg-surface-2",
                     isPast && "opacity-60"
                   )}
                   onClick={() => onDayClick?.(day.dayIndex, day.workoutId)}
@@ -47,23 +47,23 @@ export function PlanWeekGrid({ calendar, currentDayIndex, onDayClick }: PlanWeek
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="mb-1 flex items-center gap-2">
-                        <span className="text-xs text-fg2">Day {day.dayIndex + 1}</span>
+                        <span className="text-xs text-text-muted">Day {day.dayIndex + 1}</span>
                         {isToday && (
-                          <span className="rounded bg-fg0 px-1.5 py-0.5 text-xs text-bg0">
+                          <span className="rounded bg-text-primary px-1.5 py-0.5 text-xs text-surface-0">
                             Today
                           </span>
                         )}
                       </div>
                       <div className="mb-2 text-sm font-medium">{day.focus}</div>
-                      <div className="text-xs text-fg2">
+                      <div className="text-xs text-text-muted">
                         {day.isoDate || "Date set during activation"}
                       </div>
                     </div>
                     <div className="flex flex-col items-center gap-1">
                       {day.isDeload ? (
-                        <Zap className="h-5 w-5 text-fg2" />
+                        <Zap className="h-5 w-5 text-text-muted" />
                       ) : (
-                        <Dumbbell className="h-5 w-5 text-fg1" />
+                        <Dumbbell className="h-5 w-5 text-text-secondary" />
                       )}
                     </div>
                   </div>

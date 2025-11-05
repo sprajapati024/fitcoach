@@ -15,7 +15,7 @@ export default async function PlanPage() {
   const workoutLogs = activePlan ? await getPlanWorkoutLogsAction(activePlan.id) : [];
 
   return (
-    <div className="min-h-screen bg-bg0 p-4 text-fg0 md:p-6">
+    <div className="min-h-screen bg-surface-0 p-4 text-text-primary md:p-6">
       <div className="mx-auto max-w-5xl">
         <h1 className="mb-4 text-2xl font-semibold md:mb-6">Your Training Plan</h1>
         <PlanView

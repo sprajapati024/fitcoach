@@ -65,11 +65,11 @@ export function WeeklyReview({ planId, weekNumber, autoLoad = true }: WeeklyRevi
   const hasReviewData = !!data;
 
   return (
-    <Card className="space-y-3 bg-bg1 text-fg0">
+    <Card className="space-y-3 bg-surface-1 text-text-primary">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <TrendingUp className="h-4 w-4 text-fg2" aria-hidden />
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-fg2">
+          <TrendingUp className="h-4 w-4 text-text-muted" aria-hidden />
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted">
             Week {weekNumber} Review
           </h3>
         </div>
@@ -77,7 +77,7 @@ export function WeeklyReview({ planId, weekNumber, autoLoad = true }: WeeklyRevi
           type="button"
           onClick={() => fetchReview()}
           disabled={isLoading}
-          className="inline-flex items-center justify-center rounded-full border border-line1 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-fg2 transition hover:text-fg0 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center justify-center rounded-full border border-surface-border px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-text-muted transition hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-60"
         >
           <RefreshCw className={`mr-1 h-3 w-3 ${isLoading ? 'animate-spin' : ''}`} aria-hidden />
           Refresh
@@ -85,26 +85,26 @@ export function WeeklyReview({ planId, weekNumber, autoLoad = true }: WeeklyRevi
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-fg2">Analyzing your week…</p>
+        <p className="text-sm text-text-muted">Analyzing your week…</p>
       ) : hasReviewData ? (
         <>
-          <p className="text-sm font-semibold text-fg0">{data?.headline}</p>
+          <p className="text-sm font-semibold text-text-primary">{data?.headline}</p>
           {data?.bullets?.length ? (
-            <ul className="space-y-1 text-sm text-fg1">
+            <ul className="space-y-1 text-sm text-text-secondary">
               {data.bullets.map((bullet, index) => (
                 <li key={index} className="flex items-start gap-2">
-                  <span className="mt-[6px] h-1.5 w-1.5 flex-none rounded-full bg-fg2" />
+                  <span className="mt-[6px] h-1.5 w-1.5 flex-none rounded-full bg-text-muted" />
                   <span>{bullet}</span>
                 </li>
               ))}
             </ul>
           ) : null}
           {data?.prompts && data.prompts.length > 0 ? (
-            <div className="rounded-md border border-line1/60 bg-bg0 p-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-fg2">
+            <div className="rounded-md border border-surface-border/60 bg-surface-0 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">
                 Focus for next week
               </p>
-              <ul className="mt-1 space-y-1 text-xs text-fg1">
+              <ul className="mt-1 space-y-1 text-xs text-text-secondary">
                 {data.prompts.map((prompt, index) => (
                   <li key={index}>• {prompt}</li>
                 ))}
@@ -113,14 +113,14 @@ export function WeeklyReview({ planId, weekNumber, autoLoad = true }: WeeklyRevi
           ) : null}
         </>
       ) : (
-        <p className="text-sm text-fg1">
+        <p className="text-sm text-text-secondary">
           {error ??
             `Week ${weekNumber} complete! Review your logs to track progress and plan for next week.`}
         </p>
       )}
 
       {error && !hasReviewData ? (
-        <p className="text-xs text-fg2">
+        <p className="text-xs text-text-muted">
           Showing fallback note. Tap refresh once you have a connection.
         </p>
       ) : null}

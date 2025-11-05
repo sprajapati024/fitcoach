@@ -22,7 +22,7 @@ export function Stepper({ steps, current }: StepperProps) {
                   ? "border-accent bg-accent text-gray-950"
                   : isActive
                     ? "border-accent bg-accent-subtle text-accent"
-                    : "border-line2 text-fg2",
+                    : "border-surface-border text-text-muted",
               )}
             >
               {index + 1}
@@ -30,7 +30,7 @@ export function Stepper({ steps, current }: StepperProps) {
             <span
               className={cn(
                 "hidden text-sm uppercase tracking-wide md:block",
-                isActive ? "font-semibold text-accent" : isCompleted ? "text-fg0" : "text-fg2",
+                isActive ? "font-semibold text-accent" : isCompleted ? "text-text-primary" : "text-text-muted",
               )}
             >
               {step}
@@ -39,7 +39,7 @@ export function Stepper({ steps, current }: StepperProps) {
               <div
                 className={cn(
                   "mx-2 hidden h-px flex-1 md:block",
-                  isCompleted ? "bg-accent" : "bg-line2",
+                  isCompleted ? "bg-accent" : "bg-surface-border",
                 )}
                 aria-hidden
               />

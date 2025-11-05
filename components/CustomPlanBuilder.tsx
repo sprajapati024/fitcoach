@@ -352,7 +352,7 @@ export function CustomPlanBuilder({
                     value={planTitle}
                     onChange={(e) => setPlanTitle(e.target.value)}
                     placeholder="e.g., My Custom Strength Plan"
-                    className="w-full px-4 py-3 bg-surface-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-neural-400 text-neutral-200"
+                    className="w-full px-4 py-3 bg-surface-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 text-neutral-200"
                   />
                 </div>
 
@@ -365,7 +365,7 @@ export function CustomPlanBuilder({
                     onChange={(e) => setPlanSummary(e.target.value)}
                     placeholder="Brief description of your plan..."
                     rows={3}
-                    className="w-full px-4 py-3 bg-surface-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-neural-400 text-neutral-200"
+                    className="w-full px-4 py-3 bg-surface-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 text-neutral-200"
                   />
                 </div>
 
@@ -382,7 +382,7 @@ export function CustomPlanBuilder({
                       onChange={(e) =>
                         setDurationWeeks(parseInt(e.target.value))
                       }
-                      className="w-full px-4 py-3 bg-surface-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-neural-400 text-neutral-200"
+                      className="w-full px-4 py-3 bg-surface-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 text-neutral-200"
                     />
                   </div>
 
@@ -395,7 +395,7 @@ export function CustomPlanBuilder({
                       onChange={(e) =>
                         setDaysPerWeek(parseInt(e.target.value))
                       }
-                      className="w-full px-4 py-3 bg-surface-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-neural-400 text-neutral-200"
+                      className="w-full px-4 py-3 bg-surface-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 text-neutral-200"
                     >
                       <option value="3">3 days</option>
                       <option value="4">4 days</option>
@@ -418,7 +418,7 @@ export function CustomPlanBuilder({
                     onChange={(e) =>
                       setMinutesPerSession(parseInt(e.target.value))
                     }
-                    className="w-full px-4 py-3 bg-surface-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-neural-400 text-neutral-200"
+                    className="w-full px-4 py-3 bg-surface-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 text-neutral-200"
                   />
                 </div>
 
@@ -430,7 +430,7 @@ export function CustomPlanBuilder({
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full px-4 py-3 bg-surface-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-neural-400 text-neutral-200"
+                    className="w-full px-4 py-3 bg-surface-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 text-neutral-200"
                   />
                 </div>
               </div>
@@ -467,7 +467,7 @@ export function CustomPlanBuilder({
                             handleUpdateFocus(patternIndex, e.target.value)
                           }
                           placeholder="e.g., Upper Body"
-                          className="flex-1 px-3 py-1.5 bg-surface-1 border border-border rounded text-sm focus:outline-none focus:ring-2 focus:ring-neural-400"
+                          className="flex-1 px-3 py-1.5 bg-surface-1 border border-border rounded text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
                         />
                       </div>
                     </div>
