@@ -150,3 +150,76 @@ export async function getUserProfileAction() {
 
   return profile || null;
 }
+
+/**
+ * Update full user profile from settings page
+ */
+export async function updateFullProfileAction(data: {
+  fullName?: string;
+  sex?: string;
+  dateOfBirth?: string;
+  heightCm?: number;
+  weightKg?: number;
+  unitSystem?: string;
+  goalBias?: string;
+  experienceLevel?: string;
+  scheduleDaysPerWeek?: number;
+  scheduleMinutesPerSession?: number;
+  scheduleWeeks?: number;
+  preferredDays?: string[];
+  equipment?: string[];
+  avoidList?: string[];
+  noHighImpact?: boolean;
+  hasPcos?: boolean;
+  coachTone?: string;
+  coachTodayEnabled?: boolean;
+  coachDebriefEnabled?: boolean;
+  coachWeeklyEnabled?: boolean;
+  timezone?: string;
+}) {
+  const supabase = await createSupabaseServerClient();
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !userData.user) {
+    throw new Error("Unable to resolve authenticated user");
+  }
+
+  const userId = userData.user.id;
+
+  // Update profile
+  await db
+    .update(profiles)
+    .set({
+      fullName: data.fullName,
+      sex: data.sex as any,
+      dateOfBirth: data.dateOfBirth,
+      heightCm: data.heightCm?.toString(),
+      weightKg: data.weightKg?.toString(),
+      unitSystem: data.unitSystem as any,
+      goalBias: data.goalBias as any,
+      experienceLevel: data.experienceLevel as any,
+      scheduleDaysPerWeek: data.scheduleDaysPerWeek,
+      scheduleMinutesPerSession: data.scheduleMinutesPerSession,
+      scheduleWeeks: data.scheduleWeeks,
+      preferredDays: data.preferredDays as any,
+      equipment: data.equipment as any,
+      avoidList: data.avoidList as any,
+      noHighImpact: data.noHighImpact,
+      hasPcos: data.hasPcos,
+      coachTone: data.coachTone as any,
+      coachTodayEnabled: data.coachTodayEnabled,
+      coachDebriefEnabled: data.coachDebriefEnabled,
+      coachWeeklyEnabled: data.coachWeeklyEnabled,
+      timezone: data.timezone,
+      updatedAt: new Date(),
+    })
+    .where(eq(profiles.userId, userId));
+
+  // Revalidate relevant pages
+  revalidatePath("/settings");
+  revalidatePath("/dashboard");
+  revalidatePath("/plan");
+  revalidatePath("/nutrition");
+
+  return { success: true };
+}

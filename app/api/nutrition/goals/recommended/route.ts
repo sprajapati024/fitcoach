@@ -23,6 +23,8 @@ export async function GET() {
       .where(eq(profiles.userId, user.id))
       .limit(1);
 
+    console.log("Profile data:", profile);
+
     if (!profile) {
       return NextResponse.json(
         { error: "User profile not found. Please complete onboarding first." },
@@ -30,19 +32,57 @@ export async function GET() {
       );
     }
 
-    // Check required fields
-    if (!profile.weightKg || !profile.heightCm || !profile.dateOfBirth) {
+    // Check required fields and log what's missing
+    if (!profile.weightKg) {
+      console.error("Missing weightKg");
       return NextResponse.json(
-        { error: "Missing required profile data (weight, height, or date of birth)" },
+        { error: "Missing weight data. Please update your profile." },
         { status: 400 }
       );
     }
 
+    if (!profile.heightCm) {
+      console.error("Missing heightCm");
+      return NextResponse.json(
+        { error: "Missing height data. Please update your profile." },
+        { status: 400 }
+      );
+    }
+
+    if (!profile.dateOfBirth) {
+      console.error("Missing dateOfBirth");
+      return NextResponse.json(
+        { error: "Missing date of birth. Please update your profile." },
+        { status: 400 }
+      );
+    }
+
+    // Parse values safely
+    const weightKg = parseFloat(profile.weightKg.toString());
+    const heightCm = parseFloat(profile.heightCm.toString());
+
+    if (isNaN(weightKg) || isNaN(heightCm)) {
+      console.error("Invalid numeric values:", { weightKg, heightCm });
+      return NextResponse.json(
+        { error: "Invalid weight or height data" },
+        { status: 400 }
+      );
+    }
+
+    console.log("Calling calculateRecommendedGoals with:", {
+      weightKg,
+      heightCm,
+      sex: profile.sex,
+      dateOfBirth: profile.dateOfBirth,
+      goalBias: profile.goalBias,
+      hasPcos: profile.hasPcos,
+    });
+
     // Calculate recommended goals
     const recommended = await calculateRecommendedGoals(
       {
-        weightKg: parseFloat(profile.weightKg),
-        heightCm: parseFloat(profile.heightCm),
+        weightKg,
+        heightCm,
         sex: profile.sex || "unspecified",
         dateOfBirth: profile.dateOfBirth,
         goalBias: profile.goalBias || "general_fitness",
@@ -51,6 +91,8 @@ export async function GET() {
       "moderate" // Default activity level
     );
 
+    console.log("Recommended goals:", recommended);
+
     return NextResponse.json({
       success: true,
       recommended,
@@ -58,8 +100,9 @@ export async function GET() {
     });
   } catch (error) {
     console.error("Error calculating recommended goals:", error);
+    const errorMessage = error instanceof Error ? error.message : "Failed to calculate recommended goals";
     return NextResponse.json(
-      { error: "Failed to calculate recommended goals" },
+      { error: errorMessage, details: error instanceof Error ? error.stack : undefined },
       { status: 500 }
     );
   }

@@ -92,11 +92,13 @@ export function GoalsModal({ onClose, onGoalsSet }: GoalsModalProps) {
     try {
       // Fetch user profile to calculate recommendations
       const response = await fetch("/api/nutrition/goals/recommended");
-      if (!response.ok) {
-        throw new Error("Failed to get recommendations");
-      }
 
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to get recommendations");
+      }
+
       if (data.recommended) {
         setCalories(data.recommended.targetCalories?.toString() || "");
         setProtein(data.recommended.targetProteinGrams?.toString() || "");

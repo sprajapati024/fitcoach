@@ -6,6 +6,7 @@ import { deletePlanAction } from "@/app/actions/plan";
 import { updateCustomInstructionsAction } from "@/app/actions/profile";
 import type { profiles, plans } from "@/drizzle/schema";
 import { PrimaryButton } from "@/components/PrimaryButton";
+import { ProfileEditor } from "./ProfileEditor";
 
 type Profile = typeof profiles.$inferSelect;
 type Plan = typeof plans.$inferSelect;
@@ -58,6 +59,9 @@ export function SettingsView({ profile, userPlans }: SettingsViewProps) {
 
   return (
     <div className="space-y-8">
+      {/* Profile Editor */}
+      <ProfileEditor profile={profile} />
+
       {/* Custom Instructions Section */}
       <div className="rounded-lg border border-line1 bg-bg0 p-6">
         <h2 className="mb-2 text-lg font-semibold text-fg0">
