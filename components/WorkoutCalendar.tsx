@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { WeekCarousel } from './WeekCarousel';
+import { cn } from '@/lib/utils';
 import type { workouts } from "@/drizzle/schema";
 
 type Workout = typeof workouts.$inferSelect;
@@ -53,134 +55,281 @@ export function WorkoutCalendar({
     return map;
   }, [logs]);
 
-  // Group workouts by week - only show weeks that have workouts (adaptive planning)
-  const workoutsByWeek: Workout[][] = [];
-  const weekIndices = [...new Set(workouts.map(w => w.weekIndex))].sort((a, b) => a - b);
-
-  for (const weekIndex of weekIndices) {
-    const weekWorkouts = workouts.filter((w) => w.weekIndex === weekIndex);
-    workoutsByWeek[weekIndex] = weekWorkouts;
-  }
-
   const today = new Date().toISOString().split("T")[0];
 
+  // Prepare week data for carousel
+  const weekData = useMemo(() => {
+    const weekIndices = [...new Set(workouts.map(w => w.weekIndex))].sort((a, b) => a - b);
+
+    return weekIndices.map((weekIndex) => {
+      const weekWorkouts = workouts.filter((w) => w.weekIndex === weekIndex);
+      const weekStartDate = getDateString(startDate, weekIndex * 7);
+      const isDeloadWeek = weekWorkouts.some((w) => w.isDeload);
+
+      // Create day data for all 7 days of the week
+      const days = Array.from({ length: 7 }).map((_, dayIndex) => {
+        const dayDate = getDateString(weekStartDate, dayIndex);
+
+        const workout = weekWorkouts.find((w) => {
+          if (w.sessionDate) {
+            return w.sessionDate === dayDate;
+          } else {
+            const expectedDate = getDateString(startDate, w.dayIndex);
+            return expectedDate === dayDate;
+          }
+        });
+
+        const isToday = dayDate === today;
+        const status = workout ? statusByWorkout.get(workout.id) : undefined;
+
+        return {
+          dayIndex: weekIndex * 7 + dayIndex,
+          date: dayDate,
+          dayOfWeek: getDayOfWeek(dayDate),
+          dateShort: formatDateShort(dayDate),
+          workout: workout || null,
+          isToday,
+          status,
+        };
+      });
+
+      return {
+        weekIndex,
+        weekStartDate,
+        isDeloadWeek,
+        workouts: weekWorkouts,
+        days,
+      };
+    });
+  }, [workouts, startDate, statusByWorkout, today]);
+
+  // Find current week index (week containing today)
+  const currentWeekIndex = useMemo(() => {
+    const index = weekData.findIndex(week =>
+      week.days.some(day => day.isToday)
+    );
+    return index >= 0 ? index : 0;
+  }, [weekData]);
+
+  const [selectedWeek, setSelectedWeek] = useState(currentWeekIndex);
+
   return (
-    <div className="space-y-6">
-      {weekIndices.map((weekIndex) => {
-        const weekWorkouts = workoutsByWeek[weekIndex] || [];
-        const weekStartDate = getDateString(startDate, weekIndex * 7);
-        const isDeloadWeek = weekWorkouts.some((w) => w.isDeload);
+    <div>
+      {/* Mobile: Week Carousel */}
+      <div className="md:hidden">
+        <WeekCarousel
+          weeks={weekData}
+          currentWeekIndex={currentWeekIndex}
+          onWeekChange={setSelectedWeek}
+        />
+      </div>
 
-        return (
-          <div key={weekIndex} className="space-y-3">
-            {/* Week Header */}
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-text-primary">
-                Week {weekIndex + 1}
-              </h3>
-              {isDeloadWeek && (
-                <span className="text-xs font-medium text-text-muted bg-surface-2 px-2 py-1 rounded">
-                  Deload Week
-                </span>
-              )}
-            </div>
-
-            {/* Week Grid - Horizontal scroll on mobile, grid on desktop */}
-            <div className="relative">
-              {/* Scroll container for mobile */}
-              <div className="scroll-smooth-mobile -mx-4 overflow-x-auto px-4 md:mx-0 md:overflow-visible md:px-0">
-                <div className="grid min-w-max grid-cols-7 gap-2 md:min-w-0">
-                  {Array.from({ length: 7 }).map((_, dayIndex) => {
-                    const dayDate = getDateString(weekStartDate, dayIndex);
-
-                    // Find workout for this day
-                    // If sessionDate is set (plan activated), match by sessionDate
-                    // If sessionDate is null (plan not activated), calculate expected date from workout's dayIndex
-                    const workout = weekWorkouts.find((w) => {
-                      if (w.sessionDate) {
-                        // Plan is activated - use actual sessionDate
-                        return w.sessionDate === dayDate;
-                      } else {
-                        // Plan not activated - calculate expected date from dayIndex
-                        const expectedDate = getDateString(startDate, w.dayIndex);
-                        return expectedDate === dayDate;
-                      }
-                    });
-
-                    const isToday = dayDate === today;
-                    const status = workout ? statusByWorkout.get(workout.id) : undefined;
-
-                    return (
-                      <div
-                        key={dayIndex}
-                        className={`
-                          scroll-snap-item relative flex min-h-[100px] w-[120px] flex-col rounded-lg border p-3 transition-all md:min-h-[80px] md:w-auto
-                          ${isToday ? "border-accent bg-surface-1 shadow-md" : "border-surface-border bg-surface-0"}
-                          ${workout ? "touch-feedback cursor-pointer hover:border-accent hover:shadow-md" : ""}
-                        `}
-                      >
-                        {/* Day Label */}
-                        <div className="mb-1 text-xs font-medium text-text-muted">
-                          {getDayOfWeek(dayDate)}
-                        </div>
-                        <div className={`text-xs ${isToday ? "font-bold text-accent" : "text-text-muted"}`}>
-                          {formatDateShort(dayDate)}
-                        </div>
-
-                        {/* Workout Info */}
-                        {workout ? (
-                          <Link
-                            href={`/workout/${workout.id}`}
-                            className="mt-2 flex flex-1 flex-col"
-                          >
-                            <div className="mb-1 line-clamp-2 text-xs font-medium text-text-primary">
-                              {workout.focus}
-                            </div>
-                            <div className="mt-auto text-xs text-text-muted">
-                              {workout.durationMinutes} min
-                            </div>
-
-                            {status ? (
-                              <div className="absolute right-1 top-1">
-                                <div
-                                  className={`h-2 w-2 rounded-full ${
-                                    status === "completed" ? "bg-success-light" : "bg-warning-light"
-                                  }`}
-                                />
-                              </div>
-                            ) : null}
-
-                            {status ? (
-                              <span
-                                className={`mt-1 text-[10px] font-semibold uppercase tracking-wide ${
-                                  status === "completed" ? "text-green-300" : "text-amber-300"
-                                }`}
-                              >
-                                {status === "completed" ? "Completed" : "Skipped"}
-                              </span>
-                            ) : null}
-                          </Link>
-                        ) : (
-                          <div className="mt-2 text-xs text-text-muted">Rest</div>
-                        )}
-
-                        {/* Today indicator - neon accent */}
-                        {isToday && (
-                          <div className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-[var(--neon-primary)] shadow-[0_0_6px_var(--neon-glow)]" />
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Scroll fade indicators for mobile */}
-              <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-bg-0 to-transparent md:hidden" />
-              <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-bg-0 to-transparent md:hidden" />
-            </div>
-          </div>
-        );
-      })}
+      {/* Desktop: Enhanced Horizontal Scroll with All Weeks */}
+      <div className="hidden md:block">
+        <DesktopWeekView
+          weekData={weekData}
+          statusByWorkout={statusByWorkout}
+          startDate={startDate}
+          today={today}
+        />
+      </div>
     </div>
   );
+}
+
+// Desktop Week View Component (Enhanced)
+function DesktopWeekView({
+  weekData,
+  statusByWorkout,
+  startDate,
+  today,
+}: {
+  weekData: any[];
+  statusByWorkout: Map<string, WorkoutLogStatus["status"]>;
+  startDate: string;
+  today: string;
+}) {
+  const [expandedWeeks, setExpandedWeeks] = useState<Set<number>>(new Set([0]));
+
+  const toggleWeek = (weekIndex: number) => {
+    const newExpanded = new Set(expandedWeeks);
+    if (newExpanded.has(weekIndex)) {
+      newExpanded.delete(weekIndex);
+    } else {
+      newExpanded.add(weekIndex);
+    }
+    setExpandedWeeks(newExpanded);
+  };
+
+  const expandAll = () => {
+    setExpandedWeeks(new Set(weekData.map((_, i) => i)));
+  };
+
+  const collapseAll = () => {
+    setExpandedWeeks(new Set());
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Quick Actions */}
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-text-muted">
+          {weekData.length} weeks total
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={expandAll}
+            className="text-xs text-accent hover:text-accent-light transition-colors"
+          >
+            Expand All
+          </button>
+          <span className="text-text-muted">•</span>
+          <button
+            onClick={collapseAll}
+            className="text-xs text-accent hover:text-accent-light transition-colors"
+          >
+            Collapse All
+          </button>
+        </div>
+      </div>
+
+      {/* Week Accordion */}
+      <div className="space-y-3">
+        {weekData.map((week) => {
+          const isExpanded = expandedWeeks.has(week.weekIndex);
+          const hasToday = week.days.some((day: any) => day.isToday);
+
+          return (
+            <div
+              key={week.weekIndex}
+              className={cn(
+                "rounded-lg border transition-all",
+                hasToday ? "border-accent/30 bg-accent/5" : "border-surface-border bg-surface-1"
+              )}
+            >
+              {/* Week Header - Clickable */}
+              <button
+                onClick={() => toggleWeek(week.weekIndex)}
+                className="w-full flex items-center justify-between p-4 hover:bg-surface-2 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className={cn(
+                    "text-2xl transition-transform",
+                    isExpanded ? "rotate-90" : ""
+                  )}>
+                    ▶
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-lg font-semibold text-text-primary">
+                      Week {week.weekIndex + 1}
+                    </h3>
+                    {week.isDeloadWeek && (
+                      <span className="rounded-full border border-warning/40 bg-warning/10 px-3 py-1 text-xs font-medium text-warning-light">
+                        Deload
+                      </span>
+                    )}
+                    {hasToday && (
+                      <span className="rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
+                        Current Week
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="text-sm text-text-muted">
+                  {week.workouts.length} workouts
+                </div>
+              </button>
+
+              {/* Week Content - Collapsible */}
+              {isExpanded && (
+                <div className="px-4 pb-4 animate-fade-in">
+                  <div className="grid grid-cols-7 gap-3">
+                    {week.days.map((day: any) => (
+                      <DesktopDayCard key={day.dayIndex} day={day} />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function DesktopDayCard({ day }: { day: any }) {
+  const hasWorkout = !!day.workout;
+
+  const cardContent = (
+    <div
+      className={`
+        relative flex min-h-[100px] flex-col rounded-lg border p-3 transition-all
+        ${day.isToday ? "border-accent bg-accent/5 shadow-md" : "border-surface-border bg-surface-1"}
+        ${hasWorkout ? "hover:border-accent/50 hover:shadow-lg cursor-pointer" : ""}
+      `}
+    >
+      {/* Today Indicator */}
+      {day.isToday && (
+        <div className="absolute -right-1 -top-1 h-3 w-3 animate-pulse rounded-full bg-accent shadow-[0_0_8px_var(--accent-primary)]" />
+      )}
+
+      {/* Day Label */}
+      <div className="mb-2">
+        <div className="text-xs font-medium text-text-muted">
+          {day.dayOfWeek}
+        </div>
+        <div className={`text-sm font-semibold ${day.isToday ? "text-accent" : "text-text-primary"}`}>
+          {day.dateShort}
+        </div>
+      </div>
+
+      {/* Workout Info */}
+      {hasWorkout ? (
+        <div className="flex flex-1 flex-col">
+          <div className="mb-1 line-clamp-2 text-xs font-medium text-text-primary">
+            {day.workout.focus}
+          </div>
+          <div className="mt-auto text-xs text-text-muted">
+            {day.workout.durationMinutes} min
+          </div>
+
+          {day.status && (
+            <div className="absolute right-2 top-2">
+              <div
+                className={`h-2 w-2 rounded-full ${
+                  day.status === "completed" ? "bg-success-light" : "bg-warning-light"
+                }`}
+              />
+            </div>
+          )}
+
+          {day.status && (
+            <div
+              className={`mt-2 text-xs font-semibold ${
+                day.status === "completed" ? "text-success-light" : "text-warning-light"
+              }`}
+            >
+              {day.status === "completed" ? "✓ Done" : "⊘ Skipped"}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="flex flex-1 items-center justify-center text-xs text-text-muted">
+          Rest
+        </div>
+      )}
+    </div>
+  );
+
+  if (hasWorkout) {
+    return (
+      <Link href={`/workout/${day.workout.id}`}>
+        {cardContent}
+      </Link>
+    );
+  }
+
+  return cardContent;
 }
