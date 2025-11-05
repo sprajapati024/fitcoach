@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { X, Sparkles, Loader2 } from "lucide-react";
+import { useState, useRef } from "react";
+import { X, Sparkles, Loader2, Mic, Square } from "lucide-react";
 import { PrimaryButton } from "@/components/PrimaryButton";
 
 interface MealLoggerProps {
@@ -24,6 +24,15 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
   const [analyzing, setAnalyzing] = useState(false);
   const [logging, setLogging] = useState(false);
   const [error, setError] = useState("");
+
+  // Voice recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [wasVoiceInput, setWasVoiceInput] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const today = initialDate || new Date().toISOString().split("T")[0];
   const now = new Date().toISOString();
@@ -95,7 +104,7 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
           fatGrams: fat ? parseFloat(fat) : undefined,
           fiberGrams: fiber ? parseFloat(fiber) : undefined,
           notes: notes.trim() || undefined,
-          source: "manual",
+          source: wasVoiceInput ? "voice" : "manual",
         }),
       });
 
@@ -111,6 +120,120 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
     } finally {
       setLogging(false);
     }
+  };
+
+  const startRecording = async () => {
+    try {
+      // Request microphone permission
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      // Create MediaRecorder
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: MediaRecorder.isTypeSupported("audio/webm")
+          ? "audio/webm"
+          : "audio/mp4",
+      });
+
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        // Stop all tracks to release microphone
+        stream.getTracks().forEach((track) => track.stop());
+
+        // Create audio blob
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: mediaRecorder.mimeType,
+        });
+
+        // Transcribe audio
+        await transcribeAudio(audioBlob);
+      };
+
+      // Start recording
+      mediaRecorder.start();
+      setIsRecording(true);
+      setRecordingTime(0);
+      setError("");
+
+      // Start timer
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingTime((prev) => {
+          const newTime = prev + 1;
+          // Auto-stop at 2 minutes (120 seconds) for cost control
+          if (newTime >= 120) {
+            stopRecording();
+          }
+          return newTime;
+        });
+      }, 1000);
+    } catch (err) {
+      console.error("Error starting recording:", err);
+      setError(
+        "Could not access microphone. Please allow microphone permission and try again."
+      );
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+
+      // Clear timer
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+        recordingTimerRef.current = null;
+      }
+    }
+  };
+
+  const transcribeAudio = async (audioBlob: Blob) => {
+    setIsTranscribing(true);
+    setError("");
+
+    try {
+      const formData = new FormData();
+      formData.append("audio", audioBlob, "recording.webm");
+
+      const response = await fetch("/api/nutrition/transcribe", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to transcribe audio");
+      }
+
+      const data = await response.json();
+
+      // Set the transcribed text as the description
+      setDescription(data.transcript);
+      setWasVoiceInput(true);
+    } catch (err) {
+      console.error("Error transcribing audio:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to transcribe audio. Please try again or type manually."
+      );
+    } finally {
+      setIsTranscribing(false);
+      setRecordingTime(0);
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -149,19 +272,70 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium mb-2">What did you eat?</label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium">What did you eat?</label>
+
+              {/* Voice Recording Button */}
+              {!isRecording && !isTranscribing && (
+                <button
+                  onClick={startRecording}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-surface-1 hover:bg-surface-2 border border-border rounded-lg text-sm transition-colors"
+                  title="Record with voice"
+                >
+                  <Mic className="h-4 w-4" />
+                  Voice
+                </button>
+              )}
+            </div>
+
+            {/* Recording Indicator */}
+            {isRecording && (
+              <div className="mb-3 p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 w-3 bg-red-500 rounded-full animate-pulse" />
+                      <span className="text-sm font-medium text-red-300">Recording...</span>
+                    </div>
+                    <span className="text-sm text-neutral-400">{formatTime(recordingTime)}</span>
+                  </div>
+                  <button
+                    onClick={stopRecording}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    <Square className="h-4 w-4" />
+                    Stop
+                  </button>
+                </div>
+                <p className="text-xs text-neutral-400 mt-2">
+                  Speak naturally. Auto-stops at 2 minutes.
+                </p>
+              </div>
+            )}
+
+            {/* Transcribing Indicator */}
+            {isTranscribing && (
+              <div className="mb-3 p-3 bg-cyan-900/20 border border-cyan-500/30 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-cyan-400" />
+                  <span className="text-sm text-cyan-300">Transcribing your voice...</span>
+                </div>
+              </div>
+            )}
+
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="E.g., Grilled chicken breast, brown rice, steamed broccoli with olive oil"
               className="w-full px-4 py-3 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 min-h-[100px]"
               maxLength={1000}
+              disabled={isRecording || isTranscribing}
             />
             <div className="flex items-center justify-between mt-2">
               <span className="text-xs text-neutral-500">{description.length}/1000</span>
               <button
                 onClick={handleAnalyze}
-                disabled={analyzing || !description.trim()}
+                disabled={analyzing || !description.trim() || isRecording || isTranscribing}
                 className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-indigo-600 text-gray-950 rounded-lg font-medium disabled:opacity-50 hover:opacity-90 transition-opacity"
               >
                 {analyzing ? (
