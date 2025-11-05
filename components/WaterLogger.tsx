@@ -58,7 +58,7 @@ export function WaterLogger({ onClose, onWaterLogged, initialDate }: WaterLogger
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-surface border border-border rounded-lg max-w-md w-full">
+      <div className="bg-surface-0 border border-border rounded-lg max-w-md w-full">
         <div className="p-4 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Droplet className="h-5 w-5 text-cyan-400" />
@@ -66,7 +66,7 @@ export function WaterLogger({ onClose, onWaterLogged, initialDate }: WaterLogger
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-surface-hover rounded-lg transition-colors"
+            className="p-2 hover:bg-surface-1 rounded-lg transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -82,7 +82,7 @@ export function WaterLogger({ onClose, onWaterLogged, initialDate }: WaterLogger
                   key={amount}
                   onClick={() => handleLogWater(amount)}
                   disabled={logging}
-                  className="flex flex-col items-center justify-center p-4 bg-surface-overlay border border-border hover:border-cyan-400 rounded-lg transition-all disabled:opacity-50 group"
+                  className="flex flex-col items-center justify-center p-4 bg-surface-1 border border-border hover:border-cyan-400 rounded-lg transition-all disabled:opacity-50 group"
                 >
                   <Droplet className="h-8 w-8 text-cyan-400 mb-2 group-hover:scale-110 transition-transform" />
                   <span className="text-lg font-semibold">{amount} ml</span>
@@ -103,7 +103,7 @@ export function WaterLogger({ onClose, onWaterLogged, initialDate }: WaterLogger
                 value={customAmount}
                 onChange={(e) => setCustomAmount(e.target.value)}
                 placeholder="Enter ml"
-                className="flex-1 px-4 py-3 bg-surface-overlay border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                className="flex-1 px-4 py-3 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
                 min="1"
                 max="5000"
               />

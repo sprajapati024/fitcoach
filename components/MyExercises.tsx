@@ -89,11 +89,11 @@ export function MyExercises({ onExercisesChange }: MyExercisesProps) {
         {exercises.map((exercise) => (
           <div
             key={exercise.id}
-            className="bg-surface-overlay border border-border rounded-lg overflow-hidden hover:border-neural-400 transition-colors"
+            className="bg-surface-1 border border-border rounded-lg overflow-hidden hover:border-neural-400 transition-colors"
           >
             {/* Exercise Image/GIF */}
             {(exercise.imageUrl || exercise.gifUrl) && (
-              <div className="aspect-video bg-surface-hover overflow-hidden">
+              <div className="aspect-video bg-surface-2 overflow-hidden">
                 <img
                   src={exercise.gifUrl || exercise.imageUrl || ""}
                   alt={exercise.name}
@@ -128,7 +128,7 @@ export function MyExercises({ onExercisesChange }: MyExercisesProps) {
                 {exercise.equipment.slice(0, 1).map((equip) => (
                   <span
                     key={equip}
-                    className="px-2 py-1 bg-surface-hover text-neutral-400 text-xs rounded"
+                    className="px-2 py-1 bg-surface-2 text-neutral-400 text-xs rounded"
                   >
                     {equip}
                   </span>
@@ -137,7 +137,7 @@ export function MyExercises({ onExercisesChange }: MyExercisesProps) {
 
               {/* Source Badge */}
               <div className="flex items-center gap-2">
-                <span className="px-2 py-1 bg-surface-hover text-neutral-400 text-xs rounded">
+                <span className="px-2 py-1 bg-surface-2 text-neutral-400 text-xs rounded">
                   {exercise.source === "exercisedb"
                     ? "ExerciseDB"
                     : exercise.source === "custom"
@@ -189,11 +189,11 @@ export function MyExercises({ onExercisesChange }: MyExercisesProps) {
           onClick={() => setSelectedExercise(null)}
         >
           <div
-            className="bg-surface border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-surface-0 border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {(selectedExercise.imageUrl || selectedExercise.gifUrl) && (
-              <div className="aspect-video bg-surface-hover overflow-hidden">
+              <div className="aspect-video bg-surface-2 overflow-hidden">
                 <img
                   src={selectedExercise.gifUrl || selectedExercise.imageUrl || ""}
                   alt={selectedExercise.name}
@@ -228,7 +228,7 @@ export function MyExercises({ onExercisesChange }: MyExercisesProps) {
                       selectedExercise.equipment.map((equip) => (
                         <span
                           key={equip}
-                          className="px-2 py-1 bg-surface-hover rounded text-xs"
+                          className="px-2 py-1 bg-surface-2 rounded text-xs"
                         >
                           {equip}
                         </span>
@@ -260,7 +260,7 @@ export function MyExercises({ onExercisesChange }: MyExercisesProps) {
                       {selectedExercise.targetMuscles.map((muscle) => (
                         <span
                           key={muscle}
-                          className="px-2 py-1 bg-surface-hover rounded text-xs"
+                          className="px-2 py-1 bg-surface-2 rounded text-xs"
                         >
                           {muscle}
                         </span>
