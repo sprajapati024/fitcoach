@@ -1,5 +1,6 @@
 import { getCurrentUser } from "@/lib/auth";
 import { getTodayWorkout } from "@/app/actions/dashboard";
+import { getUserProfileAction } from "@/app/actions/profile";
 import { TodayView } from "./TodayView";
 import { redirect } from "next/navigation";
 
@@ -10,7 +11,10 @@ export default async function DashboardPage() {
     redirect('/');
   }
 
-  const workout = await getTodayWorkout();
+  const [workout, profile] = await Promise.all([
+    getTodayWorkout(),
+    getUserProfileAction(),
+  ]);
 
-  return <TodayView workout={workout} userId={user.id} />;
+  return <TodayView workout={workout} userId={user.id} userName={profile?.fullName} />;
 }

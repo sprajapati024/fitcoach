@@ -1,12 +1,11 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Card } from '@/components/Card';
 import type { CoachResponse } from '@/lib/validation';
-import { RefreshCw } from 'lucide-react';
 
 interface CoachBriefProps {
   userId: string;
+  userName?: string | null;
 }
 
 interface CoachApiResponse {
@@ -17,14 +16,24 @@ interface CoachApiResponse {
   error?: string;
 }
 
-export function CoachBrief({ userId }: CoachBriefProps) {
+function getTimeBasedGreeting() {
+  const hour = new Date().getHours();
+
+  if (hour >= 5 && hour < 12) {
+    return 'Good Morning';
+  } else if (hour >= 12 && hour < 18) {
+    return 'Good Afternoon';
+  } else {
+    return 'Good Evening';
+  }
+}
+
+export function CoachBrief({ userId, userName }: CoachBriefProps) {
   const [data, setData] = useState<CoachResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchBrief = useCallback(async () => {
     setIsLoading(true);
-    setError(null);
 
     try {
       const response = await fetch(`/api/coach/today?u=${encodeURIComponent(userId)}`, {
@@ -33,19 +42,16 @@ export function CoachBrief({ userId }: CoachBriefProps) {
       });
 
       if (!response.ok) {
-        const problem = await response.json().catch(() => ({}));
-        throw new Error(problem.error || 'Unable to load coach brief.');
+        setData(null);
+        return;
       }
 
       const payload = (await response.json()) as CoachApiResponse;
 
-      if (!payload.coach) {
-        throw new Error(payload.error || 'Coach brief unavailable.');
+      if (payload.coach) {
+        setData(payload.coach);
       }
-
-      setData(payload.coach);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to load coach brief.');
+    } catch {
       setData(null);
     } finally {
       setIsLoading(false);
@@ -56,61 +62,23 @@ export function CoachBrief({ userId }: CoachBriefProps) {
     void fetchBrief();
   }, [fetchBrief]);
 
-  const hasCoachData = !!data;
+  const greeting = getTimeBasedGreeting();
+  const displayName = userName || 'there';
+  const coachMessage = data?.headline || 'Focus on form and progressive overload. Let\'s get stronger!';
 
   return (
-    <Card className="space-y-3 bg-bg1 text-fg0">
-      <div className="flex items-center justify-between gap-3">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-fg2">Coach Note</h3>
-        <button
-          type="button"
-          onClick={() => fetchBrief()}
-          disabled={isLoading}
-          className="inline-flex items-center justify-center rounded-full border border-line1 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-fg2 transition hover:text-fg0 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <RefreshCw className={`mr-1 h-3 w-3 ${isLoading ? 'animate-spin' : ''}`} aria-hidden />
-          Refresh
-        </button>
-      </div>
+    <div className="space-y-2">
+      <h2 className="text-2xl font-bold text-text-primary">
+        {greeting}, {displayName}
+      </h2>
 
       {isLoading ? (
-        <p className="text-sm text-fg2">Loading your coach brief…</p>
-      ) : hasCoachData ? (
-        <>
-          <p className="text-sm font-semibold text-fg0">{data?.headline}</p>
-          {data?.bullets?.length ? (
-            <ul className="space-y-1 text-sm text-fg1">
-              {data.bullets.map((bullet, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <span className="mt-[6px] h-1.5 w-1.5 flex-none rounded-full bg-fg2" />
-                  <span>{bullet}</span>
-                </li>
-              ))}
-            </ul>
-          ) : null}
-          {data?.prompts && data.prompts.length > 0 ? (
-            <div className="rounded-md border border-line1/60 bg-bg0 p-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-fg2">Try this</p>
-              <ul className="mt-1 space-y-1 text-xs text-fg1">
-                {data.prompts.map((prompt, index) => (
-                  <li key={index}>• {prompt}</li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-        </>
+        <div className="h-6 w-3/4 animate-pulse rounded-md bg-surface-1" />
       ) : (
-        <p className="text-sm text-fg1">
-          {error ??
-            'Ready to train? Focus on form and progressive overload today. Let’s get stronger!'}
+        <p className="text-base text-text-secondary leading-relaxed">
+          {coachMessage}
         </p>
       )}
-
-      {error && !hasCoachData ? (
-        <p className="text-xs text-fg2">
-          Showing fallback note. Tap refresh once you have a connection.
-        </p>
-      ) : null}
-    </Card>
+    </div>
   );
 }
