@@ -115,8 +115,8 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-surface border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-surface border-b border-border p-4 flex items-center justify-between">
+      <div className="bg-gray-900 border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-gray-900 border-b border-border p-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold">Log Meal</h2>
           <button
             onClick={onClose}

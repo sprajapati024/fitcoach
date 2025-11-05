@@ -58,8 +58,8 @@ export function WaterLogger({ onClose, onWaterLogged, initialDate }: WaterLogger
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-surface border border-border rounded-lg max-w-md w-full">
-        <div className="p-4 border-b border-border flex items-center justify-between">
+      <div className="bg-gray-900 border border-border rounded-lg max-w-md w-full">
+        <div className="p-4 border-b border-border flex items-center justify-between bg-gray-900">
           <div className="flex items-center gap-2">
             <Droplet className="h-5 w-5 text-cyan-400" />
             <h2 className="text-xl font-semibold">Log Water</h2>
