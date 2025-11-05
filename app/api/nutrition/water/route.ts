@@ -22,18 +22,22 @@ export async function GET(request: Request) {
     const endDate = searchParams.get("endDate");
     const logDate = searchParams.get("date");
 
-    let query = db.select().from(waterLogs).where(eq(waterLogs.userId, user.id));
-
     if (logDate) {
       // Get water logs for a specific date
-      const dayLogs = await query.where(eq(waterLogs.logDate, logDate)).orderBy(waterLogs.loggedAt);
-      const totalMl = dayLogs.reduce((sum, log) => sum + (log.amountMl || 0), 0);
+      const dayLogs = await db
+        .select()
+        .from(waterLogs)
+        .where(and(eq(waterLogs.userId, user.id), eq(waterLogs.logDate, logDate)))
+        .orderBy(waterLogs.loggedAt);
+      const totalMl = dayLogs.reduce((sum: number, log) => sum + (log.amountMl || 0), 0);
       return NextResponse.json({ logs: dayLogs, totalMl });
     }
 
     if (startDate && endDate) {
       // Get water logs within date range
-      const rangeLogs = await query
+      const rangeLogs = await db
+        .select()
+        .from(waterLogs)
         .where(
           and(
             eq(waterLogs.userId, user.id),
@@ -47,8 +51,12 @@ export async function GET(request: Request) {
 
     // Default: get today's water logs
     const today = new Date().toISOString().split("T")[0];
-    const todayLogs = await query.where(eq(waterLogs.logDate, today)).orderBy(waterLogs.loggedAt);
-    const totalMl = todayLogs.reduce((sum, log) => sum + (log.amountMl || 0), 0);
+    const todayLogs = await db
+      .select()
+      .from(waterLogs)
+      .where(and(eq(waterLogs.userId, user.id), eq(waterLogs.logDate, today)))
+      .orderBy(waterLogs.loggedAt);
+    const totalMl = todayLogs.reduce((sum: number, log) => sum + (log.amountMl || 0), 0);
 
     return NextResponse.json({ logs: todayLogs, totalMl });
   } catch (error) {
