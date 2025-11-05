@@ -22,17 +22,21 @@ export async function GET(request: Request) {
     const endDate = searchParams.get("endDate");
     const mealDate = searchParams.get("date");
 
-    let query = db.select().from(meals).where(eq(meals.userId, user.id));
-
     if (mealDate) {
       // Get meals for a specific date
-      const dayMeals = await query.where(eq(meals.mealDate, mealDate)).orderBy(meals.mealTime);
+      const dayMeals = await db
+        .select()
+        .from(meals)
+        .where(and(eq(meals.userId, user.id), eq(meals.mealDate, mealDate)))
+        .orderBy(meals.mealTime);
       return NextResponse.json({ meals: dayMeals });
     }
 
     if (startDate && endDate) {
       // Get meals within date range
-      const rangeMeals = await query
+      const rangeMeals = await db
+        .select()
+        .from(meals)
         .where(
           and(
             eq(meals.userId, user.id),
@@ -46,7 +50,11 @@ export async function GET(request: Request) {
 
     // Default: get today's meals
     const today = new Date().toISOString().split("T")[0];
-    const todayMeals = await query.where(eq(meals.mealDate, today)).orderBy(meals.mealTime);
+    const todayMeals = await db
+      .select()
+      .from(meals)
+      .where(and(eq(meals.userId, user.id), eq(meals.mealDate, today)))
+      .orderBy(meals.mealTime);
 
     return NextResponse.json({ meals: todayMeals });
   } catch (error) {

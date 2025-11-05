@@ -343,7 +343,7 @@ export async function getAllExercisesForUser(userId: string): Promise<ExerciseDe
     equipment: ex.equipment[0] || "unknown",
     impact: (ex.impactLevel as ImpactLevel) || "moderate",
     isPcosFriendly: ex.isPcosSafe,
-    notes: ex.description,
+    notes: ex.description || undefined,
   }));
 
   // Merge with built-in catalog
@@ -404,7 +404,7 @@ export async function getExerciseForUser(
     equipment: ex.equipment[0] || "unknown",
     impact: (ex.impactLevel as ImpactLevel) || "moderate",
     isPcosFriendly: ex.isPcosSafe,
-    notes: ex.description,
+    notes: ex.description || undefined,
   };
 }
 

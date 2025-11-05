@@ -6,7 +6,7 @@ import { MealLogger } from "@/components/MealLogger";
 import { WaterLogger } from "@/components/WaterLogger";
 import { NutritionSummary } from "@/components/NutritionSummary";
 import { MealList } from "@/components/MealList";
-import { PrimaryButton } from "@/components/buttons/PrimaryButton";
+import { PrimaryButton } from "@/components/PrimaryButton";
 
 export function NutritionView() {
   const [showMealLogger, setShowMealLogger] = useState(false);
