@@ -1,3 +1,7 @@
+import { db } from "./db";
+import { userExercises } from "@/drizzle/schema";
+import { eq, and } from "drizzle-orm";
+
 export type MovementPattern =
   | "squat"
   | "hinge"
@@ -315,4 +319,123 @@ export function recommendAlternatives(
 export function isPcosSafe(idOrAlias: string) {
   const exercise = getExercise(idOrAlias);
   return exercise?.isPcosFriendly ?? true;
+}
+
+/**
+ * Extended exercise library functions for user custom exercises
+ * Get all exercises for a user (built-in + custom)
+ */
+export async function getAllExercisesForUser(userId: string): Promise<ExerciseDefinition[]> {
+  // Get user's custom exercises from database
+  const customExercises = await db
+    .select()
+    .from(userExercises)
+    .where(eq(userExercises.userId, userId));
+
+  // Transform custom exercises to match ExerciseDefinition format
+  const transformedCustom: ExerciseDefinition[] = customExercises.map((ex) => ({
+    id: ex.exerciseId,
+    name: ex.name,
+    aliases: [], // Custom exercises don't have aliases
+    movement: mapBodyPartsToMovement(ex.bodyParts),
+    primaryMuscle: ex.targetMuscles[0] || "unknown",
+    secondaryMuscles: ex.secondaryMuscles,
+    equipment: ex.equipment[0] || "unknown",
+    impact: (ex.impactLevel as ImpactLevel) || "moderate",
+    isPcosFriendly: ex.isPcosSafe,
+    notes: ex.description,
+  }));
+
+  // Merge with built-in catalog
+  return [...catalog, ...transformedCustom];
+}
+
+/**
+ * Check if a user has a specific exercise in their library
+ */
+export async function userHasExercise(userId: string, exerciseId: string): Promise<boolean> {
+  const results = await db
+    .select()
+    .from(userExercises)
+    .where(
+      and(
+        eq(userExercises.userId, userId),
+        eq(userExercises.exerciseId, exerciseId)
+      )
+    )
+    .limit(1);
+
+  return results.length > 0;
+}
+
+/**
+ * Get exercise by ID including user custom exercises
+ */
+export async function getExerciseForUser(
+  userId: string,
+  exerciseId: string
+): Promise<ExerciseDefinition | null> {
+  // First check built-in catalog
+  const builtIn = getExercise(exerciseId);
+  if (builtIn) return builtIn;
+
+  // Then check user's custom exercises
+  const customResults = await db
+    .select()
+    .from(userExercises)
+    .where(
+      and(
+        eq(userExercises.userId, userId),
+        eq(userExercises.exerciseId, exerciseId)
+      )
+    )
+    .limit(1);
+
+  if (customResults.length === 0) return null;
+
+  const ex = customResults[0];
+  return {
+    id: ex.exerciseId,
+    name: ex.name,
+    aliases: [],
+    movement: mapBodyPartsToMovement(ex.bodyParts),
+    primaryMuscle: ex.targetMuscles[0] || "unknown",
+    secondaryMuscles: ex.secondaryMuscles,
+    equipment: ex.equipment[0] || "unknown",
+    impact: (ex.impactLevel as ImpactLevel) || "moderate",
+    isPcosFriendly: ex.isPcosSafe,
+    notes: ex.description,
+  };
+}
+
+/**
+ * Helper: Map body parts to movement patterns
+ */
+function mapBodyPartsToMovement(bodyParts: string[]): MovementPattern {
+  const lowerBodyParts = bodyParts.join(" ").toLowerCase();
+
+  if (lowerBodyParts.includes("chest") || lowerBodyParts.includes("pectorals")) {
+    return "horizontal_push";
+  }
+  if (lowerBodyParts.includes("back") || lowerBodyParts.includes("lats")) {
+    return "horizontal_pull";
+  }
+  if (lowerBodyParts.includes("shoulders") || lowerBodyParts.includes("delts")) {
+    return "vertical_push";
+  }
+  if (lowerBodyParts.includes("legs") || lowerBodyParts.includes("quadriceps")) {
+    return "squat";
+  }
+  if (lowerBodyParts.includes("glutes") || lowerBodyParts.includes("hamstrings")) {
+    return "hinge";
+  }
+  if (lowerBodyParts.includes("core") || lowerBodyParts.includes("abs")) {
+    return "core";
+  }
+  if (lowerBodyParts.includes("cardio") || lowerBodyParts.includes("conditioning")) {
+    return "conditioning";
+  }
+
+  // Default fallback
+  return "core";
 }

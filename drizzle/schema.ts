@@ -392,6 +392,39 @@ export const substitutionEvents = pgTable(
   }),
 );
 
+export const userExercises = pgTable(
+  "user_exercises",
+  {
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    exerciseId: text("exercise_id").notNull(), // External API ID or custom ID
+    name: text("name").notNull(),
+    description: text("description"),
+    instructions: jsonb("instructions").$type<string[]>().default(sql`'[]'::jsonb`).notNull(),
+    imageUrl: text("image_url"),
+    videoUrl: text("video_url"),
+    gifUrl: text("gif_url"),
+    equipment: jsonb("equipment").$type<string[]>().default(sql`'[]'::jsonb`).notNull(),
+    bodyParts: jsonb("body_parts").$type<string[]>().default(sql`'[]'::jsonb`).notNull(),
+    targetMuscles: jsonb("target_muscles").$type<string[]>().default(sql`'[]'::jsonb`).notNull(),
+    secondaryMuscles: jsonb("secondary_muscles").$type<string[]>().default(sql`'[]'::jsonb`).notNull(),
+    exerciseType: text("exercise_type"), // weight_reps, time, distance, etc.
+    source: text("source").notNull(), // 'exercisedb', 'custom', 'built-in'
+    isPcosSafe: boolean("is_pcos_safe").default(true).notNull(),
+    impactLevel: text("impact_level"), // low, moderate, high
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdx: index("user_exercises_user_idx").on(table.userId),
+    uniqueUserExercise: uniqueIndex("user_exercises_unique").on(table.userId, table.exerciseId),
+  }),
+);
+
 export const rlsPolicies = {
   users: {
     select: "CREATE POLICY \"Users select\" ON users FOR SELECT USING ( auth.uid() = id );",
@@ -425,6 +458,11 @@ export const rlsPolicies = {
   substitutionEvents: {
     select: "CREATE POLICY \"Substitution events select\" ON substitution_events FOR SELECT USING ( auth.uid() = user_id );",
   },
+  userExercises: {
+    select: "CREATE POLICY \"User exercises select\" ON user_exercises FOR SELECT USING ( auth.uid() = user_id );",
+    insert: "CREATE POLICY \"User exercises insert\" ON user_exercises FOR INSERT WITH CHECK ( auth.uid() = user_id );",
+    delete: "CREATE POLICY \"User exercises delete\" ON user_exercises FOR DELETE USING ( auth.uid() = user_id );",
+  },
   periodizationFrameworks: {
     select: "CREATE POLICY \"Periodization frameworks select\" ON periodization_frameworks FOR SELECT USING ( auth.uid() IN (SELECT user_id FROM plans WHERE plans.id = plan_id) );",
     insert: "CREATE POLICY \"Periodization frameworks insert\" ON periodization_frameworks FOR INSERT WITH CHECK ( auth.uid() IN (SELECT user_id FROM plans WHERE plans.id = plan_id) );",
@@ -447,3 +485,5 @@ export type Workout = typeof workouts.$inferSelect;
 export type WorkoutInsert = typeof workouts.$inferInsert;
 export type WeekPerformanceSummary = typeof weekPerformanceSummaries.$inferSelect;
 export type WeekPerformanceSummaryInsert = typeof weekPerformanceSummaries.$inferInsert;
+export type UserExercise = typeof userExercises.$inferSelect;
+export type UserExerciseInsert = typeof userExercises.$inferInsert;

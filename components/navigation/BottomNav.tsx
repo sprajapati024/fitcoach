@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
-import { CalendarDays, Home, LineChart, Settings } from "lucide-react";
+import { CalendarDays, Home, LineChart, Settings, Dumbbell } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
@@ -24,6 +24,11 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/plan",
     label: "Plan",
     icon: CalendarDays,
+  },
+  {
+    href: "/exercises",
+    label: "Exercises",
+    icon: Dumbbell,
   },
   {
     href: "/progress",
