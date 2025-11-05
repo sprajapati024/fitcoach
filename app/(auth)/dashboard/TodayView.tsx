@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ExerciseLogger, type LoggerResult } from './ExerciseLogger';
 import { CoachBrief } from './CoachBrief';
+import { MacroRings } from './MacroRings';
 import { Card } from '@/components/Card';
 import type { workouts, WorkoutPayload } from '@/drizzle/schema';
 import { enqueueLog } from '@/lib/offlineQueue';
@@ -17,6 +18,7 @@ interface TodayViewProps {
   workout: Workout | null;
   userId: string;
   userName?: string | null;
+  nutrition: Awaited<ReturnType<typeof import('@/app/actions/nutrition').getTodayNutrition>>;
 }
 
 type Feedback = {
@@ -24,7 +26,7 @@ type Feedback = {
   message: string;
 };
 
-export function TodayView({ workout, userId, userName }: TodayViewProps) {
+export function TodayView({ workout, userId, userName, nutrition }: TodayViewProps) {
   const router = useRouter();
   const [isLogging, setIsLogging] = useState(false);
   const [isSkipping, setIsSkipping] = useState(false);
@@ -123,6 +125,20 @@ export function TodayView({ workout, userId, userName }: TodayViewProps) {
       <div className="mx-auto w-full max-w-3xl space-y-8 p-4 pb-24">
         <CoachBrief userId={userId} userName={userName} />
 
+        {/* Macro Rings Card */}
+        {nutrition && (
+          <MacroRings
+            protein={parseFloat(nutrition.summary?.totalProtein || '0')}
+            carbs={parseFloat(nutrition.summary?.totalCarbs || '0')}
+            fat={parseFloat(nutrition.summary?.totalFat || '0')}
+            totalCalories={nutrition.summary?.totalCalories || 0}
+            proteinGoal={parseFloat(nutrition.goals?.targetProteinGrams || '150')}
+            carbsGoal={parseFloat(nutrition.goals?.targetCarbsGrams || '200')}
+            fatGoal={parseFloat(nutrition.goals?.targetFatGrams || '65')}
+            caloriesGoal={nutrition.goals?.targetCalories || 2000}
+          />
+        )}
+
         <div className="relative overflow-hidden rounded-3xl border border-surface-border bg-gradient-to-br from-surface-1 to-surface-0 p-8 text-center">
           <div className="absolute -right-20 -top-20 h-64 w-64 animate-drift rounded-full bg-gradient-to-br from-cyan-500/10 to-indigo-600/10 blur-3xl" />
           <div className="relative">
@@ -178,6 +194,20 @@ export function TodayView({ workout, userId, userName }: TodayViewProps) {
       )}
 
       <CoachBrief userId={userId} userName={userName} />
+
+      {/* Macro Rings Card */}
+      {nutrition && (
+        <MacroRings
+          protein={parseFloat(nutrition.summary?.totalProtein || '0')}
+          carbs={parseFloat(nutrition.summary?.totalCarbs || '0')}
+          fat={parseFloat(nutrition.summary?.totalFat || '0')}
+          totalCalories={nutrition.summary?.totalCalories || 0}
+          proteinGoal={parseFloat(nutrition.goals?.targetProteinGrams || '150')}
+          carbsGoal={parseFloat(nutrition.goals?.targetCarbsGrams || '200')}
+          fatGoal={parseFloat(nutrition.goals?.targetFatGrams || '65')}
+          caloriesGoal={nutrition.goals?.targetCalories || 2000}
+        />
+      )}
 
       {/* Hero Workout Card */}
       <Link
