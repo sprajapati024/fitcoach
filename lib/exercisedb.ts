@@ -5,12 +5,23 @@
  * Note: Using the free demo endpoint for exploration.
  * For production, consider deploying your own instance from:
  * https://github.com/ExerciseDB/exercisedb-api
+ *
+ * Fallback: When external APIs are unavailable, uses local exercise database
  */
 
 import { z } from "zod";
+import { fallbackExercises } from "./fallback-exercises";
 
 const EXERCISEDB_BASE_URL = "https://exercisedb.p.rapidapi.com";
 const FREE_DEMO_URL = "https://exercisedb-api.vercel.app/api/v1"; // Open-source demo instance
+
+// Get RapidAPI key at runtime
+const getRapidApiKey = () => {
+  if (typeof process !== "undefined" && process.env) {
+    return process.env.RAPIDAPI_KEY;
+  }
+  return undefined;
+};
 
 // Exercise schema for ExerciseDB V2 format
 export const exerciseDbExerciseSchema = z.object({
@@ -55,16 +66,51 @@ export type Exercise = z.infer<typeof exerciseSchema>;
  * Fetch all exercises from ExerciseDB
  * Note: This is a simple implementation using a demo endpoint.
  * For production, consider caching or using pagination.
+ *
+ * Strategy:
+ * 1. Try RapidAPI endpoint if RAPIDAPI_KEY is configured
+ * 2. Try free demo endpoint
+ * 3. Fallback to local exercise database
  */
 export async function fetchExercises(options?: {
   bodyPart?: string;
   equipment?: string;
   limit?: number;
 }): Promise<Exercise[]> {
+  // Try RapidAPI if key is available
+  const rapidApiKey = getRapidApiKey();
+  if (rapidApiKey) {
+    try {
+      const url = `${EXERCISEDB_BASE_URL}/exercises`;
+      const params = new URLSearchParams();
+      if (options?.bodyPart) params.set("bodyPart", options.bodyPart);
+      if (options?.equipment) params.set("equipment", options.equipment);
+      if (options?.limit) params.set("limit", options.limit.toString());
+
+      const response = await fetch(
+        params.toString() ? `${url}?${params.toString()}` : url,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "X-RapidAPI-Key": rapidApiKey,
+            "X-RapidAPI-Host": "exercisedb.p.rapidapi.com",
+          },
+          next: { revalidate: 86400 }, // Cache for 24 hours
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        return transformExercises(data);
+      }
+    } catch (error) {
+      console.error("RapidAPI request failed, trying fallback:", error);
+    }
+  }
+
+  // Try free demo endpoint
   try {
     let url = `${FREE_DEMO_URL}/exercises`;
-
-    // Add filters if provided
     const params = new URLSearchParams();
     if (options?.bodyPart) params.set("bodyPart", options.bodyPart);
     if (options?.equipment) params.set("equipment", options.equipment);
@@ -78,22 +124,41 @@ export async function fetchExercises(options?: {
       headers: {
         "Content-Type": "application/json",
       },
-      next: { revalidate: 86400 }, // Cache for 24 hours
+      next: { revalidate: 86400 },
     });
 
-    if (!response.ok) {
-      console.error("Failed to fetch exercises:", response.statusText);
-      return [];
+    if (response.ok) {
+      const data = await response.json();
+      return transformExercises(data);
     }
-
-    const data = await response.json();
-
-    // Transform to our format
-    return transformExercises(data);
   } catch (error) {
-    console.error("Error fetching exercises:", error);
-    return [];
+    console.error("Free demo endpoint failed, using local fallback:", error);
   }
+
+  // Fallback to local database
+  console.log("Using local fallback exercise database");
+  let exercises = [...fallbackExercises];
+
+  // Apply filters to local database
+  if (options?.bodyPart) {
+    const bodyPartLower = options.bodyPart.toLowerCase();
+    exercises = exercises.filter((ex) =>
+      ex.bodyParts.some((bp) => bp.toLowerCase().includes(bodyPartLower))
+    );
+  }
+
+  if (options?.equipment) {
+    const equipmentLower = options.equipment.toLowerCase();
+    exercises = exercises.filter((ex) =>
+      ex.equipment.some((eq) => eq.toLowerCase().includes(equipmentLower))
+    );
+  }
+
+  if (options?.limit) {
+    exercises = exercises.slice(0, options.limit);
+  }
+
+  return exercises;
 }
 
 /**
@@ -125,6 +190,28 @@ export async function fetchExerciseById(id: string): Promise<Exercise | null> {
  * Get available body parts for filtering
  */
 export async function fetchBodyParts(): Promise<string[]> {
+  // Try RapidAPI if key is available
+  const rapidApiKey = getRapidApiKey();
+  if (rapidApiKey) {
+    try {
+      const response = await fetch(`${EXERCISEDB_BASE_URL}/bodyPartList`, {
+        headers: {
+          "Content-Type": "application/json",
+          "X-RapidAPI-Key": rapidApiKey,
+          "X-RapidAPI-Host": "exercisedb.p.rapidapi.com",
+        },
+        next: { revalidate: 86400 },
+      });
+
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch (error) {
+      console.error("RapidAPI body parts request failed:", error);
+    }
+  }
+
+  // Try free demo endpoint
   try {
     const response = await fetch(`${FREE_DEMO_URL}/bodyParts`, {
       headers: {
@@ -133,21 +220,47 @@ export async function fetchBodyParts(): Promise<string[]> {
       next: { revalidate: 86400 },
     });
 
-    if (!response.ok) {
-      return [];
+    if (response.ok) {
+      return await response.json();
     }
-
-    return await response.json();
   } catch (error) {
-    console.error("Error fetching body parts:", error);
-    return [];
+    console.error("Error fetching body parts, using fallback:", error);
   }
+
+  // Fallback: Extract unique body parts from local database
+  const bodyParts = new Set<string>();
+  fallbackExercises.forEach((ex) => {
+    ex.bodyParts.forEach((bp) => bodyParts.add(bp));
+  });
+  return Array.from(bodyParts).sort();
 }
 
 /**
  * Get available equipment types for filtering
  */
 export async function fetchEquipmentTypes(): Promise<string[]> {
+  // Try RapidAPI if key is available
+  const rapidApiKey = getRapidApiKey();
+  if (rapidApiKey) {
+    try {
+      const response = await fetch(`${EXERCISEDB_BASE_URL}/equipmentList`, {
+        headers: {
+          "Content-Type": "application/json",
+          "X-RapidAPI-Key": rapidApiKey,
+          "X-RapidAPI-Host": "exercisedb.p.rapidapi.com",
+        },
+        next: { revalidate: 86400 },
+      });
+
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch (error) {
+      console.error("RapidAPI equipment request failed:", error);
+    }
+  }
+
+  // Try free demo endpoint
   try {
     const response = await fetch(`${FREE_DEMO_URL}/equipments`, {
       headers: {
@@ -156,15 +269,19 @@ export async function fetchEquipmentTypes(): Promise<string[]> {
       next: { revalidate: 86400 },
     });
 
-    if (!response.ok) {
-      return [];
+    if (response.ok) {
+      return await response.json();
     }
-
-    return await response.json();
   } catch (error) {
-    console.error("Error fetching equipment types:", error);
-    return [];
+    console.error("Error fetching equipment types, using fallback:", error);
   }
+
+  // Fallback: Extract unique equipment from local database
+  const equipment = new Set<string>();
+  fallbackExercises.forEach((ex) => {
+    ex.equipment.forEach((eq) => equipment.add(eq));
+  });
+  return Array.from(equipment).sort();
 }
 
 /**
@@ -220,10 +337,19 @@ export async function searchExercises(query: string): Promise<Exercise[]> {
       exercise.name.toLowerCase().includes(lowerQuery) ||
       exercise.description?.toLowerCase().includes(lowerQuery) ||
       exercise.bodyParts.some(bp => bp.toLowerCase().includes(lowerQuery)) ||
-      exercise.targetMuscles.some(tm => tm.toLowerCase().includes(lowerQuery))
+      exercise.targetMuscles.some(tm => tm.toLowerCase().includes(lowerQuery)) ||
+      exercise.equipment.some(eq => eq.toLowerCase().includes(lowerQuery))
     );
   } catch (error) {
     console.error("Error searching exercises:", error);
-    return [];
+    // Return fallback exercises as last resort
+    const lowerQuery = query.toLowerCase();
+    return fallbackExercises.filter(exercise =>
+      exercise.name.toLowerCase().includes(lowerQuery) ||
+      exercise.description?.toLowerCase().includes(lowerQuery) ||
+      exercise.bodyParts.some(bp => bp.toLowerCase().includes(lowerQuery)) ||
+      exercise.targetMuscles.some(tm => tm.toLowerCase().includes(lowerQuery)) ||
+      exercise.equipment.some(eq => eq.toLowerCase().includes(lowerQuery))
+    );
   }
 }

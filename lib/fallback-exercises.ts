@@ -1,0 +1,555 @@
+/**
+ * Fallback exercise database
+ * Used when external API is unavailable
+ */
+
+import { type Exercise } from "./exercisedb";
+
+export const fallbackExercises: Exercise[] = [
+  // Chest Exercises
+  {
+    id: "bench-press",
+    name: "Barbell Bench Press",
+    description: "Classic compound chest exercise targeting pectorals, triceps, and shoulders",
+    instructions: [
+      "Lie flat on bench with feet on floor",
+      "Grip bar slightly wider than shoulder-width",
+      "Lower bar to mid-chest with control",
+      "Press bar back up to starting position",
+      "Keep shoulder blades retracted throughout"
+    ],
+    equipment: ["barbell", "bench"],
+    bodyParts: ["chest"],
+    targetMuscles: ["pectoralis major"],
+    secondaryMuscles: ["triceps", "anterior deltoid"],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+  {
+    id: "push-up",
+    name: "Push-Up",
+    description: "Bodyweight chest and tricep exercise",
+    instructions: [
+      "Start in plank position with hands shoulder-width apart",
+      "Lower body until chest nearly touches ground",
+      "Push back up to starting position",
+      "Keep core engaged and body in straight line"
+    ],
+    equipment: ["bodyweight"],
+    bodyParts: ["chest"],
+    targetMuscles: ["pectoralis major"],
+    secondaryMuscles: ["triceps", "core"],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+  {
+    id: "dumbbell-chest-press",
+    name: "Dumbbell Chest Press",
+    description: "Versatile chest exercise with dumbbells",
+    instructions: [
+      "Lie on bench with dumbbells at chest level",
+      "Press dumbbells up until arms are extended",
+      "Lower with control back to starting position",
+      "Keep wrists straight and elbows at 45-degree angle"
+    ],
+    equipment: ["dumbbell", "bench"],
+    bodyParts: ["chest"],
+    targetMuscles: ["pectoralis major"],
+    secondaryMuscles: ["triceps", "anterior deltoid"],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+
+  // Back Exercises
+  {
+    id: "deadlift",
+    name: "Conventional Deadlift",
+    description: "Fundamental compound exercise for posterior chain",
+    instructions: [
+      "Stand with feet hip-width apart, bar over mid-foot",
+      "Grip bar just outside legs",
+      "Keep back flat, chest up, shoulders back",
+      "Drive through heels to lift bar",
+      "Lower with control, maintaining neutral spine"
+    ],
+    equipment: ["barbell"],
+    bodyParts: ["back", "legs"],
+    targetMuscles: ["erector spinae", "glutes", "hamstrings"],
+    secondaryMuscles: ["trapezius", "forearms"],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+  {
+    id: "pull-up",
+    name: "Pull-Up",
+    description: "Bodyweight back exercise",
+    instructions: [
+      "Hang from bar with palms facing away",
+      "Pull body up until chin clears bar",
+      "Lower with control to full hang",
+      "Keep core engaged throughout"
+    ],
+    equipment: ["pull-up bar"],
+    bodyParts: ["back"],
+    targetMuscles: ["latissimus dorsi"],
+    secondaryMuscles: ["biceps", "trapezius"],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+  {
+    id: "bent-over-row",
+    name: "Barbell Bent-Over Row",
+    description: "Horizontal pulling exercise for back thickness",
+    instructions: [
+      "Hinge at hips with barbell in hands",
+      "Keep back flat and core braced",
+      "Pull bar to lower chest",
+      "Squeeze shoulder blades together at top",
+      "Lower with control"
+    ],
+    equipment: ["barbell"],
+    bodyParts: ["back"],
+    targetMuscles: ["latissimus dorsi", "rhomboids"],
+    secondaryMuscles: ["biceps", "trapezius"],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+  {
+    id: "lat-pulldown",
+    name: "Lat Pulldown",
+    description: "Cable exercise for lat development",
+    instructions: [
+      "Sit at lat pulldown machine with thighs secured",
+      "Grip bar wider than shoulder-width",
+      "Pull bar down to upper chest",
+      "Squeeze lats at bottom",
+      "Return with control"
+    ],
+    equipment: ["cable"],
+    bodyParts: ["back"],
+    targetMuscles: ["latissimus dorsi"],
+    secondaryMuscles: ["biceps", "rear deltoid"],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+
+  // Leg Exercises
+  {
+    id: "squat",
+    name: "Barbell Back Squat",
+    description: "King of leg exercises, targets quads, glutes, and hamstrings",
+    instructions: [
+      "Position bar on upper back",
+      "Stand with feet shoulder-width apart",
+      "Descend by bending knees and hips",
+      "Go to at least parallel depth",
+      "Drive through heels to stand"
+    ],
+    equipment: ["barbell", "squat rack"],
+    bodyParts: ["legs"],
+    targetMuscles: ["quadriceps", "glutes"],
+    secondaryMuscles: ["hamstrings", "core"],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+  {
+    id: "leg-press",
+    name: "Leg Press",
+    description: "Machine-based quad and glute exercise",
+    instructions: [
+      "Sit in leg press with back against pad",
+      "Place feet shoulder-width on platform",
+      "Lower platform by bending knees",
+      "Press back up without locking knees",
+      "Keep lower back against pad"
+    ],
+    equipment: ["machine"],
+    bodyParts: ["legs"],
+    targetMuscles: ["quadriceps", "glutes"],
+    secondaryMuscles: ["hamstrings"],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+  {
+    id: "walking-lunge",
+    name: "Walking Lunge",
+    description: "Unilateral leg exercise for strength and balance",
+    instructions: [
+      "Stand upright with dumbbells at sides",
+      "Step forward into lunge position",
+      "Lower back knee toward ground",
+      "Push through front heel to step forward",
+      "Continue alternating legs"
+    ],
+    equipment: ["dumbbell"],
+    bodyParts: ["legs"],
+    targetMuscles: ["quadriceps", "glutes"],
+    secondaryMuscles: ["hamstrings", "calves"],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "moderate",
+  },
+  {
+    id: "romanian-deadlift",
+    name: "Romanian Deadlift",
+    description: "Hip hinge exercise targeting hamstrings and glutes",
+    instructions: [
+      "Stand with feet hip-width, holding barbell",
+      "Hinge at hips while keeping legs nearly straight",
+      "Lower bar along shins to mid-shin",
+      "Feel stretch in hamstrings",
+      "Drive hips forward to return to start"
+    ],
+    equipment: ["barbell"],
+    bodyParts: ["legs"],
+    targetMuscles: ["hamstrings", "glutes"],
+    secondaryMuscles: ["erector spinae"],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+
+  // Shoulder Exercises
+  {
+    id: "overhead-press",
+    name: "Barbell Overhead Press",
+    description: "Compound shoulder exercise",
+    instructions: [
+      "Stand with bar at shoulder height",
+      "Press bar overhead until arms are extended",
+      "Lower with control to shoulders",
+      "Keep core braced throughout",
+      "Avoid leaning back excessively"
+    ],
+    equipment: ["barbell"],
+    bodyParts: ["shoulders"],
+    targetMuscles: ["anterior deltoid", "medial deltoid"],
+    secondaryMuscles: ["triceps", "upper chest"],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+  {
+    id: "lateral-raise",
+    name: "Dumbbell Lateral Raise",
+    description: "Isolation exercise for medial deltoids",
+    instructions: [
+      "Stand with dumbbells at sides",
+      "Raise arms out to sides until parallel to floor",
+      "Keep slight bend in elbows",
+      "Lower with control",
+      "Avoid using momentum"
+    ],
+    equipment: ["dumbbell"],
+    bodyParts: ["shoulders"],
+    targetMuscles: ["medial deltoid"],
+    secondaryMuscles: [],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+  {
+    id: "face-pull",
+    name: "Cable Face Pull",
+    description: "Exercise for rear deltoids and upper back",
+    instructions: [
+      "Set cable at upper chest height with rope attachment",
+      "Pull rope toward face, separating hands",
+      "Squeeze shoulder blades together",
+      "Return with control",
+      "Keep elbows high"
+    ],
+    equipment: ["cable"],
+    bodyParts: ["shoulders", "back"],
+    targetMuscles: ["posterior deltoid", "trapezius"],
+    secondaryMuscles: ["rhomboids"],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+
+  // Arm Exercises
+  {
+    id: "barbell-curl",
+    name: "Barbell Bicep Curl",
+    description: "Classic bicep building exercise",
+    instructions: [
+      "Stand with barbell at hip level",
+      "Curl bar up toward shoulders",
+      "Keep elbows stationary at sides",
+      "Squeeze biceps at top",
+      "Lower with control"
+    ],
+    equipment: ["barbell"],
+    bodyParts: ["arms"],
+    targetMuscles: ["biceps"],
+    secondaryMuscles: ["forearms"],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+  {
+    id: "tricep-dip",
+    name: "Tricep Dip",
+    description: "Bodyweight tricep exercise",
+    instructions: [
+      "Support body on parallel bars or bench",
+      "Lower body by bending elbows",
+      "Go down until upper arms are parallel to floor",
+      "Press back up to starting position",
+      "Keep body upright"
+    ],
+    equipment: ["dip bars", "bench"],
+    bodyParts: ["arms"],
+    targetMuscles: ["triceps"],
+    secondaryMuscles: ["chest", "anterior deltoid"],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+  {
+    id: "skull-crusher",
+    name: "Lying Tricep Extension (Skull Crusher)",
+    description: "Isolation exercise for triceps",
+    instructions: [
+      "Lie on bench with barbell extended above chest",
+      "Lower bar toward forehead by bending elbows",
+      "Keep upper arms stationary",
+      "Extend arms back to starting position",
+      "Control the weight throughout"
+    ],
+    equipment: ["barbell", "bench"],
+    bodyParts: ["arms"],
+    targetMuscles: ["triceps"],
+    secondaryMuscles: [],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+
+  // Core Exercises
+  {
+    id: "plank",
+    name: "Plank",
+    description: "Isometric core stability exercise",
+    instructions: [
+      "Start in forearm plank position",
+      "Keep body in straight line from head to heels",
+      "Engage core and glutes",
+      "Hold position for prescribed time",
+      "Breathe steadily"
+    ],
+    equipment: ["bodyweight"],
+    bodyParts: ["core"],
+    targetMuscles: ["rectus abdominis", "transverse abdominis"],
+    secondaryMuscles: ["shoulders", "glutes"],
+    exerciseType: "time",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+  {
+    id: "dead-bug",
+    name: "Dead Bug",
+    description: "Anti-extension core exercise",
+    instructions: [
+      "Lie on back with arms extended toward ceiling",
+      "Bring knees to 90-degree position",
+      "Extend opposite arm and leg while keeping back flat",
+      "Return to start and repeat other side",
+      "Keep lower back pressed to floor"
+    ],
+    equipment: ["bodyweight"],
+    bodyParts: ["core"],
+    targetMuscles: ["rectus abdominis", "transverse abdominis"],
+    secondaryMuscles: [],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+  {
+    id: "russian-twist",
+    name: "Russian Twist",
+    description: "Rotational core exercise",
+    instructions: [
+      "Sit on floor with knees bent and feet elevated",
+      "Lean back slightly while maintaining straight back",
+      "Rotate torso side to side",
+      "Touch hands to floor beside hip each rotation",
+      "Keep core engaged throughout"
+    ],
+    equipment: ["bodyweight", "dumbbell"],
+    bodyParts: ["core"],
+    targetMuscles: ["obliques"],
+    secondaryMuscles: ["rectus abdominis"],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+  {
+    id: "pallof-press",
+    name: "Pallof Press",
+    description: "Anti-rotation core exercise",
+    instructions: [
+      "Stand perpendicular to cable machine at chest height",
+      "Hold handle with both hands at chest",
+      "Press arms straight out in front",
+      "Resist rotation from cable tension",
+      "Return to chest and repeat"
+    ],
+    equipment: ["cable"],
+    bodyParts: ["core"],
+    targetMuscles: ["obliques", "transverse abdominis"],
+    secondaryMuscles: ["shoulders"],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+
+  // Glute Exercises
+  {
+    id: "glute-bridge",
+    name: "Glute Bridge",
+    description: "Hip extension exercise for glutes",
+    instructions: [
+      "Lie on back with knees bent and feet flat",
+      "Drive through heels to lift hips",
+      "Squeeze glutes at top for 2 seconds",
+      "Lower with control",
+      "Keep core engaged"
+    ],
+    equipment: ["bodyweight"],
+    bodyParts: ["glutes", "legs"],
+    targetMuscles: ["glutes"],
+    secondaryMuscles: ["hamstrings"],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+  {
+    id: "hip-thrust",
+    name: "Barbell Hip Thrust",
+    description: "Powerful glute building exercise",
+    instructions: [
+      "Sit on floor with upper back against bench",
+      "Position barbell over hips",
+      "Drive through heels to thrust hips up",
+      "Squeeze glutes hard at top",
+      "Lower with control"
+    ],
+    equipment: ["barbell", "bench"],
+    bodyParts: ["glutes"],
+    targetMuscles: ["glutes"],
+    secondaryMuscles: ["hamstrings"],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+
+  // Cardio & Conditioning
+  {
+    id: "bike-zone2",
+    name: "Stationary Bike - Zone 2",
+    description: "Low-impact steady-state cardio",
+    instructions: [
+      "Maintain heart rate in Zone 2 (60-70% max HR)",
+      "Keep RPE around 6/10",
+      "Maintain steady cadence",
+      "Focus on breathing rhythm",
+      "PCOS-friendly low-impact cardio"
+    ],
+    equipment: ["bike"],
+    bodyParts: ["legs"],
+    targetMuscles: ["cardiovascular system"],
+    secondaryMuscles: ["quadriceps", "hamstrings"],
+    exerciseType: "time",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+  {
+    id: "treadmill-incline-walk",
+    name: "Treadmill Incline Walk",
+    description: "Low-impact walking cardio",
+    instructions: [
+      "Set treadmill to 10-15% incline",
+      "Walk at moderate pace (3-4 mph)",
+      "Keep heart rate below 140 bpm",
+      "Maintain upright posture",
+      "PCOS-friendly cardio option"
+    ],
+    equipment: ["treadmill"],
+    bodyParts: ["legs"],
+    targetMuscles: ["cardiovascular system"],
+    secondaryMuscles: ["glutes", "calves"],
+    exerciseType: "time",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+  {
+    id: "rowing-machine",
+    name: "Rowing Machine",
+    description: "Full-body cardio exercise",
+    instructions: [
+      "Sit on rower with feet secured",
+      "Drive with legs first, then pull with arms",
+      "Lean back slightly at finish",
+      "Return in reverse order: arms, body, legs",
+      "Maintain consistent stroke rate"
+    ],
+    equipment: ["rowing machine"],
+    bodyParts: ["back", "legs"],
+    targetMuscles: ["cardiovascular system", "latissimus dorsi"],
+    secondaryMuscles: ["quadriceps", "biceps"],
+    exerciseType: "time",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+
+  // Mobility & Recovery
+  {
+    id: "cat-camel",
+    name: "Cat Camel Stretch",
+    description: "Spinal mobility exercise",
+    instructions: [
+      "Start on hands and knees",
+      "Arch back up (cat position)",
+      "Sag back down (camel position)",
+      "Move slowly and controlled",
+      "Focus on breathing"
+    ],
+    equipment: ["bodyweight"],
+    bodyParts: ["back"],
+    targetMuscles: ["erector spinae"],
+    secondaryMuscles: ["core"],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+  {
+    id: "worlds-greatest-stretch",
+    name: "World's Greatest Stretch",
+    description: "Comprehensive mobility exercise",
+    instructions: [
+      "Start in push-up position",
+      "Step one foot forward outside hand",
+      "Drop back knee to ground",
+      "Rotate torso toward front leg",
+      "Return and repeat other side"
+    ],
+    equipment: ["bodyweight"],
+    bodyParts: ["hips", "back"],
+    targetMuscles: ["hip flexors", "thoracic spine"],
+    secondaryMuscles: ["hamstrings"],
+    exerciseType: "weight_reps",
+    isPcosSafe: true,
+    impactLevel: "low",
+  },
+];
