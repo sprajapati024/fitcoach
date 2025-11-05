@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Plus, Droplet, Calendar, Target } from "lucide-react";
 import { MealLogger } from "@/components/MealLogger";
 import { WaterLogger } from "@/components/WaterLogger";
+import { GoalsModal } from "@/components/GoalsModal";
 import { NutritionSummary } from "@/components/NutritionSummary";
 import { MealList } from "@/components/MealList";
 import { PrimaryButton } from "@/components/PrimaryButton";
@@ -11,6 +12,7 @@ import { PrimaryButton } from "@/components/PrimaryButton";
 export function NutritionView() {
   const [showMealLogger, setShowMealLogger] = useState(false);
   const [showWaterLogger, setShowWaterLogger] = useState(false);
+  const [showGoalsModal, setShowGoalsModal] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0],
@@ -25,6 +27,10 @@ export function NutritionView() {
   };
 
   const handleMealDeleted = () => {
+    setRefreshTrigger((prev) => prev + 1);
+  };
+
+  const handleGoalsSet = () => {
     setRefreshTrigger((prev) => prev + 1);
   };
 
@@ -129,7 +135,10 @@ export function NutritionView() {
               <p className="text-sm text-neutral-400 mb-3">
                 Customize your daily targets for calories, macros, and hydration
               </p>
-              <button className="text-sm text-cyan-400 hover:text-cyan-300 font-medium">
+              <button
+                onClick={() => setShowGoalsModal(true)}
+                className="text-sm text-cyan-400 hover:text-cyan-300 font-medium"
+              >
                 Configure Goals →
               </button>
             </div>
@@ -151,6 +160,13 @@ export function NutritionView() {
           onClose={() => setShowWaterLogger(false)}
           onWaterLogged={handleWaterLogged}
           initialDate={selectedDate}
+        />
+      )}
+
+      {showGoalsModal && (
+        <GoalsModal
+          onClose={() => setShowGoalsModal(false)}
+          onGoalsSet={handleGoalsSet}
         />
       )}
     </div>
