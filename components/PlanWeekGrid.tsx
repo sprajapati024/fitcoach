@@ -87,13 +87,13 @@ export function PlanCalendarCompact({ calendar }: { calendar: PlanCalendar }) {
 
   return (
     <div className="space-y-4">
-      <div className="text-sm font-medium text-fg2">
+      <div className="text-sm font-medium text-text-muted">
         {totalDays} training days over {weeks.length} weeks
       </div>
 
       <div className="grid grid-cols-7 gap-2 text-center text-xs">
         {["S", "M", "T", "W", "T", "F", "S"].map((day, i) => (
-          <div key={i} className="text-fg2">
+          <div key={i} className="text-text-muted">
             {day}
           </div>
         ))}
@@ -121,7 +121,7 @@ export function PlanCalendarCompact({ calendar }: { calendar: PlanCalendar }) {
 
         return (
           <div key={week.weekIndex} className="space-y-2">
-            <div className="flex items-center gap-2 text-xs text-fg2">
+            <div className="flex items-center gap-2 text-xs text-text-muted">
               <span>W{week.weekIndex + 1}</span>
               {isDeloadWeek && <span className="text-xs">(Deload)</span>}
             </div>
@@ -131,7 +131,7 @@ export function PlanCalendarCompact({ calendar }: { calendar: PlanCalendar }) {
                   return (
                     <div
                       key={i}
-                      className="aspect-square rounded border border-line1/30 bg-bg1/30"
+                      className="aspect-square rounded border border-surface-border/30 bg-surface-1/30"
                     />
                   );
                 }
@@ -140,16 +140,16 @@ export function PlanCalendarCompact({ calendar }: { calendar: PlanCalendar }) {
                   <div
                     key={day.dayIndex}
                     className={cn(
-                      "aspect-square rounded border border-line1 bg-bg2 p-1",
-                      day.isDeload && "border-line2 bg-bg1"
+                      "aspect-square rounded border border-surface-border bg-surface-2 p-1 transition-all hover:bg-surface-1",
+                      day.isDeload && "border-surface-border bg-surface-1"
                     )}
                     title={`${day.focus} - ${day.isoDate}`}
                   >
                     <div className="flex h-full items-center justify-center">
                       {day.isDeload ? (
-                        <Zap className="h-3 w-3 text-fg2" />
+                        <Zap className="h-3 w-3 text-text-muted" />
                       ) : (
-                        <Dumbbell className="h-3 w-3 text-fg1" />
+                        <Dumbbell className="h-3 w-3 text-text-secondary" />
                       )}
                     </div>
                   </div>
@@ -168,7 +168,7 @@ export function PlanCalendarCompact({ calendar }: { calendar: PlanCalendar }) {
  */
 export function CalendarLegend() {
   return (
-    <div className="flex flex-wrap gap-4 text-xs text-fg2">
+    <div className="flex flex-wrap gap-4 text-xs text-text-muted">
       <div className="flex items-center gap-2">
         <Dumbbell className="h-4 w-4" />
         <span>Training Day</span>
@@ -178,7 +178,7 @@ export function CalendarLegend() {
         <span>Deload Day</span>
       </div>
       <div className="flex items-center gap-2">
-        <div className="h-4 w-4 rounded border border-fg0 bg-bg2" />
+        <div className="h-4 w-4 rounded border border-text-primary bg-surface-2" />
         <span>Today</span>
       </div>
     </div>
