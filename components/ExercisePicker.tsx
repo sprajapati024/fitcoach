@@ -117,7 +117,7 @@ export function ExercisePicker({
               placeholder="Search exercises..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-surface-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-neural-400 text-neutral-200 placeholder-neutral-500"
+              className="w-full pl-10 pr-4 py-3 bg-surface-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 text-neutral-200 placeholder-neutral-500"
             />
           </div>
 

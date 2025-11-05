@@ -77,46 +77,46 @@ export default async function ProgressPage() {
   });
 
   return (
-    <div className="min-h-screen bg-bg0 p-4 text-fg0 md:p-6">
+    <div className="min-h-screen bg-surface-0 p-4 text-text-primary md:p-6">
       <div className="mx-auto flex max-w-5xl flex-col gap-6">
         <div>
           <h1 className="text-2xl font-semibold">Progress</h1>
-          <p className="text-sm text-fg2">Quick snapshot of your recent training momentum.</p>
+          <p className="text-sm text-text-muted">Quick snapshot of your recent training momentum.</p>
         </div>
 
-        <Card className="space-y-4 bg-bg1/80">
+        <Card className="space-y-4 bg-surface-1/80">
           <div>
-            <h2 className="text-lg font-semibold text-fg0">Training Summary</h2>
-            <p className="text-sm text-fg2">
+            <h2 className="text-lg font-semibold text-text-primary">Training Summary</h2>
+            <p className="text-sm text-text-muted">
               Totals reflect the most recent 90 sessions we have on record.
             </p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-lg border border-line1 bg-bg0 p-4 shadow-md transition-all">
-              <p className="text-xs uppercase tracking-wide text-fg2">Workouts completed</p>
+            <div className="rounded-lg border border-surface-border bg-surface-0 p-4 shadow-md transition-all">
+              <p className="text-xs uppercase tracking-wide text-text-muted">Workouts completed</p>
               <p className="mt-1 text-2xl font-semibold text-accent">{totalCompleted}</p>
-              <p className="text-xs text-fg2">Last workout {lastWorkoutDate ?? "—"}</p>
+              <p className="text-xs text-text-muted">Last workout {lastWorkoutDate ?? "—"}</p>
             </div>
 
-            <div className="rounded-lg border border-line1 bg-bg0 p-4 shadow-md transition-all">
-              <p className="text-xs uppercase tracking-wide text-fg2">Workouts skipped</p>
-              <p className="mt-1 text-2xl font-semibold text-fg0">{totalSkipped}</p>
-              <p className="text-xs text-fg2">Includes logged rest or missed sessions.</p>
+            <div className="rounded-lg border border-surface-border bg-surface-0 p-4 shadow-md transition-all">
+              <p className="text-xs uppercase tracking-wide text-text-muted">Workouts skipped</p>
+              <p className="mt-1 text-2xl font-semibold text-text-primary">{totalSkipped}</p>
+              <p className="text-xs text-text-muted">Includes logged rest or missed sessions.</p>
             </div>
 
-            <div className="rounded-lg border border-line1 bg-bg0 p-4 shadow-md transition-all">
-              <p className="text-xs uppercase tracking-wide text-fg2">Sets logged</p>
-              <p className="mt-1 text-2xl font-semibold text-fg0">{Number(totalSets)}</p>
-              <p className="text-xs text-fg2">All time recorded sets.</p>
+            <div className="rounded-lg border border-surface-border bg-surface-0 p-4 shadow-md transition-all">
+              <p className="text-xs uppercase tracking-wide text-text-muted">Sets logged</p>
+              <p className="mt-1 text-2xl font-semibold text-text-primary">{Number(totalSets)}</p>
+              <p className="text-xs text-text-muted">All time recorded sets.</p>
             </div>
 
-            <div className={`rounded-lg border bg-bg0 p-4 shadow-md transition-all ${windowCompliance && windowCompliance >= 80 ? 'border-accent-light' : 'border-line1'}`}>
-              <p className="text-xs uppercase tracking-wide text-fg2">7-day adherence</p>
-              <p className={`mt-1 text-2xl font-semibold ${windowCompliance && windowCompliance >= 80 ? 'text-accent' : 'text-fg0'}`}>
+            <div className={`rounded-lg border bg-surface-0 p-4 shadow-md transition-all ${windowCompliance && windowCompliance >= 80 ? 'border-accent-light' : 'border-surface-border'}`}>
+              <p className="text-xs uppercase tracking-wide text-text-muted">7-day adherence</p>
+              <p className={`mt-1 text-2xl font-semibold ${windowCompliance && windowCompliance >= 80 ? 'text-accent' : 'text-text-primary'}`}>
                 {windowCompliance !== null ? `${windowCompliance}%` : "—"}
               </p>
-              <p className="text-xs text-fg2">
+              <p className="text-xs text-text-muted">
                 {windowLogs.length > 0
                   ? `${completedWindow}/${windowLogs.length} scheduled sessions`
                   : "No sessions logged this week."}
@@ -124,12 +124,12 @@ export default async function ProgressPage() {
             </div>
           </div>
 
-          <div className="rounded-lg border border-line1/60 bg-bg0 p-4">
-            <p className="text-xs uppercase tracking-wide text-fg2">Average RPE (last 5)</p>
-            <p className="mt-1 text-xl font-semibold text-fg0">
+          <div className="rounded-lg border border-surface-border/60 bg-surface-0 p-4">
+            <p className="text-xs uppercase tracking-wide text-text-muted">Average RPE (last 5)</p>
+            <p className="mt-1 text-xl font-semibold text-text-primary">
               {averageRpe !== null ? averageRpe.toFixed(1) : "—"}
             </p>
-            <p className="text-xs text-fg2">
+            <p className="text-xs text-text-muted">
               {recentRpeValues.length > 0
                 ? "Based on your five most recent completed workouts."
                 : "Log a few sessions with RPE to see this populate."}
@@ -137,7 +137,7 @@ export default async function ProgressPage() {
           </div>
 
           {logs.length === 0 ? (
-            <p className="text-sm text-fg2">
+            <p className="text-sm text-text-muted">
               No training history yet. Once you start logging workouts, we&apos;ll chart your streaks
               and load.
             </p>

@@ -271,22 +271,22 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                   type="text"
                   value={form.fullName}
                   onChange={(event) => setForm((prev) => ({ ...prev, fullName: event.target.value }))}
-                  className="mt-1 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 transition-all focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
+                  className="mt-1 w-full rounded-[var(--radius-md)] border border-surface-border bg-surface-2 px-3 py-3 text-sm text-text-primary transition-all focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
                   placeholder="Your name"
                 />
-                {errors.fullName ? <span className="mt-1 block text-xs text-fg2">{errors.fullName}</span> : null}
+                {errors.fullName ? <span className="mt-1 block text-xs text-text-muted">{errors.fullName}</span> : null}
               </label>
               <label className="block text-sm">
-                <span className="text-xs uppercase tracking-wide text-fg2">Age</span>
+                <span className="text-xs uppercase tracking-wide text-text-muted">Age</span>
                 <input
                   type="number"
                   min={18}
                   max={80}
                   value={form.age}
                   onChange={(event) => setForm((prev) => ({ ...prev, age: Number(event.target.value) }))}
-                  className="mt-1 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 transition-all focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
+                  className="mt-1 w-full rounded-[var(--radius-md)] border border-surface-border bg-surface-2 px-3 py-3 text-sm text-text-primary transition-all focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
                 />
-                {errors.age ? <span className="mt-1 block text-xs text-fg2">{errors.age}</span> : null}
+                {errors.age ? <span className="mt-1 block text-xs text-text-muted">{errors.age}</span> : null}
               </label>
               <div>
                 <span className="text-xs uppercase tracking-wide text-fg2">Sex</span>
@@ -338,12 +338,12 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                       height: { ...prev.height, value: Number(event.target.value) },
                     }))
                   }
-                  className="mt-1 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 transition-all focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
+                  className="mt-1 w-full rounded-[var(--radius-md)] border border-surface-border bg-surface-2 px-3 py-3 text-sm text-text-primary transition-all focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
                 />
-                {errors.height ? <span className="mt-1 block text-xs text-fg2">{errors.height}</span> : null}
+                {errors.height ? <span className="mt-1 block text-xs text-text-muted">{errors.height}</span> : null}
               </label>
               <label className="block text-sm">
-                <span className="text-xs uppercase tracking-wide text-fg2">Weight ({form.weight.unit})</span>
+                <span className="text-xs uppercase tracking-wide text-text-muted">Weight ({form.weight.unit})</span>
                 <input
                   type="number"
                   value={form.weight.value}
@@ -353,9 +353,9 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                       weight: { ...prev.weight, value: Number(event.target.value) },
                     }))
                   }
-                  className="mt-1 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 transition-all focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
+                  className="mt-1 w-full rounded-[var(--radius-md)] border border-surface-border bg-surface-2 px-3 py-3 text-sm text-text-primary transition-all focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
                 />
-                {errors.weight ? <span className="mt-1 block text-xs text-fg2">{errors.weight}</span> : null}
+                {errors.weight ? <span className="mt-1 block text-xs text-text-muted">{errors.weight}</span> : null}
               </label>
             </div>
           </section>
@@ -368,7 +368,7 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
               <p className="text-sm text-fg2">We tailor conditioning volume and impact based on your flags.</p>
             </header>
             {form.sex === "female" ? (
-              <div className="space-y-2 rounded-[var(--radius-md)] border border-line1 bg-bg2 p-3">
+              <div className="space-y-2 rounded-[var(--radius-md)] border border-surface-border bg-surface-2 p-3">
                 <label className={`flex items-center justify-between text-sm cursor-pointer transition ${form.hasPcos ? "font-semibold" : ""}`}>
                   <span>{form.hasPcos ? "✓ " : ""}PCOS considerations</span>
                   <input
@@ -384,10 +384,10 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                     className="h-4 w-4"
                   />
                 </label>
-                <p className="text-xs text-fg2">Not medical advice. We bias Zone 2 volume and remove high-impact work.</p>
+                <p className="text-xs text-text-muted">Not medical advice. We bias Zone 2 volume and remove high-impact work.</p>
               </div>
             ) : null}
-            <label className={`flex items-center justify-between rounded-[var(--radius-md)] border border-line1 bg-bg2 p-3 text-sm cursor-pointer transition ${form.noHighImpact ? "font-semibold" : ""}`}>
+            <label className={`flex items-center justify-between rounded-[var(--radius-md)] border border-surface-border bg-surface-2 p-3 text-sm cursor-pointer transition ${form.noHighImpact ? "font-semibold" : ""}`}>
               <span>{form.noHighImpact ? "✓ " : ""}No high-impact movements</span>
               <input
                 type="checkbox"
@@ -436,12 +436,12 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                       schedule: { ...prev.schedule, daysPerWeek: Number(event.target.value) },
                     }))
                   }
-                  className="mt-1 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 transition-all focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
+                  className="mt-1 w-full rounded-[var(--radius-md)] border border-surface-border bg-surface-2 px-3 py-3 text-sm text-text-primary transition-all focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
                 />
-                {errors.daysPerWeek ? <span className="mt-1 block text-xs text-fg2">{errors.daysPerWeek}</span> : null}
+                {errors.daysPerWeek ? <span className="mt-1 block text-xs text-text-muted">{errors.daysPerWeek}</span> : null}
               </label>
               <label className="block text-sm">
-                <span className="text-xs uppercase tracking-wide text-fg2">Minutes / session</span>
+                <span className="text-xs uppercase tracking-wide text-text-muted">Minutes / session</span>
                 <input
                   type="number"
                   min={40}
@@ -454,11 +454,11 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                       schedule: { ...prev.schedule, minutesPerSession: Number(event.target.value) },
                     }))
                   }
-                  className="mt-1 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 transition-all focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
+                  className="mt-1 w-full rounded-[var(--radius-md)] border border-surface-border bg-surface-2 px-3 py-3 text-sm text-text-primary transition-all focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
                 />
               </label>
               <label className="block text-sm">
-                <span className="text-xs uppercase tracking-wide text-fg2">Weeks</span>
+                <span className="text-xs uppercase tracking-wide text-text-muted">Weeks</span>
                 <input
                   type="number"
                   min={6}
@@ -470,7 +470,7 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                       schedule: { ...prev.schedule, programWeeks: Number(event.target.value) },
                     }))
                   }
-                  className="mt-1 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 transition-all focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
+                  className="mt-1 w-full rounded-[var(--radius-md)] border border-surface-border bg-surface-2 px-3 py-3 text-sm text-text-primary transition-all focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
                 />
               </label>
             </div>
@@ -509,7 +509,7 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                           };
                         });
                       }}
-                      className={`touch-feedback rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wide transition-all duration-200 ${isActive ? "border-accent bg-accent text-gray-950 shadow-sm" : "border-line1 bg-bg2 text-fg1 active:bg-bg1"}`}
+                      className={`touch-feedback rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wide transition-all duration-200 ${isActive ? "border-accent bg-accent text-gray-950 shadow-sm" : "border-surface-border bg-surface-2 text-text-secondary active:bg-surface-1"}`}
                     >
                       {isActive ? "✓ " : ""}{day.label}
                     </button>
@@ -527,17 +527,17 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
           <section className="space-y-4">
             <header>
               <h2 className="text-xl font-semibold">Environment</h2>
-              <p className="text-sm text-fg2">Tell us what gear and constraints we should respect.</p>
+              <p className="text-sm text-text-muted">Tell us what gear and constraints we should respect.</p>
             </header>
             <div className="space-y-3">
-              <span className="text-xs uppercase tracking-wide text-fg2">Available equipment</span>
+              <span className="text-xs uppercase tracking-wide text-text-muted">Available equipment</span>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {equipmentOptions.map((option) => {
                   const checked = form.equipment.includes(option.value);
                   return (
                     <label
                       key={option.value}
-                      className={`touch-feedback flex items-center gap-2 rounded-[var(--radius-md)] border px-3 py-2 text-sm font-medium transition-all duration-200 cursor-pointer ${checked ? "border-accent bg-accent text-gray-950 shadow-sm" : "border-line1 bg-bg2 text-fg1 active:bg-bg1"}`}
+                      className={`touch-feedback flex items-center gap-2 rounded-[var(--radius-md)] border px-3 py-2 text-sm font-medium transition-all duration-200 cursor-pointer ${checked ? "border-accent bg-accent text-gray-950 shadow-sm" : "border-surface-border bg-surface-2 text-text-secondary active:bg-surface-1"}`}
                     >
                       <input
                         type="checkbox"
@@ -557,10 +557,10 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                   );
                 })}
               </div>
-              {errors.equipment ? <span className="text-xs text-fg2">{errors.equipment}</span> : null}
+              {errors.equipment ? <span className="text-xs text-text-muted">{errors.equipment}</span> : null}
             </div>
             <div className="space-y-2">
-              <span className="text-xs uppercase tracking-wide text-fg2">Movements to avoid (optional)</span>
+              <span className="text-xs uppercase tracking-wide text-text-muted">Movements to avoid (optional)</span>
               <div className="flex flex-wrap gap-2">
                 {avoidOptions.map((option) => {
                   const active = form.avoidList.includes(option.value);
@@ -576,7 +576,7 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                             : [...prev.avoidList, option.value],
                         }))
                       }
-                      className={`touch-feedback rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wide transition-all duration-200 ${active ? "border-accent bg-accent text-gray-950 shadow-sm" : "border-line1 bg-bg2 text-fg1 active:bg-bg1"}`}
+                      className={`touch-feedback rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wide transition-all duration-200 ${active ? "border-accent bg-accent text-gray-950 shadow-sm" : "border-surface-border bg-surface-2 text-text-secondary active:bg-surface-1"}`}
                     >
                       {active ? "✓ " : ""}{option.label}
                     </button>
@@ -611,7 +611,7 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
               value={form.coachTone}
               onChange={(value) => setForm((prev) => ({ ...prev, coachTone: value }))}
             />
-            <div className="space-y-2 rounded-[var(--radius-md)] border border-line1 bg-bg2 p-3 text-sm">
+            <div className="space-y-2 rounded-[var(--radius-md)] border border-surface-border bg-surface-2 p-3 text-sm">
               <label className={`flex items-center justify-between cursor-pointer transition ${form.coachTodayEnabled ? "font-semibold" : ""}`}>
                 <span>{form.coachTodayEnabled ? "✓ " : ""}Today coach</span>
                 <input
@@ -641,27 +641,27 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
               </label>
             </div>
             <div>
-              <span className="text-xs uppercase tracking-wide text-fg2">Notes to coach</span>
+              <span className="text-xs uppercase tracking-wide text-text-muted">Notes to coach</span>
               <textarea
                 rows={3}
                 value={form.coachNotes ?? ""}
                 onChange={(event) => setForm((prev) => ({ ...prev, coachNotes: event.target.value }))}
-                className="mt-2 w-full rounded-[var(--radius-md)] border border-line1 bg-bg2 px-3 py-3 text-sm text-fg0 transition-all focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
+                className="mt-2 w-full rounded-[var(--radius-md)] border border-surface-border bg-surface-2 px-3 py-3 text-sm text-text-primary transition-all focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
                 placeholder="Anything unique we should know?"
               />
             </div>
           </section>
         ) : null}
-        {submitError ? <p className="text-xs text-fg2">{submitError}</p> : null}
+        {submitError ? <p className="text-xs text-text-muted">{submitError}</p> : null}
       </Card>
 
-      <footer className="sticky bottom-0 left-0 right-0 flex flex-col gap-3 bg-bg0/90 px-4 py-4 backdrop-blur sm:px-6">
+      <footer className="sticky bottom-0 left-0 right-0 flex flex-col gap-3 bg-surface-0/90 px-4 py-4 backdrop-blur sm:px-6">
         <div className="flex items-center justify-between">
           <button
             type="button"
             onClick={handleBack}
             disabled={step === 0 || isPending}
-            className="inline-flex h-11 items-center justify-center rounded-full border border-line1 px-5 text-sm font-medium uppercase tracking-wide text-fg1 transition hover:text-fg0 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-11 items-center justify-center rounded-full border border-surface-border px-5 text-sm font-medium uppercase tracking-wide text-text-secondary transition hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-60"
           >
             Back
           </button>

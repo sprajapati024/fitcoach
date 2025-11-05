@@ -54,7 +54,7 @@ export function NutritionView() {
   };
 
   return (
-    <div className="min-h-screen bg-bg0 p-6 md:p-8">
+    <div className="min-h-screen bg-surface-0 p-6 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -72,7 +72,7 @@ export function NutritionView() {
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
                 max={new Date().toISOString().split("T")[0]}
-                className="pl-10 pr-4 py-2 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                className="pl-10 pr-4 py-2 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
               />
             </div>
           </div>

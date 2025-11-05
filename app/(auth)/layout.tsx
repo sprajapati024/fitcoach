@@ -15,7 +15,7 @@ export default async function AuthLayout({ children }: AuthLayoutProps) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-bg0 text-fg0">
+    <div className="flex min-h-screen flex-col bg-surface-0 text-text-primary">
       <DesktopNav />
       <main className="flex-1 px-4 pb-32 pt-6 md:px-8 md:pb-8 md:pt-6">{children}</main>
       <BottomNav />

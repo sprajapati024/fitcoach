@@ -327,7 +327,7 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="E.g., Grilled chicken breast, brown rice, steamed broccoli with olive oil"
-              className="w-full px-4 py-3 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 min-h-[100px]"
+              className="w-full px-4 py-3 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 min-h-[100px]"
               maxLength={1000}
               disabled={isRecording || isTranscribing}
             />
@@ -366,7 +366,7 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
                   value={calories}
                   onChange={(e) => setCalories(e.target.value)}
                   placeholder="0"
-                  className="w-full px-3 py-2 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                  className="w-full px-3 py-2 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
                   min="0"
                   max="10000"
                 />
@@ -378,7 +378,7 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
                   value={protein}
                   onChange={(e) => setProtein(e.target.value)}
                   placeholder="0"
-                  className="w-full px-3 py-2 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                  className="w-full px-3 py-2 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
                   min="0"
                   max="500"
                   step="0.1"
@@ -391,7 +391,7 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
                   value={carbs}
                   onChange={(e) => setCarbs(e.target.value)}
                   placeholder="0"
-                  className="w-full px-3 py-2 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                  className="w-full px-3 py-2 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
                   min="0"
                   max="1000"
                   step="0.1"
@@ -404,7 +404,7 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
                   value={fat}
                   onChange={(e) => setFat(e.target.value)}
                   placeholder="0"
-                  className="w-full px-3 py-2 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                  className="w-full px-3 py-2 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
                   min="0"
                   max="500"
                   step="0.1"
@@ -417,7 +417,7 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
                   value={fiber}
                   onChange={(e) => setFiber(e.target.value)}
                   placeholder="0"
-                  className="w-full px-3 py-2 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                  className="w-full px-3 py-2 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
                   min="0"
                   max="200"
                   step="0.1"
@@ -433,7 +433,7 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="How did you feel? Any observations?"
-              className="w-full px-4 py-3 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 min-h-[80px]"
+              className="w-full px-4 py-3 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 min-h-[80px]"
               maxLength={500}
             />
             <span className="text-xs text-neutral-500">{notes.length}/500</span>

@@ -103,7 +103,7 @@ export function WaterLogger({ onClose, onWaterLogged, initialDate }: WaterLogger
                 value={customAmount}
                 onChange={(e) => setCustomAmount(e.target.value)}
                 placeholder="Enter ml"
-                className="flex-1 px-4 py-3 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                className="flex-1 px-4 py-3 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
                 min="1"
                 max="5000"
               />

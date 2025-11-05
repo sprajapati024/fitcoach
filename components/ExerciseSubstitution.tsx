@@ -100,18 +100,18 @@ export function ExerciseSubstitution({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <Card className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto bg-bg0 text-fg0">
+      <Card className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto bg-surface-0 text-text-primary">
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-line1 bg-bg0 pb-3">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-surface-border bg-surface-0 pb-3">
           <div>
-            <h2 className="text-lg font-semibold text-fg0">Substitute Exercise</h2>
-            <p className="text-sm text-fg2">{exerciseName}</p>
+            <h2 className="text-lg font-semibold text-text-primary">Substitute Exercise</h2>
+            <p className="text-sm text-text-muted">{exerciseName}</p>
           </div>
           {onClose && (
             <button
               type="button"
               onClick={onClose}
-              className="rounded-full p-1 text-fg2 transition hover:bg-bg1 hover:text-fg0"
+              className="rounded-full p-1 text-text-muted transition hover:bg-surface-1 hover:text-text-primary"
               aria-label="Close"
             >
               <X className="h-5 w-5" />
@@ -122,7 +122,7 @@ export function ExerciseSubstitution({
         {!showAlternatives ? (
           <div className="mt-4 space-y-4">
             <div>
-              <label htmlFor="reason" className="block text-sm font-medium text-fg1">
+              <label htmlFor="reason" className="block text-sm font-medium text-text-secondary">
                 Reason for substitution (optional)
               </label>
               <input
@@ -131,7 +131,7 @@ export function ExerciseSubstitution({
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder="e.g., equipment unavailable, injury, preference"
-                className="mt-1 w-full rounded-md border border-line1 bg-bg1 px-3 py-2 text-sm text-fg0 placeholder-fg3 focus:border-fg2 focus:outline-none focus:ring-1 focus:ring-fg2"
+                className="mt-1 w-full rounded-md border border-surface-border bg-surface-1 px-3 py-2 text-sm text-text-primary placeholder-fg3 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
                 maxLength={120}
               />
               <p className="mt-1 text-xs text-fg3">
@@ -143,7 +143,7 @@ export function ExerciseSubstitution({
               type="button"
               onClick={handleFetchAlternatives}
               disabled={isLoading}
-              className="flex w-full items-center justify-center gap-2 rounded-md bg-fg0 px-4 py-2 text-sm font-semibold text-bg0 transition hover:bg-fg1 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-md bg-text-primary px-4 py-2 text-sm font-semibold text-surface-0 transition hover:bg-text-secondary disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isLoading ? (
                 <>
@@ -166,22 +166,22 @@ export function ExerciseSubstitution({
           </div>
         ) : (
           <div className="mt-4 space-y-3">
-            <p className="text-sm text-fg2">
+            <p className="text-sm text-text-muted">
               We found {alternatives.length} alternative{alternatives.length !== 1 ? 's' : ''} for you:
             </p>
 
             {alternatives.map((alt, index) => (
               <Card
                 key={alt.exerciseId}
-                className="space-y-2 border border-line1 bg-bg1 p-4 transition hover:border-fg3"
+                className="space-y-2 border border-surface-border bg-surface-1 p-4 transition hover:border-fg3"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1">
-                    <h3 className="font-semibold text-fg0">{alt.exerciseName}</h3>
-                    <div className="mt-1 flex flex-wrap gap-2 text-xs text-fg2">
-                      <span className="rounded-full bg-bg0 px-2 py-0.5">{alt.equipment}</span>
-                      <span className="rounded-full bg-bg0 px-2 py-0.5">{alt.movement}</span>
-                      <span className="rounded-full bg-bg0 px-2 py-0.5">{alt.impact} impact</span>
+                    <h3 className="font-semibold text-text-primary">{alt.exerciseName}</h3>
+                    <div className="mt-1 flex flex-wrap gap-2 text-xs text-text-muted">
+                      <span className="rounded-full bg-surface-0 px-2 py-0.5">{alt.equipment}</span>
+                      <span className="rounded-full bg-surface-0 px-2 py-0.5">{alt.movement}</span>
+                      <span className="rounded-full bg-surface-0 px-2 py-0.5">{alt.impact} impact</span>
                       {alt.isPcosFriendly && (
                         <span className="rounded-full bg-green-500/20 px-2 py-0.5 text-green-400">
                           PCOS-friendly
@@ -191,12 +191,12 @@ export function ExerciseSubstitution({
                   </div>
                 </div>
 
-                <p className="text-sm text-fg1">{alt.rationale}</p>
+                <p className="text-sm text-text-secondary">{alt.rationale}</p>
 
                 <button
                   type="button"
                   onClick={() => handleSelect(alt)}
-                  className="mt-2 w-full rounded-md border border-fg2 bg-bg0 px-3 py-1.5 text-sm font-medium text-fg0 transition hover:bg-fg2 hover:text-bg0"
+                  className="mt-2 w-full rounded-md border border-text-muted bg-surface-0 px-3 py-1.5 text-sm font-medium text-text-primary transition hover:bg-text-muted hover:text-surface-0"
                 >
                   Select This Exercise
                 </button>
@@ -209,7 +209,7 @@ export function ExerciseSubstitution({
                 setShowAlternatives(false);
                 setReason('');
               }}
-              className="w-full rounded-md border border-line1 bg-bg1 px-4 py-2 text-sm font-medium text-fg2 transition hover:bg-bg0 hover:text-fg0"
+              className="w-full rounded-md border border-surface-border bg-surface-1 px-4 py-2 text-sm font-medium text-text-muted transition hover:bg-surface-0 hover:text-text-primary"
             >
               Try Different Search
             </button>

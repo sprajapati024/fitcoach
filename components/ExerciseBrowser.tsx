@@ -122,7 +122,7 @@ export function ExerciseBrowser({
             placeholder="Search exercises by name, body part, or muscle..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-neural-400"
+            className="w-full pl-10 pr-4 py-3 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
           />
         </div>
 
@@ -143,7 +143,7 @@ export function ExerciseBrowser({
               <select
                 value={selectedBodyPart}
                 onChange={(e) => setSelectedBodyPart(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-0 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-neural-400"
+                className="w-full px-3 py-2 bg-surface-0 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
               >
                 <option value="">All Body Parts</option>
                 {bodyParts.map((part) => (
@@ -159,7 +159,7 @@ export function ExerciseBrowser({
               <select
                 value={selectedEquipment}
                 onChange={(e) => setSelectedEquipment(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-0 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-neural-400"
+                className="w-full px-3 py-2 bg-surface-0 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
               >
                 <option value="">All Equipment</option>
                 {equipmentTypes.map((equip) => (

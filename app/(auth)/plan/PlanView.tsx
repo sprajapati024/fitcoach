@@ -243,13 +243,13 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
           />
         ) : (
           <Card className="max-w-md text-center">
-            <Calendar className="mx-auto mb-4 h-12 w-12 text-fg2" />
+            <Calendar className="mx-auto mb-4 h-12 w-12 text-text-muted" />
             <h2 className="mb-2 text-xl font-semibold">No Training Plan Yet</h2>
-            <p className="mb-6 text-sm text-fg2">
+            <p className="mb-6 text-sm text-text-muted">
               Let&apos;s create your personalized training plan based on your profile and goals.
             </p>
             {error && (
-              <div className="mb-4 rounded border border-line2 bg-bg2 p-3 text-sm text-fg1">
+              <div className="mb-4 rounded border border-surface-border bg-surface-2 p-3 text-sm text-text-secondary">
                 {error}
               </div>
             )}
@@ -299,12 +299,12 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
     return (
       <div className="space-y-6">
         {success && (
-          <Card className="border-fg2 bg-bg2 p-4 text-sm text-fg0">
+          <Card className="border-text-muted bg-surface-2 p-4 text-sm text-text-primary">
             <CheckCircle className="mb-2 inline h-4 w-4" /> {success}
           </Card>
         )}
         {error && (
-          <Card className="border-line2 bg-bg2 p-4 text-sm text-fg1">{error}</Card>
+          <Card className="border-surface-border bg-surface-2 p-4 text-sm text-text-secondary">{error}</Card>
         )}
 
         <Card>
@@ -329,9 +329,9 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
               value={selectedStartDate}
               onChange={(e) => setSelectedStartDate(e.target.value)}
               min={new Date().toISOString().slice(0, 10)}
-              className="h-12 w-full rounded border border-line1 bg-bg2 px-4 text-fg0 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
+              className="h-12 w-full rounded border border-surface-border bg-surface-2 px-4 text-text-primary focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
             />
-            <p className="mt-2 text-xs text-fg2">
+            <p className="mt-2 text-xs text-text-muted">
               Workouts will align to this date once you activate the plan. Local timezone: {timezoneLabel}.
             </p>
           </div>
@@ -346,7 +346,7 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
             </PrimaryButton>
             <button
               onClick={() => handleDeletePlan(latestPlan.id)}
-              className="touch-feedback flex h-12 items-center justify-center rounded border border-line1 px-4 text-sm text-fg2 transition-all active:bg-bg2 sm:w-auto"
+              className="touch-feedback flex h-12 items-center justify-center rounded border border-surface-border px-4 text-sm text-text-muted transition-all active:bg-surface-2 sm:w-auto"
             >
               <Trash2 className="h-4 w-4" />
             </button>
@@ -379,7 +379,7 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
   return (
     <div className="space-y-6">
       {success && (
-        <Card className="border-fg2 bg-bg2 p-4 text-sm text-fg0">
+        <Card className="border-text-muted bg-surface-2 p-4 text-sm text-text-primary">
           <CheckCircle className="mb-2 inline h-4 w-4" /> {success}
         </Card>
       )}
@@ -388,24 +388,24 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
         <div className="mb-4 flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
           <div className="flex-1">
             <h2 className="text-lg font-semibold">{activePlan.title}</h2>
-            <p className="text-sm text-fg2">{activePlan.summary}</p>
-            <div className="mt-2 flex flex-wrap gap-4 text-sm text-fg2">
+            <p className="text-sm text-text-muted">{activePlan.summary}</p>
+            <div className="mt-2 flex flex-wrap gap-4 text-sm text-text-muted">
               <span>{activePlan.durationWeeks} weeks</span>
               <span>{activePlan.daysPerWeek} days/week</span>
               <span>Started: {activePlan.startDate || "Not set"}</span>
             </div>
-            <p className="mt-2 text-xs text-fg2">
+            <p className="mt-2 text-xs text-text-muted">
               Calendar times shown in your local timezone: {timezoneLabel}.
             </p>
           </div>
-          <div className="w-full rounded border border-line1 bg-bg2 p-4 md:mt-0 md:w-auto md:min-w-[320px]">
-            <h3 className="text-sm font-medium text-fg0">Adjust start date</h3>
+          <div className="w-full rounded border border-surface-border bg-surface-2 p-4 md:mt-0 md:w-auto md:min-w-[320px]">
+            <h3 className="text-sm font-medium text-text-primary">Adjust start date</h3>
             <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center">
               <input
                 type="date"
                 value={startDateUpdate}
                 onChange={(e) => setStartDateUpdate(e.target.value)}
-                className="h-12 rounded border border-line1 bg-bg0 px-4 text-sm text-fg0 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
+                className="h-12 rounded border border-surface-border bg-surface-0 px-4 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
               />
               <PrimaryButton
                 onClick={handleUpdateStartDate}
@@ -416,7 +416,7 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
                 Update Start Date
               </PrimaryButton>
             </div>
-            <p className="mt-2 text-xs text-fg2">
+            <p className="mt-2 text-xs text-text-muted">
               We&apos;ll realign every workout in the calendar to the date you choose.
             </p>
           </div>
@@ -436,9 +436,9 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
             <div className="mt-6 space-y-4">
               {/* Show adaptive planning message if only Week 1 exists */}
               {workouts.every(w => w.weekIndex === 0) && (
-                <div className="rounded-lg border border-line1 bg-bg1 p-4">
-                  <p className="text-sm text-fg1">
-                    <span className="font-medium text-fg0">Adaptive Planning: </span>
+                <div className="rounded-lg border border-surface-border bg-surface-1 p-4">
+                  <p className="text-sm text-text-secondary">
+                    <span className="font-medium text-text-primary">Adaptive Planning: </span>
                     Your plan adapts week-by-week based on performance. Complete Week 1 to unlock Week 2 generation.
                   </p>
                 </div>
@@ -455,11 +455,11 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
                 const canGenerateNext = maxWeek < activePlan.durationWeeks;
 
                 return hasAnyProgress && canGenerateNext && (
-                  <div className="rounded-lg border border-line1 bg-bg1 p-4">
+                  <div className="rounded-lg border border-surface-border bg-surface-1 p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-fg0">Ready for Week {maxWeek + 1}?</p>
-                        <p className="mt-1 text-xs text-fg2">
+                        <p className="text-sm font-medium text-text-primary">Ready for Week {maxWeek + 1}?</p>
+                        <p className="mt-1 text-xs text-text-muted">
                           Week {maxWeek} progress detected. Generate your next week based on performance.
                         </p>
                       </div>
@@ -480,7 +480,7 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
       </Card>
 
       <Card>
-        <h3 className="mb-3 text-sm font-medium text-fg2">Need a new plan?</h3>
+        <h3 className="mb-3 text-sm font-medium text-text-muted">Need a new plan?</h3>
         <PrimaryButton onClick={handleGeneratePlan} loading={isGenerating}>
           Generate New Plan
         </PrimaryButton>

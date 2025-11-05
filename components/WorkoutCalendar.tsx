@@ -75,11 +75,11 @@ export function WorkoutCalendar({
           <div key={weekIndex} className="space-y-3">
             {/* Week Header */}
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-fg0">
+              <h3 className="text-lg font-semibold text-text-primary">
                 Week {weekIndex + 1}
               </h3>
               {isDeloadWeek && (
-                <span className="text-xs font-medium text-fg2 bg-bg2 px-2 py-1 rounded">
+                <span className="text-xs font-medium text-text-muted bg-surface-2 px-2 py-1 rounded">
                   Deload Week
                 </span>
               )}
@@ -115,15 +115,15 @@ export function WorkoutCalendar({
                         key={dayIndex}
                         className={`
                           scroll-snap-item relative flex min-h-[100px] w-[120px] flex-col rounded-lg border p-3 transition-all md:min-h-[80px] md:w-auto
-                          ${isToday ? "border-accent bg-bg1 shadow-md" : "border-line1 bg-bg0"}
+                          ${isToday ? "border-accent bg-surface-1 shadow-md" : "border-surface-border bg-surface-0"}
                           ${workout ? "touch-feedback cursor-pointer hover:border-accent hover:shadow-md" : ""}
                         `}
                       >
                         {/* Day Label */}
-                        <div className="mb-1 text-xs font-medium text-fg2">
+                        <div className="mb-1 text-xs font-medium text-text-muted">
                           {getDayOfWeek(dayDate)}
                         </div>
-                        <div className={`text-xs ${isToday ? "font-bold text-accent" : "text-fg2"}`}>
+                        <div className={`text-xs ${isToday ? "font-bold text-accent" : "text-text-muted"}`}>
                           {formatDateShort(dayDate)}
                         </div>
 
@@ -133,10 +133,10 @@ export function WorkoutCalendar({
                             href={`/workout/${workout.id}`}
                             className="mt-2 flex flex-1 flex-col"
                           >
-                            <div className="mb-1 line-clamp-2 text-xs font-medium text-fg0">
+                            <div className="mb-1 line-clamp-2 text-xs font-medium text-text-primary">
                               {workout.focus}
                             </div>
-                            <div className="mt-auto text-xs text-fg2">
+                            <div className="mt-auto text-xs text-text-muted">
                               {workout.durationMinutes} min
                             </div>
 
@@ -161,7 +161,7 @@ export function WorkoutCalendar({
                             ) : null}
                           </Link>
                         ) : (
-                          <div className="mt-2 text-xs text-fg2">Rest</div>
+                          <div className="mt-2 text-xs text-text-muted">Rest</div>
                         )}
 
                         {/* Today indicator - neon accent */}

@@ -52,13 +52,13 @@ export default function PlanGenerationProgress({
   const upcomingStages = stages.filter((_, index) => index > currentStageIndex);
 
   return (
-    <div className="mx-auto w-full max-w-md rounded-lg border border-line1 bg-bg1 p-6 shadow-lg">
+    <div className="mx-auto w-full max-w-md rounded-lg border border-surface-border bg-surface-1 p-6 shadow-lg">
       {/* Header */}
       <div className="mb-6">
-        <h3 className="text-xl font-bold text-fg0">
+        <h3 className="text-xl font-bold text-text-primary">
           Building Your Plan
         </h3>
-        <p className="mt-1 text-sm text-fg2">
+        <p className="mt-1 text-sm text-text-muted">
           This takes 15-20 seconds
         </p>
       </div>
@@ -66,12 +66,12 @@ export default function PlanGenerationProgress({
       {/* Progress Bar */}
       <div className="mb-6">
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-sm font-medium text-fg1">Progress</span>
+          <span className="text-sm font-medium text-text-secondary">Progress</span>
           <span className="text-lg font-bold text-accent">
             {smoothPercent}%
           </span>
         </div>
-        <div className="relative h-3 w-full overflow-hidden rounded-full bg-bg2">
+        <div className="relative h-3 w-full overflow-hidden rounded-full bg-surface-2">
           <div
             className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-accent to-accent-light transition-all duration-300 ease-out"
             style={{ width: `${smoothPercent}%` }}
@@ -87,10 +87,10 @@ export default function PlanGenerationProgress({
               <div className="h-2 w-2 animate-pulse rounded-full bg-white" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-medium uppercase tracking-wide text-fg2">
+              <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
                 Now Working On
               </p>
-              <p className="font-semibold text-fg0">
+              <p className="font-semibold text-text-primary">
                 {message}
               </p>
             </div>
@@ -101,7 +101,7 @@ export default function PlanGenerationProgress({
       {/* Completed Stages - Compact Chips */}
       {completedStages.length > 0 && (
         <div className="mb-4 animate-slide-down">
-          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-fg2">
+          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-text-muted">
             Completed
           </p>
           <div className="flex flex-wrap gap-2">
@@ -121,7 +121,7 @@ export default function PlanGenerationProgress({
       {/* Upcoming Stages - Compact List */}
       {upcomingStages.length > 0 && (
         <div className="animate-fade-in">
-          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-fg2">
+          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-text-muted">
             Up Next
           </p>
           <div className="space-y-1.5">
@@ -131,8 +131,8 @@ export default function PlanGenerationProgress({
                 className="flex items-center gap-2 px-2 py-1.5 transition-all duration-300 ease-out"
                 style={{ opacity: 0.6 - (index * 0.1) }}
               >
-                <div className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-line2" />
-                <span className="text-xs text-fg2">{s.label}</span>
+                <div className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-surface-border" />
+                <span className="text-xs text-text-muted">{s.label}</span>
               </div>
             ))}
           </div>
@@ -140,9 +140,9 @@ export default function PlanGenerationProgress({
       )}
 
       {/* Footer note */}
-      <div className="mt-6 rounded-md border border-line2 bg-bg2 p-3">
-        <p className="text-xs text-fg1">
-          <span className="font-semibold text-fg0">Matching exercises</span> to your fitness level, equipment, and schedule.
+      <div className="mt-6 rounded-md border border-surface-border bg-surface-2 p-3">
+        <p className="text-xs text-text-secondary">
+          <span className="font-semibold text-text-primary">Matching exercises</span> to your fitness level, equipment, and schedule.
         </p>
       </div>
     </div>

@@ -63,16 +63,16 @@ export function SettingsView({ profile, userPlans }: SettingsViewProps) {
       <ProfileEditor profile={profile} />
 
       {/* Custom Instructions Section */}
-      <div className="rounded-lg border border-line1 bg-bg0 p-6">
-        <h2 className="mb-2 text-lg font-semibold text-fg0">
+      <div className="rounded-lg border border-surface-border bg-surface-0 p-6">
+        <h2 className="mb-2 text-lg font-semibold text-text-primary">
           Plan Generation Preferences
         </h2>
-        <p className="mb-4 text-sm text-fg2">
+        <p className="mb-4 text-sm text-text-muted">
           Add custom instructions to personalize your workout plans
         </p>
 
         <div className="space-y-3">
-          <label htmlFor="customInstructions" className="block text-sm font-medium text-fg1">
+          <label htmlFor="customInstructions" className="block text-sm font-medium text-text-secondary">
             Custom Instructions for Workout Plans
           </label>
           <textarea
@@ -80,12 +80,12 @@ export function SettingsView({ profile, userPlans }: SettingsViewProps) {
             value={customInstructions}
             onChange={(e) => setCustomInstructions(e.target.value)}
             placeholder="E.g., Focus on posterior chain, avoid overhead movements, prefer dumbbell variations..."
-            className="w-full rounded-md border border-line1 bg-bg1 p-3 text-sm text-fg0 placeholder:text-fg2 transition-all focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
+            className="w-full rounded-md border border-surface-border bg-surface-1 p-3 text-sm text-text-primary placeholder:text-text-muted transition-all focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
             rows={4}
             maxLength={maxChars + 50} // Allow typing a bit over to show error
           />
           <div className="flex items-center justify-between">
-            <span className={`text-xs ${isOverLimit ? "text-error" : "text-fg2"}`}>
+            <span className={`text-xs ${isOverLimit ? "text-error" : "text-text-muted"}`}>
               {charCount}/{maxChars} characters
             </span>
             {saveSuccess && (
@@ -111,9 +111,9 @@ export function SettingsView({ profile, userPlans }: SettingsViewProps) {
       </div>
 
       {/* My Workout Plans Section */}
-      <div className="rounded-lg border border-line1 bg-bg0 p-6">
-        <h2 className="mb-2 text-lg font-semibold text-fg0">My Workout Plans</h2>
-        <p className="mb-4 text-sm text-fg2">
+      <div className="rounded-lg border border-surface-border bg-surface-0 p-6">
+        <h2 className="mb-2 text-lg font-semibold text-text-primary">My Workout Plans</h2>
+        <p className="mb-4 text-sm text-text-muted">
           Manage your training plans
         </p>
 
@@ -124,11 +124,11 @@ export function SettingsView({ profile, userPlans }: SettingsViewProps) {
             {userPlans.map((plan) => (
               <div
                 key={plan.id}
-                className="flex items-center justify-between rounded-md border border-line1 bg-bg1 p-4"
+                className="flex items-center justify-between rounded-md border border-surface-border bg-surface-1 p-4"
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
-                    <h3 className="font-medium text-fg0">{plan.title}</h3>
+                    <h3 className="font-medium text-text-primary">{plan.title}</h3>
                     <span
                       className={`rounded-full px-2 py-0.5 text-xs font-medium uppercase ${
                         plan.status === "active"
@@ -152,7 +152,7 @@ export function SettingsView({ profile, userPlans }: SettingsViewProps) {
 
                 {deleteConfirmId === plan.id ? (
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-fg2">Delete this plan?</span>
+                    <span className="text-xs text-text-muted">Delete this plan?</span>
                     <button
                       onClick={() => handleDeletePlan(plan.id)}
                       disabled={isPending}
@@ -163,7 +163,7 @@ export function SettingsView({ profile, userPlans }: SettingsViewProps) {
                     <button
                       onClick={() => setDeleteConfirmId(null)}
                       disabled={isPending}
-                      className="touch-feedback rounded-full border border-line1 px-3 py-1 text-xs font-medium text-fg2 transition-all active:bg-bg2"
+                      className="touch-feedback rounded-full border border-surface-border px-3 py-1 text-xs font-medium text-text-muted transition-all active:bg-surface-2"
                     >
                       Cancel
                     </button>
@@ -171,7 +171,7 @@ export function SettingsView({ profile, userPlans }: SettingsViewProps) {
                 ) : (
                   <button
                     onClick={() => setDeleteConfirmId(plan.id)}
-                    className="touch-feedback rounded-full border border-line1 px-4 py-1.5 text-xs font-medium uppercase tracking-wide text-fg2 transition-all active:border-red-500 active:text-red-500"
+                    className="touch-feedback rounded-full border border-surface-border px-4 py-1.5 text-xs font-medium uppercase tracking-wide text-text-muted transition-all active:border-red-500 active:text-red-500"
                   >
                     Delete
                   </button>
