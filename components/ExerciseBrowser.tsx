@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Exercise } from "@/lib/exercisedb";
 import { Search, Filter, Plus, Check } from "lucide-react";
-import { PrimaryButton } from "@/components/buttons/PrimaryButton";
+import { PrimaryButton } from "@/components/PrimaryButton";
 
 interface ExerciseBrowserProps {
   onAddExercise?: (exercise: Exercise) => void;

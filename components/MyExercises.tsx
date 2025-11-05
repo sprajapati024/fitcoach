@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { UserExercise } from "@/drizzle/schema";
 import { Trash2, Info } from "lucide-react";
-import { PrimaryButton } from "@/components/buttons/PrimaryButton";
+import { PrimaryButton } from "@/components/PrimaryButton";
 
 interface MyExercisesProps {
   onExercisesChange?: () => void;

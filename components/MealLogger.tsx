@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { X, Sparkles, Loader2 } from "lucide-react";
-import { PrimaryButton } from "@/components/buttons/PrimaryButton";
+import { PrimaryButton } from "@/components/PrimaryButton";
 
 interface MealLoggerProps {
   onClose: () => void;
