@@ -479,7 +479,7 @@ async function seed() {
       avoidList: [],
       noHighImpact: true,
       goalBias: "balanced",
-      coachTone: "friendly",
+      coachTone: "flirty",
       coachNotes: "Prioritize steady-state cardio on low energy days.",
       coachTodayEnabled: true,
       coachDebriefEnabled: true,

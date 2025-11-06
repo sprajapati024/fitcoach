@@ -31,7 +31,7 @@ export const onboardingSchema = z.object({
   avoidList: z.array(z.string().min(1).max(50)).max(12),
   noHighImpact: z.boolean(),
   goalBias: z.enum(["strength", "balanced", "hypertrophy", "fat_loss"]),
-  coachTone: z.enum(["concise", "friendly"]),
+  coachTone: z.enum(["analyst", "flirty"]),
   coachTodayEnabled: z.boolean(),
   coachDebriefEnabled: z.boolean(),
   coachWeeklyEnabled: z.boolean(),
