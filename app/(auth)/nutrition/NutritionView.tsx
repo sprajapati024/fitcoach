@@ -55,13 +55,13 @@ export function NutritionView() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 -mx-4 -mt-6 -mb-32">
+    <div className="min-h-screen bg-black -mx-4 -mt-6 -mb-32">
       {/* Compact Header */}
       <motion.header
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="sticky top-0 z-50 bg-gray-950/95 backdrop-blur-sm border-b border-gray-800"
+        className="sticky top-0 z-50 bg-black/95 backdrop-blur-sm border-b border-gray-800"
       >
         <div className="flex items-center justify-between h-14 px-4">
           <div className="flex items-center gap-3">

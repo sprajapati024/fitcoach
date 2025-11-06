@@ -23,7 +23,7 @@
 /* Dark Theme (Default) - Neural Surfaces */
 :root[data-theme="dark"] {
   /* Surface Layers */
-  --surface-0: #0B0D0E;
+  --surface-0: #000000;
   --surface-1: #111315;
   --surface-2: #16191B;
   --surface-border: #242729;

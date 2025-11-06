@@ -15,7 +15,7 @@ export default async function AuthLayout({ children }: AuthLayoutProps) {
   }
 
   return (
-    <div className="flex min-h-screen-ios flex-col bg-surface-0 text-text-primary" style={{ paddingTop: 'var(--safe-top)' }}>
+    <div className="flex min-h-screen-ios flex-col bg-black text-text-primary" style={{ paddingTop: 'var(--safe-top)' }}>
       <DesktopNav />
       <main className="flex-1 px-4 pb-32 pt-6 md:px-8 md:pb-8 md:pt-6">{children}</main>
       <BottomNav />
