@@ -4,6 +4,7 @@ import { useCallback, useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { publicEnv } from '@/lib/env/public';
 import { useSupabase } from '@/components/providers/SupabaseProvider';
+import Starfield from '@/components/Starfield';
 
 const CYCLING_TAGLINES = [
   "Learns your habits. Evolves your plan.",
@@ -54,6 +55,9 @@ export default function Home() {
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-br from-gray-950 via-black to-gray-900 text-white">
+      {/* Animated Starfield Background */}
+      <Starfield />
+
       {/* Hero Section - Full Viewport */}
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 py-20 text-center">
         <div className="mx-auto w-full max-w-3xl space-y-12">
