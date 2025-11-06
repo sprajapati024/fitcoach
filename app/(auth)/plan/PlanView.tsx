@@ -244,7 +244,7 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
   // Case 1: No plans exist
   if (userPlans.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center px-3">
+      <div className="min-h-screen bg-gray-950 -mx-4 -mt-6 flex items-center justify-center px-3">
         {isGenerating ? (
           <PlanGenerationProgress
             stage={progressState.stage}
@@ -311,7 +311,7 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
 
     if (isGenerating) {
       return (
-        <div className="min-h-screen bg-gray-950 flex items-center justify-center px-3">
+        <div className="min-h-screen bg-gray-950 -mx-4 -mt-6 flex items-center justify-center px-3">
           <PlanGenerationProgress
             stage={progressState.stage}
             message={progressState.message}
@@ -322,7 +322,7 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
     }
 
     return (
-      <div className="min-h-screen bg-gray-950">
+      <div className="min-h-screen bg-gray-950 -mx-4 -mt-6">
         <main className="mx-auto max-w-md px-3 py-4 space-y-3">
           {/* Success message */}
           {success && (
@@ -403,7 +403,7 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
   // Case 3: Active plan exists - show calendar view
   if (isGenerating) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center px-3">
+      <div className="min-h-screen bg-gray-950 -mx-4 -mt-6 flex items-center justify-center px-3">
         <PlanGenerationProgress
           stage={progressState.stage}
           message={progressState.message}
@@ -414,7 +414,7 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
   }
 
   return (
-    <div className="min-h-screen bg-gray-950">
+    <div className="min-h-screen bg-gray-950 -mx-4 -mt-6">
       <main className="mx-auto max-w-md px-3 py-4 space-y-3 pb-24">
         {/* Success message */}
         {success && (

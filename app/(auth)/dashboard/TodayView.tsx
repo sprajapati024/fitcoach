@@ -38,7 +38,7 @@ export function TodayView({ workout, userId, userName, nutrition }: TodayViewPro
   const streakDays = 12;
 
   return (
-    <div className="min-h-screen bg-gray-950">
+    <div className="min-h-screen bg-gray-950 -mx-4 -mt-6">
       {/* Compact Header */}
       <CompactHeader userName={userName} />
 
