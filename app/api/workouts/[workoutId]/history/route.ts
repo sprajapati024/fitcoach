@@ -4,6 +4,28 @@ import { db } from '@/lib/db';
 import { workouts, workoutLogs, workoutLogSets } from '@/drizzle/schema';
 import { eq, and, desc } from 'drizzle-orm';
 
+/**
+ * Retrieve the most recent workout history for the specified workout belonging to the authenticated user.
+ *
+ * Returns a JSON response with one of the following shapes:
+ * - When there is no history:
+ *   `{ hasHistory: false, lastSession: null, exercises: {} }`
+ * - When a last session exists:
+ *   `{
+ *     hasHistory: true,
+ *     lastSession: {
+ *       date: string,
+ *       performedAt: string,
+ *       rpeLastSet?: number,
+ *       totalDurationMinutes?: number
+ *     },
+ *     exercises: Record<string, Array<{ set: number; weight: number; reps: number; rpe?: number }>>
+ *   }`
+ *
+ * Also returns HTTP 401 if the user is not authenticated, 404 if the workout does not belong to the user, and 500 on internal errors.
+ *
+ * @returns A JSON response describing whether history exists and, if so, the last session metadata and grouped exercise sets.
+ */
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ workoutId: string }> }

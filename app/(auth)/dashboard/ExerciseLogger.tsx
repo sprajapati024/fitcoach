@@ -63,6 +63,19 @@ function formatSeconds(value: number) {
   return `${minutes}:${seconds}`;
 }
 
+/**
+ * Render an interactive workout logger UI for a given workout.
+ *
+ * Renders controls to log and edit sets per exercise, manage a rest timer (pause/resume/adjust/skip),
+ * view per-exercise history, navigate between exercises (including swipe gestures), and submit or
+ * queue the completed workout. Handles input validation, audio/haptic rest completion cues, and
+ * offline queuing when network is unavailable.
+ *
+ * @param workout - The workout object (including payload with blocks/exercises) to display and log.
+ * @param onComplete - Callback invoked when the workout is saved or queued; receives a `LoggerResult`.
+ * @param onCancel - Callback invoked when the user cancels and navigates away from the logger.
+ * @returns The rendered ExerciseLogger React element tree for logging a workout session.
+ */
 export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLoggerProps) {
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
