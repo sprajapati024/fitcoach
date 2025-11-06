@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useState, useEffect } from 'react';
-import { Loader2, Dumbbell } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { publicEnv } from '@/lib/env/public';
 import { useSupabase } from '@/components/providers/SupabaseProvider';
 
@@ -94,10 +94,7 @@ export default function Home() {
                   <span className="relative z-10">Getting ready...</span>
                 </>
               ) : (
-                <>
-                  <span className="relative z-10">Start Training</span>
-                  <Dumbbell className="relative z-10 ml-2 h-5 w-5" />
-                </>
+                <span className="relative z-10">Start Training</span>
               )}
             </button>
 
