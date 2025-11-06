@@ -185,6 +185,15 @@ body {
   height: 100svh;
 }
 
+/* ========================================
+   🎬 ROUTE TRANSITIONS
+   iOS-style push/pop animations
+   ======================================== */
+.route-transition-container {
+  width: 100%;
+  will-change: transform, opacity;
+}
+
 @theme inline {
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
