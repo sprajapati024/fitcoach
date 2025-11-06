@@ -1,15 +1,23 @@
-"use client";
+'use client';
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Card } from "@/components/Card";
-import { PrimaryButton } from "@/components/PrimaryButton";
-import { activatePlanAction, deletePlanAction } from "@/app/actions/plan";
-import PlanGenerationProgress from "@/components/PlanGenerationProgress";
-import { WorkoutCalendar } from "@/components/WorkoutCalendar";
-import { CustomPlanBuilder } from "@/components/CustomPlanBuilder";
-import type { plans, workouts, workoutLogs as workoutLogsTable } from "@/drizzle/schema";
-import { Calendar, Trash2, CheckCircle, Plus } from "lucide-react";
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import { activatePlanAction, deletePlanAction } from '@/app/actions/plan';
+import PlanGenerationProgress from '@/components/PlanGenerationProgress';
+import { CompactCalendar } from './CompactCalendar';
+import { CompactPlanCard } from './CompactPlanCard';
+import type { plans, workouts, workoutLogs as workoutLogsTable } from '@/drizzle/schema';
+import {
+  Calendar,
+  CheckCircle,
+  AlertCircle,
+  ChevronDown,
+  ChevronUp,
+  Settings,
+  Plus,
+  Sparkles,
+} from 'lucide-react';
 
 type Plan = typeof plans.$inferSelect;
 type Workout = typeof workouts.$inferSelect;
@@ -34,7 +42,7 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
   const [progressState, setProgressState] = useState<ProgressState>({
     stage: 'initializing',
     message: 'Starting...',
-    percent: 0
+    percent: 0,
   });
   const [isActivating, setIsActivating] = useState(false);
   const [selectedStartDate, setSelectedStartDate] = useState(
@@ -46,19 +54,21 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
   const [isUpdatingStartDate, setIsUpdatingStartDate] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [showCustomPlanBuilder, setShowCustomPlanBuilder] = useState(false);
-  const timezoneLabel = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const [showStartDateSettings, setShowStartDateSettings] = useState(false);
+  const [isGeneratingNextWeek, setIsGeneratingNextWeek] = useState(false);
 
   const calendarLogs = useMemo(
     () =>
       workoutLogs.map((log) => {
         const dateObj = new Date(log.sessionDate);
-        const isoDate = !Number.isNaN(dateObj.getTime()) ? dateObj.toISOString().split("T")[0] : null;
+        const isoDate = !Number.isNaN(dateObj.getTime())
+          ? dateObj.toISOString().split('T')[0]
+          : null;
         const status =
           Number(log.totalDurationMinutes ?? 0) === 0 ||
-          (log.notes ?? "").toLowerCase().startsWith("skipped")
-            ? "skipped"
-            : "completed";
+          (log.notes ?? '').toLowerCase().startsWith('skipped')
+            ? 'skipped'
+            : 'completed';
 
         return {
           workoutId: log.workoutId,
@@ -66,7 +76,7 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
           status,
         } as const;
       }),
-    [workoutLogs],
+    [workoutLogs]
   );
 
   useEffect(() => {
@@ -74,8 +84,6 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
       setStartDateUpdate(activePlan.startDate);
     }
   }, [activePlan?.startDate]);
-
-  const [isGeneratingNextWeek, setIsGeneratingNextWeek] = useState(false);
 
   const handleGenerateNextWeek = async () => {
     if (!activePlan) return;
@@ -99,10 +107,10 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
         throw new Error(data.error || 'Failed to generate next week');
       }
 
-      setSuccess(`Week ${data.weekNumber} generated successfully! (${data.phase} phase)`);
+      setSuccess(`Week ${data.weekNumber} generated!`);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to generate next week");
+      setError(err instanceof Error ? err.message : 'Failed to generate next week');
     } finally {
       setIsGeneratingNextWeek(false);
     }
@@ -115,7 +123,7 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
     setProgressState({
       stage: 'initializing',
       message: 'Starting plan generation...',
-      percent: 0
+      percent: 0,
     });
 
     try {
@@ -138,7 +146,6 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
 
         if (done) break;
 
-        // Decode the chunk and split by newlines
         const chunk = decoder.decode(value, { stream: true });
         const lines = chunk.split('\n');
 
@@ -151,12 +158,14 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
                 setProgressState({
                   stage: data.stage,
                   message: data.message,
-                  percent: data.percent
+                  percent: data.percent,
                 });
               } else if (data.type === 'complete') {
                 setIsGenerating(false);
                 const warnings = data.data.warnings?.length || 0;
-                setSuccess(`Plan generated successfully! ${warnings ? `(${warnings} adjustments made)` : ""}`);
+                setSuccess(
+                  `Plan generated! ${warnings ? `(${warnings} adjustments)` : ''}`
+                );
                 router.refresh();
                 return;
               } else if (data.type === 'error') {
@@ -173,7 +182,7 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
 
       setIsGenerating(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to generate plan");
+      setError(err instanceof Error ? err.message : 'Failed to generate plan');
       setIsGenerating(false);
     }
   };
@@ -185,10 +194,10 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
 
     try {
       await activatePlanAction({ planId, startDate: selectedStartDate });
-      setSuccess("Plan activated successfully!");
+      setSuccess('Plan activated!');
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to activate plan");
+      setError(err instanceof Error ? err.message : 'Failed to activate plan');
     } finally {
       setIsActivating(false);
     }
@@ -197,7 +206,7 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
   const handleUpdateStartDate = async () => {
     if (!activePlan) return;
     if (!startDateUpdate) {
-      setError("Please choose a start date");
+      setError('Please choose a start date');
       return;
     }
 
@@ -207,34 +216,35 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
 
     try {
       await activatePlanAction({ planId: activePlan.id, startDate: startDateUpdate });
-      setSuccess("Plan start date updated.");
+      setSuccess('Start date updated!');
+      setShowStartDateSettings(false);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update start date");
+      setError(err instanceof Error ? err.message : 'Failed to update start date');
     } finally {
       setIsUpdatingStartDate(false);
     }
   };
 
   const handleDeletePlan = async (planId: string) => {
-    if (!confirm("Are you sure you want to delete this plan?")) return;
+    if (!confirm('Delete this plan? This cannot be undone.')) return;
 
     setError(null);
     setSuccess(null);
 
     try {
       await deletePlanAction(planId);
-      setSuccess("Plan deleted successfully");
+      setSuccess('Plan deleted');
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete plan");
+      setError(err instanceof Error ? err.message : 'Failed to delete plan');
     }
   };
 
   // Case 1: No plans exist
   if (userPlans.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16">
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center px-3">
         {isGenerating ? (
           <PlanGenerationProgress
             stage={progressState.stage}
@@ -242,51 +252,66 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
             percent={progressState.percent}
           />
         ) : (
-          <Card className="max-w-md text-center">
-            <Calendar className="mx-auto mb-4 h-12 w-12 text-text-muted" />
-            <h2 className="mb-2 text-xl font-semibold">No Training Plan Yet</h2>
-            <p className="mb-6 text-sm text-text-muted">
-              Let&apos;s create your personalized training plan based on your profile and goals.
-            </p>
-            {error && (
-              <div className="mb-4 rounded border border-surface-border bg-surface-2 p-3 text-sm text-text-secondary">
-                {error}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="w-full max-w-md space-y-4"
+          >
+            {/* Icon and message */}
+            <div className="text-center space-y-2">
+              <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-gradient-to-br from-cyan-500/20 to-indigo-600/20 mb-2">
+                <Calendar className="h-8 w-8 text-cyan-500" />
               </div>
-            )}
-            <div className="flex flex-col gap-3">
-              <PrimaryButton onClick={handleGeneratePlan} loading={isGenerating}>
-                Generate My Plan with AI
-              </PrimaryButton>
-              <button
-                onClick={() => setShowCustomPlanBuilder(true)}
-                className="flex items-center justify-center gap-2 px-6 py-3 bg-surface-2 hover:bg-surface-3 text-neutral-200 rounded-lg border border-border"
-              >
-                <Plus className="h-5 w-5" />
-                Create Custom Plan
-              </button>
+              <h2 className="text-lg font-semibold text-white">No Training Plan Yet</h2>
+              <p className="text-sm text-gray-400">
+                Let's create your personalized plan based on your profile
+              </p>
             </div>
-          </Card>
-        )}
 
-        <CustomPlanBuilder
-          isOpen={showCustomPlanBuilder}
-          onClose={() => setShowCustomPlanBuilder(false)}
-          onSuccess={() => {
-            setShowCustomPlanBuilder(false);
-            setSuccess("Custom plan created successfully!");
-          }}
-        />
+            {/* Error message */}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400"
+              >
+                <AlertCircle className="inline h-4 w-4 mr-2" />
+                {error}
+              </motion.div>
+            )}
+
+            {/* Generate button */}
+            <button
+              onClick={handleGeneratePlan}
+              disabled={isGenerating}
+              className="w-full flex items-center justify-center gap-2 h-12 rounded-lg bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-semibold transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Sparkles className="h-5 w-5" />
+              Generate My Plan with AI
+            </button>
+
+            {/* Custom plan button */}
+            <button
+              onClick={() => router.push('/plan/custom')}
+              className="w-full flex items-center justify-center gap-2 h-12 rounded-lg border border-gray-800 bg-gray-900 text-gray-300 font-medium transition active:scale-95 hover:bg-gray-800"
+            >
+              <Plus className="h-5 w-5" />
+              Create Custom Plan
+            </button>
+          </motion.div>
+        )}
       </div>
     );
   }
 
   // Case 2: Plans exist but none active - show activation UI
   if (!activePlan) {
-    const latestPlan = userPlans[0]; // Most recent plan
+    const latestPlan = userPlans[0];
 
     if (isGenerating) {
       return (
-        <div className="flex flex-col items-center justify-center py-16">
+        <div className="min-h-screen bg-gray-950 flex items-center justify-center px-3">
           <PlanGenerationProgress
             stage={progressState.stage}
             message={progressState.message}
@@ -297,30 +322,53 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
     }
 
     return (
-      <div className="space-y-6">
-        {success && (
-          <Card className="border-text-muted bg-surface-2 p-4 text-sm text-text-primary">
-            <CheckCircle className="mb-2 inline h-4 w-4" /> {success}
-          </Card>
-        )}
-        {error && (
-          <Card className="border-surface-border bg-surface-2 p-4 text-sm text-text-secondary">{error}</Card>
-        )}
+      <div className="min-h-screen bg-gray-950">
+        <main className="mx-auto max-w-md px-3 py-4 space-y-3">
+          {/* Success message */}
+          {success && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-lg border border-green-500/30 bg-green-500/10 p-3 text-sm text-green-400"
+            >
+              <CheckCircle className="inline h-4 w-4 mr-2" />
+              {success}
+            </motion.div>
+          )}
 
-        <Card>
-          <h2 className="mb-4 text-lg font-semibold">Activate Your Plan</h2>
-          <div className="mb-4">
-            <h3 className="mb-2 font-medium">{latestPlan.title}</h3>
-            <p className="text-sm text-fg2">{latestPlan.summary}</p>
-            <div className="mt-3 flex gap-4 text-sm text-fg2">
-              <span>{latestPlan.durationWeeks} weeks</span>
-              <span>{latestPlan.daysPerWeek} days/week</span>
-              <span>{latestPlan.minutesPerSession} min/session</span>
-            </div>
-          </div>
+          {/* Error message */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400"
+            >
+              <AlertCircle className="inline h-4 w-4 mr-2" />
+              {error}
+            </motion.div>
+          )}
 
-          <div className="mb-4">
-            <label htmlFor="startDate" className="mb-2 block text-sm font-medium">
+          {/* Page title */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <h1 className="text-xl font-semibold text-white mb-1">Activate Your Plan</h1>
+            <p className="text-sm text-gray-400">Choose a start date to begin</p>
+          </motion.div>
+
+          {/* Plan card */}
+          <CompactPlanCard plan={latestPlan} delay={0.1} />
+
+          {/* Start date picker */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+            className="rounded-lg border border-gray-800 bg-gray-900 p-3 space-y-3"
+          >
+            <label htmlFor="startDate" className="block text-sm font-medium text-white">
               Start Date
             </label>
             <input
@@ -329,36 +377,25 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
               value={selectedStartDate}
               onChange={(e) => setSelectedStartDate(e.target.value)}
               min={new Date().toISOString().slice(0, 10)}
-              className="h-12 w-full rounded border border-surface-border bg-surface-2 px-4 text-text-primary focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
+              className="w-full h-12 rounded-lg border border-gray-800 bg-gray-950 px-4 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
             />
-            <p className="mt-2 text-xs text-text-muted">
-              Workouts will align to this date once you activate the plan. Local timezone: {timezoneLabel}.
+            <p className="text-xs text-gray-500">
+              Workouts will align to this date once activated
             </p>
-          </div>
+          </motion.div>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <PrimaryButton
-              onClick={() => handleActivatePlan(latestPlan.id)}
-              loading={isActivating}
-              className="flex-1"
-            >
-              Start Plan
-            </PrimaryButton>
-            <button
-              onClick={() => handleDeletePlan(latestPlan.id)}
-              className="touch-feedback flex h-12 items-center justify-center rounded border border-surface-border px-4 text-sm text-text-muted transition-all active:bg-surface-2 sm:w-auto"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          </div>
-        </Card>
-
-        <Card>
-          <h3 className="mb-3 text-sm font-medium">Want a different plan?</h3>
-          <PrimaryButton onClick={handleGeneratePlan} loading={isGenerating}>
-            Generate New Plan
-          </PrimaryButton>
-        </Card>
+          {/* Activate button */}
+          <motion.button
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.3 }}
+            onClick={() => handleActivatePlan(latestPlan.id)}
+            disabled={isActivating}
+            className="w-full flex items-center justify-center gap-2 h-12 rounded-lg bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-semibold transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Start Plan
+          </motion.button>
+        </main>
       </div>
     );
   }
@@ -366,7 +403,7 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
   // Case 3: Active plan exists - show calendar view
   if (isGenerating) {
     return (
-      <div className="flex flex-col items-center justify-center py-16">
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center px-3">
         <PlanGenerationProgress
           stage={progressState.stage}
           message={progressState.message}
@@ -377,114 +414,178 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
   }
 
   return (
-    <div className="space-y-6">
-      {success && (
-        <Card className="border-text-muted bg-surface-2 p-4 text-sm text-text-primary">
-          <CheckCircle className="mb-2 inline h-4 w-4" /> {success}
-        </Card>
-      )}
+    <div className="min-h-screen bg-gray-950">
+      <main className="mx-auto max-w-md px-3 py-4 space-y-3 pb-24">
+        {/* Success message */}
+        {success && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-lg border border-green-500/30 bg-green-500/10 p-3 text-sm text-green-400"
+          >
+            <CheckCircle className="inline h-4 w-4 mr-2" />
+            {success}
+          </motion.div>
+        )}
 
-      <Card>
-        <div className="mb-4 flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-          <div className="flex-1">
-            <h2 className="text-lg font-semibold">{activePlan.title}</h2>
-            <p className="text-sm text-text-muted">{activePlan.summary}</p>
-            <div className="mt-2 flex flex-wrap gap-4 text-sm text-text-muted">
-              <span>{activePlan.durationWeeks} weeks</span>
-              <span>{activePlan.daysPerWeek} days/week</span>
-              <span>Started: {activePlan.startDate || "Not set"}</span>
-            </div>
-            <p className="mt-2 text-xs text-text-muted">
-              Calendar times shown in your local timezone: {timezoneLabel}.
-            </p>
-          </div>
-          <div className="w-full rounded border border-surface-border bg-surface-2 p-4 md:mt-0 md:w-auto md:min-w-[320px]">
-            <h3 className="text-sm font-medium text-text-primary">Adjust start date</h3>
-            <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center">
-              <input
-                type="date"
-                value={startDateUpdate}
-                onChange={(e) => setStartDateUpdate(e.target.value)}
-                className="h-12 rounded border border-surface-border bg-surface-0 px-4 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
-              />
-              <PrimaryButton
-                onClick={handleUpdateStartDate}
-                loading={isUpdatingStartDate}
-                disabled={!startDateUpdate || startDateUpdate === (activePlan.startDate || "")}
-                className="w-full md:w-auto"
-              >
-                Update Start Date
-              </PrimaryButton>
-            </div>
-            <p className="mt-2 text-xs text-text-muted">
-              We&apos;ll realign every workout in the calendar to the date you choose.
-            </p>
-          </div>
-        </div>
+        {/* Error message */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400"
+          >
+            <AlertCircle className="inline h-4 w-4 mr-2" />
+            {error}
+          </motion.div>
+        )}
 
-        {/* Calendar Grid */}
-        <div className="mt-6">
-          <WorkoutCalendar
+        {/* Plan header */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="space-y-1"
+        >
+          <h1 className="text-xl font-semibold text-white">{activePlan.title}</h1>
+          <p className="text-sm text-gray-400">{activePlan.summary}</p>
+        </motion.div>
+
+        {/* Calendar */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+          className="rounded-lg border border-gray-800 bg-gray-900 p-3"
+        >
+          <CompactCalendar
             workouts={workouts}
             weeks={activePlan.durationWeeks}
-            startDate={activePlan.startDate || new Date().toISOString().split("T")[0]}
+            startDate={activePlan.startDate || new Date().toISOString().split('T')[0]}
             logs={calendarLogs}
           />
+        </motion.div>
 
-          {/* Adaptive Planning Info & Generate Next Week */}
-          {workouts.length > 0 && (
-            <div className="mt-6 space-y-4">
-              {/* Show adaptive planning message if only Week 1 exists */}
-              {workouts.every(w => w.weekIndex === 0) && (
-                <div className="rounded-lg border border-surface-border bg-surface-1 p-4">
-                  <p className="text-sm text-text-secondary">
-                    <span className="font-medium text-text-primary">Adaptive Planning: </span>
-                    Your plan adapts week-by-week based on performance. Complete Week 1 to unlock Week 2 generation.
+        {/* Adaptive Planning Info & Generate Next Week */}
+        {workouts.length > 0 && (() => {
+          const maxWeek = Math.max(...workouts.map((w) => w.weekNumber));
+          const currentWeekWorkouts = workouts.filter((w) => w.weekNumber === maxWeek);
+          const currentWeekLogs = calendarLogs.filter((log) =>
+            currentWeekWorkouts.some((w) => w.id === log.workoutId)
+          );
+          const hasAnyProgress = currentWeekLogs.length > 0;
+          const canGenerateNext = maxWeek < activePlan.durationWeeks;
+          const showAdaptiveMessage = workouts.every((w) => w.weekIndex === 0);
+
+          return (
+            <>
+              {showAdaptiveMessage && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.2 }}
+                  className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-3"
+                >
+                  <p className="text-sm text-cyan-400">
+                    <span className="font-medium">Adaptive Planning: </span>
+                    Complete Week 1 to unlock Week 2 generation
                   </p>
-                </div>
+                </motion.div>
               )}
 
-              {/* Show Generate Next Week button if current week has progress */}
-              {(() => {
-                const maxWeek = Math.max(...workouts.map(w => w.weekNumber));
-                const currentWeekWorkouts = workouts.filter(w => w.weekNumber === maxWeek);
-                const currentWeekLogs = calendarLogs.filter(log =>
-                  currentWeekWorkouts.some(w => w.id === log.workoutId)
-                );
-                const hasAnyProgress = currentWeekLogs.length > 0;
-                const canGenerateNext = maxWeek < activePlan.durationWeeks;
-
-                return hasAnyProgress && canGenerateNext && (
-                  <div className="rounded-lg border border-surface-border bg-surface-1 p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-text-primary">Ready for Week {maxWeek + 1}?</p>
-                        <p className="mt-1 text-xs text-text-muted">
-                          Week {maxWeek} progress detected. Generate your next week based on performance.
-                        </p>
-                      </div>
-                      <PrimaryButton
-                        onClick={handleGenerateNextWeek}
-                        loading={isGeneratingNextWeek}
-                        className="ml-4 whitespace-nowrap"
-                      >
-                        Generate Week {maxWeek + 1}
-                      </PrimaryButton>
-                    </div>
+              {hasAnyProgress && canGenerateNext && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.2 }}
+                  className="rounded-lg border border-gray-800 bg-gray-900 p-3 space-y-2"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-white">
+                      Ready for Week {maxWeek + 1}?
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Week {maxWeek} progress detected
+                    </p>
                   </div>
-                );
-              })()}
-            </div>
-          )}
-        </div>
-      </Card>
+                  <button
+                    onClick={handleGenerateNextWeek}
+                    disabled={isGeneratingNextWeek}
+                    className="w-full flex items-center justify-center gap-2 h-10 rounded-lg bg-gradient-to-r from-cyan-500 to-indigo-600 text-white text-sm font-semibold transition active:scale-95 disabled:opacity-50"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    Generate Week {maxWeek + 1}
+                  </button>
+                </motion.div>
+              )}
+            </>
+          );
+        })()}
 
-      <Card>
-        <h3 className="mb-3 text-sm font-medium text-text-muted">Need a new plan?</h3>
-        <PrimaryButton onClick={handleGeneratePlan} loading={isGenerating}>
-          Generate New Plan
-        </PrimaryButton>
-      </Card>
+        {/* Settings - Collapsible */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+          className="rounded-lg border border-gray-800 bg-gray-900 overflow-hidden"
+        >
+          <button
+            onClick={() => setShowStartDateSettings(!showStartDateSettings)}
+            className="w-full flex items-center justify-between p-3 hover:bg-gray-800/50 transition"
+          >
+            <div className="flex items-center gap-2">
+              <Settings className="h-4 w-4 text-gray-400" />
+              <span className="text-sm font-medium text-white">Plan Settings</span>
+            </div>
+            {showStartDateSettings ? (
+              <ChevronUp className="h-4 w-4 text-gray-400" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-gray-400" />
+            )}
+          </button>
+
+          <AnimatePresence>
+            {showStartDateSettings && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="border-t border-gray-800"
+              >
+                <div className="p-3 space-y-3">
+                  <div>
+                    <label htmlFor="startDateUpdate" className="block text-sm font-medium text-white mb-2">
+                      Adjust Start Date
+                    </label>
+                    <input
+                      type="date"
+                      id="startDateUpdate"
+                      value={startDateUpdate}
+                      onChange={(e) => setStartDateUpdate(e.target.value)}
+                      className="w-full h-10 rounded-lg border border-gray-800 bg-gray-950 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
+                    />
+                    <p className="text-xs text-gray-500 mt-2">
+                      All workouts will realign to this date
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleUpdateStartDate}
+                    disabled={
+                      isUpdatingStartDate ||
+                      !startDateUpdate ||
+                      startDateUpdate === (activePlan.startDate || '')
+                    }
+                    className="w-full h-10 rounded-lg bg-gray-800 text-white text-sm font-medium transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-700"
+                  >
+                    Update Start Date
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </main>
     </div>
   );
 }
