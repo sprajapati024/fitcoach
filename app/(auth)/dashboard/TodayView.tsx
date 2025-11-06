@@ -6,7 +6,6 @@ import { CompactHeroCard } from './CompactHeroCard';
 import { CompactNutrition } from './CompactNutrition';
 import { QuickActions } from './QuickActions';
 import { CompactCoachBrief } from './CompactCoachBrief';
-import { FloatingActionButton } from './FloatingActionButton';
 import type { workouts } from '@/drizzle/schema';
 
 type Workout = typeof workouts.$inferSelect;
@@ -38,12 +37,12 @@ export function TodayView({ workout, userId, userName, nutrition }: TodayViewPro
   const streakDays = 12;
 
   return (
-    <div className="min-h-screen bg-gray-950 -mx-4 -mt-6">
+    <div className="min-h-screen bg-gray-950 -mx-4 -mt-6 -mb-32">
       {/* Compact Header */}
       <CompactHeader userName={userName} />
 
       {/* Main Content - Phone App Style */}
-      <main className="mx-auto max-w-md px-3 py-4 space-y-3 pb-24">
+      <main className="mx-auto max-w-md px-3 pt-4 pb-20 space-y-3">
         {/* Streak Badge + Greeting */}
         <div className="space-y-1.5">
           <StreakBadge days={streakDays} />
@@ -67,9 +66,6 @@ export function TodayView({ workout, userId, userName, nutrition }: TodayViewPro
         {/* Coach Brief (Collapsible) */}
         <CompactCoachBrief userId={userId} />
       </main>
-
-      {/* Floating Action Button */}
-      <FloatingActionButton workoutId={workout?.id} hasWorkout={!!workout} />
     </div>
   );
 }
