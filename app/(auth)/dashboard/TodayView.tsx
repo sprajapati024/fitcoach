@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { CoachBrief } from './CoachBrief';
-import { MacroRings } from './MacroRings';
 import type { workouts, WorkoutPayload } from '@/drizzle/schema';
 import { Dumbbell, Clock, Zap, ChevronRight } from 'lucide-react';
 
@@ -27,30 +26,112 @@ export function TodayView({ workout, userId, userName, nutrition }: TodayViewPro
             <CoachBrief userId={userId} userName={userName} />
           </div>
 
-          {/* Rest Day Card - 1 column on desktop */}
-          <div className="rounded-xl border border-surface-border bg-surface-1 p-4 text-center">
+          {/* Nutrition Card with Horizontal Bars - 1 column on desktop */}
+          {nutrition && (
+            <Link
+              href="/nutrition"
+              className="group rounded-xl border border-surface-border bg-gradient-to-br from-indigo-500/5 to-surface-1 p-4 transition-all hover:border-indigo-500/50 hover:shadow-lg active:scale-[0.98]"
+            >
+              <div className="space-y-4">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-text-primary">Today&apos;s Nutrition</h3>
+                  <ChevronRight className="h-4 w-4 text-text-muted transition-transform group-hover:translate-x-1" />
+                </div>
+
+                {/* Calories */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-medium text-text-secondary">Calories</span>
+                    <span className="font-semibold text-text-primary">
+                      {nutrition.summary?.totalCalories || 0} / {nutrition.goals?.targetCalories || 2000}
+                    </span>
+                  </div>
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-surface-0">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-indigo-400 transition-all duration-500"
+                      style={{ width: `${Math.min(((nutrition.summary?.totalCalories || 0) / (nutrition.goals?.targetCalories || 2000)) * 100, 100)}%` }}
+                    />
+                  </div>
+                  <div className="text-right text-[10px] font-semibold text-indigo-500">
+                    {Math.round(Math.min(((nutrition.summary?.totalCalories || 0) / (nutrition.goals?.targetCalories || 2000)) * 100, 100))}%
+                  </div>
+                </div>
+
+                {/* Protein */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-medium text-text-secondary">Protein</span>
+                    <span className="font-semibold text-text-primary">
+                      {parseFloat(nutrition.summary?.totalProtein || '0')}g / {parseFloat(nutrition.goals?.targetProteinGrams || '150')}g
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-0">
+                      <div
+                        className="h-full rounded-full bg-cyan-500 transition-all duration-500"
+                        style={{ width: `${Math.min((parseFloat(nutrition.summary?.totalProtein || '0') / parseFloat(nutrition.goals?.targetProteinGrams || '150')) * 100, 100)}%` }}
+                      />
+                    </div>
+                    <span className="text-[10px] font-semibold text-cyan-500">
+                      {Math.round(Math.min((parseFloat(nutrition.summary?.totalProtein || '0') / parseFloat(nutrition.goals?.targetProteinGrams || '150')) * 100, 100))}%
+                    </span>
+                  </div>
+                </div>
+
+                {/* Carbs */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-medium text-text-secondary">Carbs</span>
+                    <span className="font-semibold text-text-primary">
+                      {parseFloat(nutrition.summary?.totalCarbs || '0')}g / {parseFloat(nutrition.goals?.targetCarbsGrams || '200')}g
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-0">
+                      <div
+                        className="h-full rounded-full bg-indigo-500 transition-all duration-500"
+                        style={{ width: `${Math.min((parseFloat(nutrition.summary?.totalCarbs || '0') / parseFloat(nutrition.goals?.targetCarbsGrams || '200')) * 100, 100)}%` }}
+                      />
+                    </div>
+                    <span className="text-[10px] font-semibold text-indigo-500">
+                      {Math.round(Math.min((parseFloat(nutrition.summary?.totalCarbs || '0') / parseFloat(nutrition.goals?.targetCarbsGrams || '200')) * 100, 100))}%
+                    </span>
+                  </div>
+                </div>
+
+                {/* Fat */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-medium text-text-secondary">Fat</span>
+                    <span className="font-semibold text-text-primary">
+                      {parseFloat(nutrition.summary?.totalFat || '0')}g / {parseFloat(nutrition.goals?.targetFatGrams || '65')}g
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-0">
+                      <div
+                        className="h-full rounded-full bg-purple-500 transition-all duration-500"
+                        style={{ width: `${Math.min((parseFloat(nutrition.summary?.totalFat || '0') / parseFloat(nutrition.goals?.targetFatGrams || '65')) * 100, 100)}%` }}
+                      />
+                    </div>
+                    <span className="text-[10px] font-semibold text-purple-500">
+                      {Math.round(Math.min((parseFloat(nutrition.summary?.totalFat || '0') / parseFloat(nutrition.goals?.targetFatGrams || '65')) * 100, 100))}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          )}
+
+          {/* Rest Day Card - Full width */}
+          <div className="rounded-xl border border-surface-border bg-surface-1 p-4 text-center md:col-span-4">
             <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-cyan-500/20">
               <Zap className="h-8 w-8 text-cyan-500" />
             </div>
             <h3 className="mb-1 text-sm font-semibold text-text-primary">Rest Day</h3>
             <p className="text-xs text-text-muted">Recovery is progress</p>
           </div>
-
-          {/* Macro Rings - Full width */}
-          {nutrition && (
-            <div className="md:col-span-4">
-              <MacroRings
-                protein={parseFloat(nutrition.summary?.totalProtein || '0')}
-                carbs={parseFloat(nutrition.summary?.totalCarbs || '0')}
-                fat={parseFloat(nutrition.summary?.totalFat || '0')}
-                totalCalories={nutrition.summary?.totalCalories || 0}
-                proteinGoal={parseFloat(nutrition.goals?.targetProteinGrams || '150')}
-                carbsGoal={parseFloat(nutrition.goals?.targetCarbsGrams || '200')}
-                fatGoal={parseFloat(nutrition.goals?.targetFatGrams || '65')}
-                caloriesGoal={nutrition.goals?.targetCalories || 2000}
-              />
-            </div>
-          )}
         </div>
       </div>
     );
@@ -72,154 +153,102 @@ export function TodayView({ workout, userId, userName, nutrition }: TodayViewPro
           <CoachBrief userId={userId} userName={userName} />
         </div>
 
-        {/* Calories Quick Stat - 1 column on desktop */}
+        {/* Nutrition Card with Horizontal Bars - 1 column on desktop */}
         {nutrition && (
           <Link
             href="/nutrition"
             className="group rounded-xl border border-surface-border bg-gradient-to-br from-indigo-500/5 to-surface-1 p-4 transition-all hover:border-indigo-500/50 hover:shadow-lg active:scale-[0.98]"
           >
-            <div className="text-center">
-              <div className="relative mx-auto mb-3 h-16 w-16">
-                <svg className="h-full w-full -rotate-90 transform">
-                  <circle
-                    cx="32"
-                    cy="32"
-                    r="28"
-                    stroke="currentColor"
-                    strokeWidth="5"
-                    fill="none"
-                    className="text-surface-0"
+            <div className="space-y-4">
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-text-primary">Today&apos;s Nutrition</h3>
+                <ChevronRight className="h-4 w-4 text-text-muted transition-transform group-hover:translate-x-1" />
+              </div>
+
+              {/* Calories */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-medium text-text-secondary">Calories</span>
+                  <span className="font-semibold text-text-primary">
+                    {nutrition.summary?.totalCalories || 0} / {nutrition.goals?.targetCalories || 2000}
+                  </span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-surface-0">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-indigo-400 transition-all duration-500"
+                    style={{ width: `${Math.min(((nutrition.summary?.totalCalories || 0) / (nutrition.goals?.targetCalories || 2000)) * 100, 100)}%` }}
                   />
-                  <circle
-                    cx="32"
-                    cy="32"
-                    r="28"
-                    stroke="currentColor"
-                    strokeWidth="5"
-                    fill="none"
-                    strokeDasharray={`${2 * Math.PI * 28}`}
-                    strokeDashoffset={`${2 * Math.PI * 28 * (1 - Math.min((nutrition.summary?.totalCalories || 0) / (nutrition.goals?.targetCalories || 2000), 1))}`}
-                    className="text-indigo-500 transition-all duration-500"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xs font-bold text-text-primary">
-                    {Math.round(Math.min(((nutrition.summary?.totalCalories || 0) / (nutrition.goals?.targetCalories || 2000)) * 100, 100))}%
+                </div>
+                <div className="text-right text-[10px] font-semibold text-indigo-500">
+                  {Math.round(Math.min(((nutrition.summary?.totalCalories || 0) / (nutrition.goals?.targetCalories || 2000)) * 100, 100))}%
+                </div>
+              </div>
+
+              {/* Protein */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-medium text-text-secondary">Protein</span>
+                  <span className="font-semibold text-text-primary">
+                    {parseFloat(nutrition.summary?.totalProtein || '0')}g / {parseFloat(nutrition.goals?.targetProteinGrams || '150')}g
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-0">
+                    <div
+                      className="h-full rounded-full bg-cyan-500 transition-all duration-500"
+                      style={{ width: `${Math.min((parseFloat(nutrition.summary?.totalProtein || '0') / parseFloat(nutrition.goals?.targetProteinGrams || '150')) * 100, 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-[10px] font-semibold text-cyan-500">
+                    {Math.round(Math.min((parseFloat(nutrition.summary?.totalProtein || '0') / parseFloat(nutrition.goals?.targetProteinGrams || '150')) * 100, 100))}%
                   </span>
                 </div>
               </div>
-              <p className="mb-1 text-sm font-semibold text-text-primary">
-                {nutrition.summary?.totalCalories || 0}
-              </p>
-              <p className="mb-1 text-xs text-text-muted">of {nutrition.goals?.targetCalories || 2000} cal</p>
-              <p className="text-xs text-indigo-500 opacity-0 transition-opacity group-hover:opacity-100">View →</p>
+
+              {/* Carbs */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-medium text-text-secondary">Carbs</span>
+                  <span className="font-semibold text-text-primary">
+                    {parseFloat(nutrition.summary?.totalCarbs || '0')}g / {parseFloat(nutrition.goals?.targetCarbsGrams || '200')}g
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-0">
+                    <div
+                      className="h-full rounded-full bg-indigo-500 transition-all duration-500"
+                      style={{ width: `${Math.min((parseFloat(nutrition.summary?.totalCarbs || '0') / parseFloat(nutrition.goals?.targetCarbsGrams || '200')) * 100, 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-[10px] font-semibold text-indigo-500">
+                    {Math.round(Math.min((parseFloat(nutrition.summary?.totalCarbs || '0') / parseFloat(nutrition.goals?.targetCarbsGrams || '200')) * 100, 100))}%
+                  </span>
+                </div>
+              </div>
+
+              {/* Fat */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-medium text-text-secondary">Fat</span>
+                  <span className="font-semibold text-text-primary">
+                    {parseFloat(nutrition.summary?.totalFat || '0')}g / {parseFloat(nutrition.goals?.targetFatGrams || '65')}g
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-0">
+                    <div
+                      className="h-full rounded-full bg-purple-500 transition-all duration-500"
+                      style={{ width: `${Math.min((parseFloat(nutrition.summary?.totalFat || '0') / parseFloat(nutrition.goals?.targetFatGrams || '65')) * 100, 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-[10px] font-semibold text-purple-500">
+                    {Math.round(Math.min((parseFloat(nutrition.summary?.totalFat || '0') / parseFloat(nutrition.goals?.targetFatGrams || '65')) * 100, 100))}%
+                  </span>
+                </div>
+              </div>
             </div>
           </Link>
-        )}
-
-        {/* Macro Cards - 3 small cards */}
-        {nutrition && (
-          <>
-            {/* Protein */}
-            <Link
-              href="/nutrition"
-              className="group rounded-xl border border-surface-border bg-surface-1 p-4 transition-all hover:border-cyan-500/50 hover:shadow-lg active:scale-[0.98]"
-            >
-              <div className="text-center">
-                <div className="relative mx-auto mb-2 h-12 w-12">
-                  <svg className="h-full w-full -rotate-90 transform">
-                    <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="4" fill="none" className="text-surface-0" />
-                    <circle
-                      cx="24"
-                      cy="24"
-                      r="20"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                      fill="none"
-                      strokeDasharray={`${2 * Math.PI * 20}`}
-                      strokeDashoffset={`${2 * Math.PI * 20 * (1 - Math.min((parseFloat(nutrition.summary?.totalProtein || '0') / parseFloat(nutrition.goals?.targetProteinGrams || '150')), 1))}`}
-                      className="text-cyan-500 transition-all duration-500"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-[10px] font-bold text-text-primary">
-                      {Math.round(Math.min((parseFloat(nutrition.summary?.totalProtein || '0') / parseFloat(nutrition.goals?.targetProteinGrams || '150')) * 100, 100))}%
-                    </span>
-                  </div>
-                </div>
-                <p className="mb-1 text-sm font-semibold text-text-primary">{parseFloat(nutrition.summary?.totalProtein || '0')}g</p>
-                <p className="text-xs text-text-muted">Protein</p>
-              </div>
-            </Link>
-
-            {/* Carbs */}
-            <Link
-              href="/nutrition"
-              className="group rounded-xl border border-surface-border bg-surface-1 p-4 transition-all hover:border-indigo-500/50 hover:shadow-lg active:scale-[0.98]"
-            >
-              <div className="text-center">
-                <div className="relative mx-auto mb-2 h-12 w-12">
-                  <svg className="h-full w-full -rotate-90 transform">
-                    <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="4" fill="none" className="text-surface-0" />
-                    <circle
-                      cx="24"
-                      cy="24"
-                      r="20"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                      fill="none"
-                      strokeDasharray={`${2 * Math.PI * 20}`}
-                      strokeDashoffset={`${2 * Math.PI * 20 * (1 - Math.min((parseFloat(nutrition.summary?.totalCarbs || '0') / parseFloat(nutrition.goals?.targetCarbsGrams || '200')), 1))}`}
-                      className="text-indigo-500 transition-all duration-500"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-[10px] font-bold text-text-primary">
-                      {Math.round(Math.min((parseFloat(nutrition.summary?.totalCarbs || '0') / parseFloat(nutrition.goals?.targetCarbsGrams || '200')) * 100, 100))}%
-                    </span>
-                  </div>
-                </div>
-                <p className="mb-1 text-sm font-semibold text-text-primary">{parseFloat(nutrition.summary?.totalCarbs || '0')}g</p>
-                <p className="text-xs text-text-muted">Carbs</p>
-              </div>
-            </Link>
-
-            {/* Fat */}
-            <Link
-              href="/nutrition"
-              className="group rounded-xl border border-surface-border bg-surface-1 p-4 transition-all hover:border-purple-500/50 hover:shadow-lg active:scale-[0.98]"
-            >
-              <div className="text-center">
-                <div className="relative mx-auto mb-2 h-12 w-12">
-                  <svg className="h-full w-full -rotate-90 transform">
-                    <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="4" fill="none" className="text-surface-0" />
-                    <circle
-                      cx="24"
-                      cy="24"
-                      r="20"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                      fill="none"
-                      strokeDasharray={`${2 * Math.PI * 20}`}
-                      strokeDashoffset={`${2 * Math.PI * 20 * (1 - Math.min((parseFloat(nutrition.summary?.totalFat || '0') / parseFloat(nutrition.goals?.targetFatGrams || '65')), 1))}`}
-                      className="text-purple-500 transition-all duration-500"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-[10px] font-bold text-text-primary">
-                      {Math.round(Math.min((parseFloat(nutrition.summary?.totalFat || '0') / parseFloat(nutrition.goals?.targetFatGrams || '65')) * 100, 100))}%
-                    </span>
-                  </div>
-                </div>
-                <p className="mb-1 text-sm font-semibold text-text-primary">{parseFloat(nutrition.summary?.totalFat || '0')}g</p>
-                <p className="text-xs text-text-muted">Fat</p>
-              </div>
-            </Link>
-          </>
         )}
 
         {/* Workout Card - Full width */}
