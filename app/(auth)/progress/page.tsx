@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { workoutLogs, workoutLogSets } from "@/drizzle/schema";
 import { desc, eq, sql } from "drizzle-orm";
-import { Card } from "@/components/Card";
+import { ProgressView } from "./ProgressView";
 
 function toIsoDate(value: string | Date | null): Date | null {
   if (!value) return null;
@@ -36,7 +36,7 @@ export default async function ProgressPage() {
     .innerJoin(workoutLogs, eq(workoutLogs.id, workoutLogSets.logId))
     .where(eq(workoutLogs.userId, user.id));
 
-  const totalSets = totalSetsResult[0]?.totalSets ?? 0;
+  const totalSets = Number(totalSetsResult[0]?.totalSets ?? 0);
 
   const completedLogs = logs.filter((log) => Number(log.totalDurationMinutes ?? 0) > 0);
   const skippedLogs = logs.filter((log) => Number(log.totalDurationMinutes ?? 0) === 0);
@@ -74,76 +74,19 @@ export default async function ProgressPage() {
   const lastWorkoutDate = toIsoDate(lastWorkout?.sessionDate)?.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
-  });
+  }) ?? null;
 
   return (
-    <div className="min-h-screen bg-surface-0 p-4 text-text-primary md:p-6">
-      <div className="mx-auto flex max-w-5xl flex-col gap-6">
-        <div>
-          <h1 className="text-2xl font-semibold">Progress</h1>
-          <p className="text-sm text-text-muted">Quick snapshot of your recent training momentum.</p>
-        </div>
-
-        <Card className="space-y-4 bg-surface-1/80">
-          <div>
-            <h2 className="text-lg font-semibold text-text-primary">Training Summary</h2>
-            <p className="text-sm text-text-muted">
-              Totals reflect the most recent 90 sessions we have on record.
-            </p>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-lg border border-surface-border bg-surface-0 p-4 shadow-md transition-all">
-              <p className="text-xs uppercase tracking-wide text-text-muted">Workouts completed</p>
-              <p className="mt-1 text-2xl font-semibold text-accent">{totalCompleted}</p>
-              <p className="text-xs text-text-muted">Last workout {lastWorkoutDate ?? "—"}</p>
-            </div>
-
-            <div className="rounded-lg border border-surface-border bg-surface-0 p-4 shadow-md transition-all">
-              <p className="text-xs uppercase tracking-wide text-text-muted">Workouts skipped</p>
-              <p className="mt-1 text-2xl font-semibold text-text-primary">{totalSkipped}</p>
-              <p className="text-xs text-text-muted">Includes logged rest or missed sessions.</p>
-            </div>
-
-            <div className="rounded-lg border border-surface-border bg-surface-0 p-4 shadow-md transition-all">
-              <p className="text-xs uppercase tracking-wide text-text-muted">Sets logged</p>
-              <p className="mt-1 text-2xl font-semibold text-text-primary">{Number(totalSets)}</p>
-              <p className="text-xs text-text-muted">All time recorded sets.</p>
-            </div>
-
-            <div className={`rounded-lg border bg-surface-0 p-4 shadow-md transition-all ${windowCompliance && windowCompliance >= 80 ? 'border-accent-light' : 'border-surface-border'}`}>
-              <p className="text-xs uppercase tracking-wide text-text-muted">7-day adherence</p>
-              <p className={`mt-1 text-2xl font-semibold ${windowCompliance && windowCompliance >= 80 ? 'text-accent' : 'text-text-primary'}`}>
-                {windowCompliance !== null ? `${windowCompliance}%` : "—"}
-              </p>
-              <p className="text-xs text-text-muted">
-                {windowLogs.length > 0
-                  ? `${completedWindow}/${windowLogs.length} scheduled sessions`
-                  : "No sessions logged this week."}
-              </p>
-            </div>
-          </div>
-
-          <div className="rounded-lg border border-surface-border/60 bg-surface-0 p-4">
-            <p className="text-xs uppercase tracking-wide text-text-muted">Average RPE (last 5)</p>
-            <p className="mt-1 text-xl font-semibold text-text-primary">
-              {averageRpe !== null ? averageRpe.toFixed(1) : "—"}
-            </p>
-            <p className="text-xs text-text-muted">
-              {recentRpeValues.length > 0
-                ? "Based on your five most recent completed workouts."
-                : "Log a few sessions with RPE to see this populate."}
-            </p>
-          </div>
-
-          {logs.length === 0 ? (
-            <p className="text-sm text-text-muted">
-              No training history yet. Once you start logging workouts, we&apos;ll chart your streaks
-              and load.
-            </p>
-          ) : null}
-        </Card>
-      </div>
-    </div>
+    <ProgressView
+      totalCompleted={totalCompleted}
+      totalSkipped={totalSkipped}
+      totalSets={totalSets}
+      windowCompliance={windowCompliance}
+      completedWindow={completedWindow}
+      windowTotal={windowLogs.length}
+      averageRpe={averageRpe}
+      recentRpeCount={recentRpeValues.length}
+      lastWorkoutDate={lastWorkoutDate}
+    />
   );
 }
