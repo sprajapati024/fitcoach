@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Droplet, Calendar, Target } from "lucide-react";
+import { Droplet, ChevronDown, Target, Settings } from "lucide-react";
 import { MealLogger } from "@/components/MealLogger";
 import { WaterLogger } from "@/components/WaterLogger";
 import { GoalsModal } from "@/components/GoalsModal";
-import { NutritionSummary } from "@/components/NutritionSummary";
-import { MealList } from "@/components/MealList";
-import { PrimaryButton } from "@/components/PrimaryButton";
+import { CompactNutritionHero } from "./CompactNutritionHero";
+import { CompactMealsList } from "./CompactMealsList";
+import { motion } from "framer-motion";
 
 export function NutritionView() {
   const [showMealLogger, setShowMealLogger] = useState(false);
@@ -17,6 +17,7 @@ export function NutritionView() {
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0],
   );
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const handleMealLogged = () => {
     setRefreshTrigger((prev) => prev + 1);
@@ -54,97 +55,126 @@ export function NutritionView() {
   };
 
   return (
-    <div className="min-h-screen bg-surface-0 p-6 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Nutrition</h1>
-            <p className="text-neutral-400">Track your meals and hydration</p>
+    <div className="min-h-screen bg-gray-950 -mx-4 -mt-6 -mb-32">
+      {/* Compact Header */}
+      <motion.header
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="sticky top-0 z-50 bg-gray-950/95 backdrop-blur-sm border-b border-gray-800"
+      >
+        <div className="flex items-center justify-between h-14 px-4">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-semibold text-white">Nutrition</span>
           </div>
 
-          {/* Date Selector */}
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400 pointer-events-none" />
+          <button
+            onClick={() => setShowGoalsModal(true)}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-900 text-gray-400 transition active:scale-95 hover:bg-gray-800 hover:text-white"
+          >
+            <Settings className="h-4 w-4" />
+          </button>
+        </div>
+      </motion.header>
+
+      {/* Main Content */}
+      <main className="mx-auto max-w-md px-3 pt-4 pb-20 space-y-3">
+        {/* Date Selector */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
+          <button
+            onClick={() => setShowDatePicker(!showDatePicker)}
+            className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-800 bg-gray-900 hover:bg-gray-800 transition"
+          >
+            <span className="text-sm font-medium text-white">{formatDate(selectedDate)}</span>
+            <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${showDatePicker ? 'rotate-180' : ''}`} />
+          </button>
+
+          {showDatePicker && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-2 p-3 rounded-lg border border-gray-800 bg-gray-900"
+            >
               <input
                 type="date"
                 value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
+                onChange={(e) => {
+                  setSelectedDate(e.target.value);
+                  setShowDatePicker(false);
+                }}
                 max={new Date().toISOString().split("T")[0]}
-                className="pl-10 pr-4 py-2 bg-surface-1 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
+                className="w-full h-10 px-3 rounded-lg border border-gray-800 bg-gray-950 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
               />
-            </div>
-          </div>
-        </div>
-
-        {/* Selected Date Display */}
-        <div className="flex items-center gap-2 text-neutral-300">
-          <span className="text-lg font-medium">{formatDate(selectedDate)}</span>
-          {selectedDate !== new Date().toISOString().split("T")[0] && (
-            <button
-              onClick={() => setSelectedDate(new Date().toISOString().split("T")[0])}
-              className="text-sm text-cyan-400 hover:text-cyan-300"
-            >
-              Go to today
-            </button>
+              {selectedDate !== new Date().toISOString().split("T")[0] && (
+                <button
+                  onClick={() => {
+                    setSelectedDate(new Date().toISOString().split("T")[0]);
+                    setShowDatePicker(false);
+                  }}
+                  className="w-full mt-2 h-9 rounded-lg bg-cyan-500/20 text-cyan-400 text-sm font-medium hover:bg-cyan-500/30 transition"
+                >
+                  Jump to Today
+                </button>
+              )}
+            </motion.div>
           )}
-        </div>
+        </motion.div>
 
-        {/* Nutrition Summary Cards */}
-        <NutritionSummary date={selectedDate} refreshTrigger={refreshTrigger} />
+        {/* Hero Card */}
+        <CompactNutritionHero
+          date={selectedDate}
+          refreshTrigger={refreshTrigger}
+          onLogMeal={() => setShowMealLogger(true)}
+        />
 
-        {/* Action Buttons */}
-        <div className="flex gap-3">
-          <PrimaryButton
-            onClick={() => setShowMealLogger(true)}
-            className="flex-1 md:flex-initial"
-          >
-            <Plus className="h-4 w-4" />
-            Log Meal
-          </PrimaryButton>
-          <button
-            onClick={() => setShowWaterLogger(true)}
-            className="flex-1 md:flex-initial px-6 py-3 bg-cyan-900/20 hover:bg-cyan-900/30 text-cyan-300 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"
-          >
-            <Droplet className="h-4 w-4" />
-            Log Water
-          </button>
-        </div>
-
-        {/* Meals Section */}
-        <div>
-          <div className="flex items-center gap-2 mb-4">
-            <h2 className="text-xl font-semibold">Meals Logged</h2>
+        {/* Quick Actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+        >
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">
+            Quick Actions
+          </h2>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setShowWaterLogger(true)}
+              className="flex items-center justify-center gap-2 h-12 rounded-lg border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 font-medium transition active:scale-95 hover:bg-cyan-500/20"
+            >
+              <Droplet className="h-4 w-4" />
+              <span>Log Water</span>
+            </button>
+            <button
+              onClick={() => setShowGoalsModal(true)}
+              className="flex items-center justify-center gap-2 h-12 rounded-lg border border-gray-800 bg-gray-900 text-gray-300 font-medium transition active:scale-95 hover:bg-gray-800"
+            >
+              <Target className="h-4 w-4" />
+              <span>Goals</span>
+            </button>
           </div>
-          <MealList
+        </motion.div>
+
+        {/* Meals List */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.4 }}
+        >
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">
+            Meals Today
+          </h2>
+          <CompactMealsList
             date={selectedDate}
             refreshTrigger={refreshTrigger}
             onMealDeleted={handleMealDeleted}
           />
-        </div>
-
-        {/* Goals Link */}
-        <div className="p-6 bg-surface-1 border border-border rounded-lg">
-          <div className="flex items-start gap-4">
-            <div className="p-3 bg-cyan-900/30 rounded-lg">
-              <Target className="h-6 w-6 text-cyan-400" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold mb-1">Set Your Nutrition Goals</h3>
-              <p className="text-sm text-neutral-400 mb-3">
-                Customize your daily targets for calories, macros, and hydration
-              </p>
-              <button
-                onClick={() => setShowGoalsModal(true)}
-                className="text-sm text-cyan-400 hover:text-cyan-300 font-medium"
-              >
-                Configure Goals →
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+        </motion.div>
+      </main>
 
       {/* Modals */}
       {showMealLogger && (

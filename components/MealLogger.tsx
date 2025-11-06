@@ -288,28 +288,39 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
               )}
             </div>
 
-            {/* Recording Indicator */}
+            {/* Recording Indicator with ChatGPT-style Ripple */}
             {isRecording && (
-              <div className="mb-3 p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
+              <div className="mb-3 p-4 bg-gradient-to-br from-cyan-500/10 to-indigo-500/10 border border-cyan-500/30 rounded-lg">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                      <div className="h-3 w-3 bg-red-500 rounded-full animate-pulse" />
-                      <span className="text-sm font-medium text-red-300">Recording...</span>
+                  <div className="flex items-center gap-4">
+                    {/* Ripple Animation */}
+                    <div className="relative flex items-center justify-center h-12 w-12 shrink-0">
+                      {/* Outer ripples */}
+                      <div className="absolute inset-0 rounded-full bg-cyan-500/20 animate-ping" style={{ animationDuration: '2s' }} />
+                      <div className="absolute inset-0 rounded-full bg-cyan-500/10 animate-ping" style={{ animationDuration: '2s', animationDelay: '0.5s' }} />
+                      {/* Inner circle */}
+                      <div className="relative h-6 w-6 rounded-full bg-gradient-to-br from-cyan-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/50">
+                        <Mic className="h-3 w-3 text-white" />
+                      </div>
                     </div>
-                    <span className="text-sm text-neutral-400">{formatTime(recordingTime)}</span>
+
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-semibold text-cyan-400">Listening...</span>
+                        <span className="text-sm font-mono text-gray-400">{formatTime(recordingTime)}</span>
+                      </div>
+                      <p className="text-xs text-gray-500">Speak naturally • Auto-stops at 2 min</p>
+                    </div>
                   </div>
+
                   <button
                     onClick={stopRecording}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-medium transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg text-sm font-medium text-white transition-colors shadow-lg shadow-red-500/20 active:scale-95 shrink-0"
                   >
-                    <Square className="h-4 w-4" />
+                    <Square className="h-3.5 w-3.5" />
                     Stop
                   </button>
                 </div>
-                <p className="text-xs text-neutral-400 mt-2">
-                  Speak naturally. Auto-stops at 2 minutes.
-                </p>
               </div>
             )}
 
