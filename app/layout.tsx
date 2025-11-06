@@ -5,6 +5,7 @@ import { publicEnv } from "@/lib/env/public";
 import { SupabaseProvider } from "@/components/providers/SupabaseProvider";
 import { ToastProvider } from "@/components/Toast";
 import { KeyboardViewportProvider } from "@/components/providers/KeyboardViewportProvider";
+import InstallPrompt from "@/components/InstallPrompt";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -51,6 +52,7 @@ export default function RootLayout({
             <ToastProvider>{children}</ToastProvider>
           </SupabaseProvider>
         </KeyboardViewportProvider>
+        <InstallPrompt />
       </body>
     </html>
   );

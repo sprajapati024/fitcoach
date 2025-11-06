@@ -4,6 +4,7 @@ import { useCallback, useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { publicEnv } from '@/lib/env/public';
 import { useSupabase } from '@/components/providers/SupabaseProvider';
+import Starfield from '@/components/Starfield';
 
 const CYCLING_TAGLINES = [
   "Learns your habits. Evolves your plan.",
@@ -54,6 +55,9 @@ export default function Home() {
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-br from-gray-950 via-black to-gray-900 text-white">
+      {/* Animated Starfield Background */}
+      <Starfield />
+
       {/* Hero Section - Full Viewport */}
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 py-20 text-center">
         <div className="mx-auto w-full max-w-3xl space-y-12">
@@ -66,11 +70,11 @@ export default function Home() {
 
           {/* Logo / Title */}
           <div className="animate-fade-in space-y-6 opacity-0" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
-            <h1 className="text-6xl font-bold tracking-tight text-white sm:text-7xl md:text-8xl">
+            <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-6xl md:text-7xl">
               FitCoach
             </h1>
-            <p className="text-xl text-gray-400 sm:text-2xl">
-              AI builds your plan. You build your strength.
+            <p className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl">
+              Train Smarter. Track Better.
             </p>
           </div>
 
@@ -98,13 +102,18 @@ export default function Home() {
               )}
             </button>
 
-            {errorMessage ? (
+            {errorMessage && (
               <p className="text-sm text-red-400">{errorMessage}</p>
-            ) : (
-              <p className="text-sm tracking-wide text-gray-500">
-                Adaptive. Private. Offline-ready.
-              </p>
             )}
+
+            {/* Micro-Stats Chips */}
+            <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
+              <span>50+ Exercises</span>
+              <span className="text-gray-600">•</span>
+              <span>Rest Timer</span>
+              <span className="text-gray-600">•</span>
+              <span>Local Progress</span>
+            </div>
           </div>
 
           {/* Cycling Tagline */}
