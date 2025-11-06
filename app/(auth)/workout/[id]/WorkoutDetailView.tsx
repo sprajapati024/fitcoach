@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ExerciseLogger, type LoggerResult } from "@/app/(auth)/dashboard/ExerciseLogger";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { WorkoutEditor } from "@/components/WorkoutEditor";
@@ -56,6 +56,7 @@ interface WorkoutDetailViewProps {
 
 export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLogging, setIsLogging] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [stats, setStats] = useState<WorkoutStats | null>(null);
@@ -65,6 +66,14 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
   const today = new Date().toISOString().split("T")[0];
   const isPast = workout.sessionDate ? workout.sessionDate < today : false;
   const isFuture = workout.sessionDate ? workout.sessionDate > today : false;
+  const isToday = workout.sessionDate ? workout.sessionDate === today : false;
+
+  // Auto-start logger if ?start=true query param is present
+  useEffect(() => {
+    if (searchParams.get('start') === 'true' && !isPast) {
+      setIsLogging(true);
+    }
+  }, [searchParams, isPast]);
 
   // Fetch workout stats
   useEffect(() => {
@@ -156,16 +165,42 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
           </div>
         </div>
 
-        {/* Prominent Start Button */}
-        {!isPast && (
+        {/* Contextual Action Button */}
+        {isToday && (
           <div className="mb-6">
             <PrimaryButton
               onClick={() => setIsLogging(true)}
               className="w-full py-4 text-lg font-semibold bg-gradient-to-r from-cyan-500 to-indigo-500 hover:from-cyan-600 hover:to-indigo-600"
             >
               <Zap className="h-5 w-5 mr-2 inline" />
-              Start New Session
+              Start Today's Workout
             </PrimaryButton>
+          </div>
+        )}
+
+        {isFuture && (
+          <div className="mb-6">
+            <div className="w-full py-4 text-center rounded-lg border-2 border-indigo-500/30 bg-indigo-500/5">
+              <div className="flex items-center justify-center gap-2 text-indigo-400 mb-1">
+                <Calendar className="h-4 w-4" />
+                <span className="text-sm font-medium">Scheduled for</span>
+              </div>
+              <div className="text-lg font-semibold text-white">
+                {new Date(workout.sessionDate!).toLocaleDateString("en-US", {
+                  weekday: "long",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isPast && !stats?.hasHistory && (
+          <div className="mb-6">
+            <div className="w-full py-4 text-center rounded-lg border border-gray-700 bg-gray-800/50">
+              <span className="text-sm text-gray-400">This workout was scheduled for the past</span>
+            </div>
           </div>
         )}
       </div>
@@ -456,26 +491,6 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
           <Edit2 className="h-5 w-5" />
           Edit Workout
         </button>
-
-        {isFuture && (
-          <div className="text-center text-sm text-text-muted">
-            This workout is scheduled for{" "}
-            {new Date(workout.sessionDate!).toLocaleDateString("en-US", {
-              month: "long",
-              day: "numeric",
-            })}
-          </div>
-        )}
-
-        {isPast && (
-          <div className="text-center text-sm text-text-muted">
-            This workout was scheduled for{" "}
-            {new Date(workout.sessionDate!).toLocaleDateString("en-US", {
-              month: "long",
-              day: "numeric",
-            })}
-          </div>
-        )}
       </div>
 
       {/* Workout Editor Modal */}

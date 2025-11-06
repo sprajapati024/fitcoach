@@ -79,9 +79,9 @@ export function CompactHeroCard({ workout }: CompactHeroCardProps) {
           </div>
         </div>
 
-        {/* CTA Button */}
+        {/* CTA Button - Direct to Logger */}
         <Link
-          href={`/workout/${workout.id}`}
+          href={`/workout/${workout.id}?start=true`}
           className="flex h-12 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-cyan-500 to-indigo-600 font-semibold text-white shadow-lg shadow-cyan-500/20 transition active:scale-95 hover:scale-[1.02]"
         >
           <Play className="h-4 w-4" />
