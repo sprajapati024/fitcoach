@@ -7,6 +7,8 @@ import { updateCustomInstructionsAction } from "@/app/actions/profile";
 import type { profiles, plans } from "@/drizzle/schema";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { ProfileEditor } from "./ProfileEditor";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
+import { Download } from "lucide-react";
 
 type Profile = typeof profiles.$inferSelect;
 type Plan = typeof plans.$inferSelect;
@@ -23,6 +25,7 @@ export function SettingsView({ profile, userPlans }: SettingsViewProps) {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
 
   const handleSaveInstructions = () => {
     setSaveSuccess(false);
@@ -59,6 +62,24 @@ export function SettingsView({ profile, userPlans }: SettingsViewProps) {
 
   return (
     <div className="space-y-8">
+      {/* Install Prompt Modal */}
+      {showInstallPrompt && <InstallPrompt onClose={() => setShowInstallPrompt(false)} />}
+
+      {/* Install App Section */}
+      <div className="rounded-lg border border-surface-border bg-surface-0 p-6">
+        <h2 className="mb-2 text-lg font-semibold text-text-primary">Install App</h2>
+        <p className="mb-4 text-sm text-text-muted">
+          Install FitCoach on your home screen for the best experience
+        </p>
+        <button
+          onClick={() => setShowInstallPrompt(true)}
+          className="touch-feedback inline-flex items-center gap-2 h-11 px-5 rounded-full border border-surface-border bg-surface-1 text-sm font-medium text-text-primary transition-all hover:bg-surface-2 active:bg-surface-border"
+        >
+          <Download className="h-4 w-4" />
+          Install FitCoach
+        </button>
+      </div>
+
       {/* Profile Editor */}
       <ProfileEditor profile={profile} />
 

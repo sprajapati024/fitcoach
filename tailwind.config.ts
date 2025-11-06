@@ -139,16 +139,18 @@ const config: Config = {
         },
       },
 
-      /* Typography - Neural precision */
+      /* Typography - iOS-first with fallbacks */
       fontFamily: {
         sans: [
-          "Inter",
           "-apple-system",
           "BlinkMacSystemFont",
+          "SF Pro Text",
           "SF Pro Display",
+          "system-ui",
+          "Inter",
           "Segoe UI",
           "Roboto",
-          "Helvetica",
+          "Helvetica Neue",
           "Arial",
           "sans-serif",
         ],

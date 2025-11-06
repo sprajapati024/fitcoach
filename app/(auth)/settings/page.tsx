@@ -8,7 +8,7 @@ export default async function SettingsPage() {
   const userPlans = await getUserPlansAction();
 
   return (
-    <div className="min-h-screen bg-surface-0 p-4 text-text-primary md:p-6">
+    <div className="min-h-screen-ios bg-surface-0 p-4 text-text-primary md:p-6">
       <div className="mx-auto max-w-4xl space-y-6">
         <div>
           <h1 className="text-2xl font-semibold">Settings</h1>

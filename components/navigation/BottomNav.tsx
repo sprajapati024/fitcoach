@@ -94,9 +94,12 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-4 left-1/2 z-40 w-full max-w-md -translate-x-1/2 px-4 md:hidden">
-      {/* Clean, floating navigation bar with v3.0 neural precision */}
-      <div className="flex items-center justify-between rounded-full border border-surface-border bg-surface-0/95 px-4 py-2 shadow-lg backdrop-blur-xl">
+    <nav
+      className="tabbar fixed bottom-0 left-0 right-0 z-40 md:hidden"
+      style={{ paddingBottom: 'var(--safe-bottom)' }}
+    >
+      {/* iOS-style tab bar flush to bottom edge */}
+      <div className="flex items-center justify-between px-4 py-2">
         {MOBILE_NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const active = isActive(pathname ?? "", item);
