@@ -6,16 +6,16 @@ import { motion } from 'framer-motion';
 
 interface NutritionData {
   goals: {
-    targetCalories?: number;
-    targetProteinGrams?: string;
-    targetCarbsGrams?: string;
-    targetFatGrams?: string;
+    targetCalories?: number | null;
+    targetProteinGrams?: string | null;
+    targetCarbsGrams?: string | null;
+    targetFatGrams?: string | null;
   } | null;
   summary: {
-    totalCalories?: number;
-    totalProtein?: string;
-    totalCarbs?: string;
-    totalFat?: string;
+    totalCalories?: number | null;
+    totalProtein?: string | null;
+    totalCarbs?: string | null;
+    totalFat?: string | null;
   } | null;
 }
 
