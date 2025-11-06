@@ -7,7 +7,7 @@ const optionalIsoDateString = z.union([isoDateString, z.literal("")]);
 export const preferredDaySchema = z.enum(["mon", "tue", "wed", "thu", "fri", "sat", "sun"]);
 
 export const onboardingSchema = z.object({
-  fullName: z.string().min(1).max(80),
+  fullName: z.string().max(80), // Allow empty string for skipped onboarding
   sex: z.enum(["female", "male", "non_binary", "unspecified"]),
   age: z.number().int().min(18).max(80),
   height: z.object({

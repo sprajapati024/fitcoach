@@ -105,16 +105,6 @@ export default function Home() {
                 Adaptive. Private. Offline-ready.
               </p>
             )}
-
-            {/* Preview Onboarding Button */}
-            <div className="pt-4">
-              <a
-                href="/onboarding-preview"
-                className="inline-flex items-center gap-2 rounded-full border border-gray-700 px-6 py-2.5 text-sm font-medium text-gray-400 transition hover:border-gray-500 hover:bg-gray-800/50 hover:text-gray-300"
-              >
-                🎨 Preview Onboarding Flow
-              </a>
-            </div>
           </div>
 
           {/* Cycling Tagline */}
