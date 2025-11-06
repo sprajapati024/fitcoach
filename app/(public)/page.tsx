@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useState, useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Dumbbell } from 'lucide-react';
 import { publicEnv } from '@/lib/env/public';
 import { useSupabase } from '@/components/providers/SupabaseProvider';
 
@@ -66,11 +66,11 @@ export default function Home() {
 
           {/* Logo / Title */}
           <div className="animate-fade-in space-y-6 opacity-0" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
-            <h1 className="text-6xl font-bold tracking-tight text-white sm:text-7xl md:text-8xl">
+            <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-6xl md:text-7xl">
               FitCoach
             </h1>
-            <p className="text-xl text-gray-400 sm:text-2xl">
-              AI builds your plan. You build your strength.
+            <p className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl">
+              Train Smarter. Track Better.
             </p>
           </div>
 
@@ -94,17 +94,25 @@ export default function Home() {
                   <span className="relative z-10">Getting ready...</span>
                 </>
               ) : (
-                <span className="relative z-10">Start Training</span>
+                <>
+                  <span className="relative z-10">Start Training</span>
+                  <Dumbbell className="relative z-10 ml-2 h-5 w-5" />
+                </>
               )}
             </button>
 
-            {errorMessage ? (
+            {errorMessage && (
               <p className="text-sm text-red-400">{errorMessage}</p>
-            ) : (
-              <p className="text-sm tracking-wide text-gray-500">
-                Adaptive. Private. Offline-ready.
-              </p>
             )}
+
+            {/* Micro-Stats Chips */}
+            <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
+              <span>50+ Exercises</span>
+              <span className="text-gray-600">•</span>
+              <span>Rest Timer</span>
+              <span className="text-gray-600">•</span>
+              <span>Local Progress</span>
+            </div>
           </div>
 
           {/* Cycling Tagline */}
