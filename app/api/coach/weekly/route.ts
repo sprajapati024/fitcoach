@@ -4,7 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabaseServerClient";
 import { db } from "@/lib/db";
 import { coachCache, plans, profiles } from "@/drizzle/schema";
 import { buildWeeklyContext, buildWeeklyPrompt } from "@/lib/ai/weekly-context-builder";
-import { coachSystemPrompt } from "@/lib/ai/prompts";
+import { getCoachSystemPrompt } from "@/lib/ai/prompts";
 import { callCoach } from "@/lib/ai/client";
 import { coachResponseSchema, type CoachResponse } from "@/lib/validation";
 
@@ -110,9 +110,13 @@ export async function GET(request: Request) {
       context,
     });
 
+    // Get coach tone from user profile (default to analyst)
+    const userCoachTone = profile.coachTone || "analyst";
+    const systemPrompt = getCoachSystemPrompt(userCoachTone as "analyst" | "flirty");
+
     // Call AI coach
     const coachResult = await callCoach({
-      systemPrompt: coachSystemPrompt,
+      systemPrompt,
       userPrompt,
       schema: coachResponseSchema,
       maxTokens: 600,

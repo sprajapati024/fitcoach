@@ -84,7 +84,7 @@ function buildInitialState(profile?: ProfileRow | null): OnboardingInput {
       avoidList: [],
       noHighImpact: false,
       goalBias: "balanced",
-      coachTone: "concise",
+      coachTone: "analyst",
       coachTodayEnabled: true,
       coachDebriefEnabled: true,
       coachWeeklyEnabled: true,
@@ -605,8 +605,8 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
             />
             <Segmented
               options={[
-                { label: "Concise", value: "concise", description: "Short cues, straight to it" },
-                { label: "Friendly", value: "friendly", description: "Softer tone, still punchy" },
+                { label: "Analyst", value: "analyst", description: "Data-driven, precise, tactical" },
+                { label: "Flirty", value: "flirty", description: "Playful, sweet, calls you baby girl" },
               ]}
               value={form.coachTone}
               onChange={(value) => setForm((prev) => ({ ...prev, coachTone: value }))}

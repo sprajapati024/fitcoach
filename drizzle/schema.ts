@@ -19,7 +19,7 @@ export const unitSystemEnum = pgEnum("unit_system", ["metric", "imperial"]);
 export const sexEnum = pgEnum("sex", ["female", "male", "non_binary", "unspecified"]);
 export const experienceLevelEnum = pgEnum("experience_level", ["beginner", "intermediate"]);
 export const goalBiasEnum = pgEnum("goal_bias", ["strength", "balanced", "hypertrophy", "fat_loss"]);
-export const coachToneEnum = pgEnum("coach_tone", ["concise", "friendly"]);
+export const coachToneEnum = pgEnum("coach_tone", ["analyst", "flirty"]);
 export const planStatusEnum = pgEnum("plan_status", ["draft", "active", "completed", "archived"]);
 export const workoutKindEnum = pgEnum("workout_kind", ["strength", "conditioning", "mobility", "mixed"]);
 export const coachContextEnum = pgEnum("coach_context", ["today", "debrief", "weekly", "substitution"]);
@@ -162,7 +162,7 @@ export const profiles = pgTable(
     avoidList: jsonb("avoid_list").$type<string[]>().default(sql`'[]'::jsonb`).notNull(),
     noHighImpact: boolean("no_high_impact").default(false).notNull(),
     goalBias: goalBiasEnum("goal_bias").default("balanced").notNull(),
-    coachTone: coachToneEnum("coach_tone").default("concise").notNull(),
+    coachTone: coachToneEnum("coach_tone").default("analyst").notNull(),
     coachTodayEnabled: boolean("coach_today_enabled").default(true).notNull(),
     coachDebriefEnabled: boolean("coach_debrief_enabled").default(true).notNull(),
   coachWeeklyEnabled: boolean("coach_weekly_enabled").default(true).notNull(),

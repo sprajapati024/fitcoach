@@ -52,7 +52,7 @@ export function ProfileEditor({ profile }: ProfileEditorProps) {
     avoidList: profile?.avoidList?.join(", ") || "",
     noHighImpact: profile?.noHighImpact || false,
     hasPcos: profile?.hasPcos || false,
-    coachTone: profile?.coachTone || "concise",
+    coachTone: profile?.coachTone || "analyst",
     coachTodayEnabled: profile?.coachTodayEnabled ?? true,
     coachDebriefEnabled: profile?.coachDebriefEnabled ?? true,
     coachWeeklyEnabled: profile?.coachWeeklyEnabled ?? true,
@@ -458,25 +458,25 @@ export function ProfileEditor({ profile }: ProfileEditorProps) {
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={() => setFormData({ ...formData, coachTone: "concise" })}
+                onClick={() => setFormData({ ...formData, coachTone: "analyst" })}
                 className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
-                  formData.coachTone === "concise"
+                  formData.coachTone === "analyst"
                     ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"
                     : "border-surface-border bg-surface-0 text-text-muted hover:border-surface-border"
                 }`}
               >
-                Concise
+                Analyst
               </button>
               <button
                 type="button"
-                onClick={() => setFormData({ ...formData, coachTone: "friendly" })}
+                onClick={() => setFormData({ ...formData, coachTone: "flirty" })}
                 className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
-                  formData.coachTone === "friendly"
+                  formData.coachTone === "flirty"
                     ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"
                     : "border-surface-border bg-surface-0 text-text-muted hover:border-surface-border"
                 }`}
               >
-                Friendly
+                Flirty
               </button>
             </div>
           </div>
