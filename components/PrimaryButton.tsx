@@ -13,9 +13,9 @@ export function PrimaryButton({ loading = false, className, children, disabled, 
     <button
       type="button"
       className={cn(
-        // Base styles - neural precision
+        // Base styles - iOS-tuned timing
         "group relative touch-feedback inline-flex h-12 items-center justify-center gap-2 overflow-hidden rounded-md px-6",
-        "text-base font-semibold transition-all duration-200",
+        "text-base font-semibold transition-all duration-150",
 
         // Neural gradient background (cyan → indigo)
         "bg-gradient-to-r from-cyan-500 to-indigo-600 text-gray-950",

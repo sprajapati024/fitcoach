@@ -95,7 +95,7 @@ export function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 border-t border-surface-border bg-surface-0/95 backdrop-blur-xl md:hidden"
+      className="tabbar fixed bottom-0 left-0 right-0 z-40 md:hidden"
       style={{ paddingBottom: 'var(--safe-bottom)' }}
     >
       {/* iOS-style tab bar flush to bottom edge */}
