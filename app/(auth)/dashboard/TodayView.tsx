@@ -15,6 +15,18 @@ interface TodayViewProps {
   nutrition: Awaited<ReturnType<typeof import('@/app/actions/nutrition').getTodayNutrition>>;
 }
 
+/**
+ * Render today's dashboard showing coach information, the current workout (if any), and nutrition summaries.
+ *
+ * When `workout` is null this renders a rest-day view with the coach brief and (if `nutrition` is provided) macro rings.
+ * When `workout` is present this renders the coach brief, a workout summary card linking to the workout page, and (if `nutrition` is provided) calorie and macro quick-stat cards linking to the nutrition page.
+ *
+ * @param workout - The current workout data to display; if `null`, a rest-day UI is shown instead.
+ * @param userId - The current user's ID; forwarded to the CoachBrief component.
+ * @param userName - The current user's display name; forwarded to the CoachBrief component.
+ * @param nutrition - Optional nutrition summary and goals used to render calorie progress and macronutrient cards.
+ * @returns The TodayView React element.
+ */
 export function TodayView({ workout, userId, userName, nutrition }: TodayViewProps) {
 
   if (!workout) {
