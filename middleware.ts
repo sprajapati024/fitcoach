@@ -87,6 +87,11 @@ export async function middleware(request: NextRequest) {
     return redirectResponse;
   }
 
+  // Skip profile check for onboarding route (users need to access it to create profile)
+  if (pathname.startsWith("/onboarding")) {
+    return response;
+  }
+
   // Check if user has a profile using Supabase (Edge-compatible)
   try {
     const { data: profile, error } = await supabase
