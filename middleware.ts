@@ -87,30 +87,8 @@ export async function middleware(request: NextRequest) {
     return redirectResponse;
   }
 
-  // Skip profile check for onboarding route (users need to access it to create profile)
-  if (pathname.startsWith("/onboarding")) {
-    return response;
-  }
-
-  // Check if user has a profile using Supabase (Edge-compatible)
-  try {
-    const { data: profile, error } = await supabase
-      .from("profiles")
-      .select("user_id")
-      .eq("user_id", session.user.id)
-      .single();
-
-    // Redirect to onboarding if no profile exists
-    if (error || !profile) {
-      const redirectResponse = NextResponse.redirect(new URL("/onboarding", request.url));
-      transferCookies(response, redirectResponse);
-      return redirectResponse;
-    }
-  } catch (error) {
-    console.error("Error checking profile:", error);
-    // On error, allow the request to proceed (auth layout will handle it)
-  }
-
+  // Authenticated users can access all protected routes
+  // Profile checks are handled at the page level for better error handling
   return response;
 }
 
