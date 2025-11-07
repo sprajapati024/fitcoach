@@ -336,14 +336,14 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
       )}
 
       {/* Footer Buttons - Sticky on mobile */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-800 bg-gray-950/95 p-4 backdrop-blur-sm">
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-800 bg-black/95 p-4 backdrop-blur-sm">
         <div className="mx-auto flex max-w-2xl items-center justify-between gap-3">
           {/* Back Button */}
           <button
             type="button"
             onClick={handleBack}
             disabled={step === 0}
-            className="inline-flex items-center gap-2 rounded-full border border-gray-700 bg-gray-800 px-5 py-3 text-sm font-medium text-white transition hover:bg-gray-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex items-center gap-2 rounded-full border border-gray-800 bg-gray-800 px-5 py-3 text-sm font-medium text-white transition hover:bg-gray-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <ArrowLeft className="h-4 w-4" />
             <span className="hidden sm:inline">Back</span>
@@ -355,7 +355,7 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
               <button
                 type="button"
                 onClick={handleSkip}
-                className="inline-flex items-center gap-2 rounded-full border border-gray-700 px-5 py-3 text-sm font-medium text-gray-400 transition hover:border-gray-600 hover:bg-gray-800 hover:text-white active:scale-95"
+                className="inline-flex items-center gap-2 rounded-full border border-gray-800 px-5 py-3 text-sm font-medium text-gray-400 transition hover:border-gray-700 hover:bg-gray-800 hover:text-white active:scale-95"
               >
                 <SkipForward className="h-4 w-4" />
                 <span className="hidden sm:inline">Skip</span>
@@ -416,7 +416,7 @@ function Step1Welcome({ form, setForm, errors }: any) {
             type="text"
             value={form.fullName}
             onChange={e => setForm((prev: any) => ({ ...prev, fullName: e.target.value }))}
-            className="mt-2 w-full rounded-xl border border-gray-700 bg-gray-900 px-4 py-3.5 text-white transition focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+            className="mt-2 w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-3.5 text-white transition focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
             placeholder="Your name"
           />
           {errors.fullName && (
@@ -439,7 +439,7 @@ function Step1Welcome({ form, setForm, errors }: any) {
             max={80}
             value={form.age}
             onChange={e => setForm((prev: any) => ({ ...prev, age: Number(e.target.value) }))}
-            className="mt-2 w-full rounded-xl border border-gray-700 bg-gray-900 px-4 py-3.5 text-white transition focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+            className="mt-2 w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-3.5 text-white transition focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
           />
           {errors.age && (
             <motion.p
@@ -469,7 +469,7 @@ function Step1Welcome({ form, setForm, errors }: any) {
                 className={`rounded-xl border py-3 text-sm font-medium transition active:scale-95 ${
                   form.sex === option.value
                     ? 'border-cyan-500 bg-cyan-500/10 text-cyan-400 shadow-lg shadow-cyan-500/20'
-                    : 'border-gray-700 bg-gray-900 text-gray-400 hover:border-gray-600'
+                    : 'border-gray-800 bg-gray-900 text-gray-400 hover:border-gray-700'
                 }`}
               >
                 {option.label}
@@ -507,7 +507,7 @@ function Step2Body({ form, setForm, errors, updateUnitSystem }: any) {
                 className={`rounded-xl border py-3 text-sm font-medium transition active:scale-95 ${
                   form.unitSystem === option.value
                     ? 'border-cyan-500 bg-cyan-500/10 text-cyan-400'
-                    : 'border-gray-700 bg-gray-900 text-gray-400 hover:border-gray-600'
+                    : 'border-gray-800 bg-gray-900 text-gray-400 hover:border-gray-700'
                 }`}
               >
                 {option.label}
@@ -531,7 +531,7 @@ function Step2Body({ form, setForm, errors, updateUnitSystem }: any) {
                   height: { ...prev.height, value: Number(e.target.value) },
                 }))
               }
-              className="mt-2 w-full rounded-xl border border-gray-700 bg-gray-900 px-4 py-3.5 text-white transition focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+              className="mt-2 w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-3.5 text-white transition focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
             />
             {errors.height && (
               <motion.p
@@ -557,7 +557,7 @@ function Step2Body({ form, setForm, errors, updateUnitSystem }: any) {
                   weight: { ...prev.weight, value: Number(e.target.value) },
                 }))
               }
-              className="mt-2 w-full rounded-xl border border-gray-700 bg-gray-900 px-4 py-3.5 text-white transition focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+              className="mt-2 w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-3.5 text-white transition focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
             />
             {errors.weight && (
               <motion.p
@@ -586,7 +586,7 @@ function Step2Body({ form, setForm, errors, updateUnitSystem }: any) {
                 className={`rounded-xl border p-4 text-left transition active:scale-95 ${
                   form.experienceLevel === option.value
                     ? 'border-cyan-500 bg-cyan-500/10 shadow-lg shadow-cyan-500/10'
-                    : 'border-gray-700 bg-gray-900 hover:border-gray-600'
+                    : 'border-gray-800 bg-gray-900 hover:border-gray-700'
                 }`}
               >
                 <p className="font-semibold text-white">{option.label}</p>
@@ -622,7 +622,7 @@ function Step3Training({ form, setForm, errors }: any) {
                   schedule: { ...prev.schedule, daysPerWeek: Number(e.target.value) },
                 }))
               }
-              className="mt-2 w-full rounded-xl border border-gray-700 bg-gray-900 px-3 py-3.5 text-white transition focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+              className="mt-2 w-full rounded-xl border border-gray-800 bg-gray-900 px-3 py-3.5 text-white transition focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
             >
               {[3, 4, 5, 6].map(n => (
                 <option key={n} value={n}>
@@ -642,7 +642,7 @@ function Step3Training({ form, setForm, errors }: any) {
                   schedule: { ...prev.schedule, minutesPerSession: Number(e.target.value) },
                 }))
               }
-              className="mt-2 w-full rounded-xl border border-gray-700 bg-gray-900 px-3 py-3.5 text-white transition focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+              className="mt-2 w-full rounded-xl border border-gray-800 bg-gray-900 px-3 py-3.5 text-white transition focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
             >
               {[40, 45, 50, 60, 75, 90].map(n => (
                 <option key={n} value={n}>
@@ -662,7 +662,7 @@ function Step3Training({ form, setForm, errors }: any) {
                   schedule: { ...prev.schedule, programWeeks: Number(e.target.value) },
                 }))
               }
-              className="mt-2 w-full rounded-xl border border-gray-700 bg-gray-900 px-3 py-3.5 text-white transition focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+              className="mt-2 w-full rounded-xl border border-gray-800 bg-gray-900 px-3 py-3.5 text-white transition focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
             >
               {[6, 8, 10, 12, 14, 16].map(n => (
                 <option key={n} value={n}>
@@ -714,7 +714,7 @@ function Step3Training({ form, setForm, errors }: any) {
                   className={`min-w-[52px] rounded-full border px-4 py-2.5 text-sm font-semibold uppercase transition active:scale-95 ${
                     isActive
                       ? 'border-cyan-500 bg-cyan-500/10 text-cyan-400 shadow-lg shadow-cyan-500/20'
-                      : 'border-gray-700 bg-gray-900 text-gray-400 hover:border-gray-600'
+                      : 'border-gray-800 bg-gray-900 text-gray-400 hover:border-gray-700'
                   }`}
                 >
                   {isActive && '✓ '}
@@ -755,7 +755,7 @@ function Step3Training({ form, setForm, errors }: any) {
                   className={`rounded-xl border px-4 py-3 text-sm font-medium transition active:scale-95 ${
                     isActive
                       ? 'border-cyan-500 bg-cyan-500/10 text-cyan-400'
-                      : 'border-gray-700 bg-gray-900 text-gray-400 hover:border-gray-600'
+                      : 'border-gray-800 bg-gray-900 text-gray-400 hover:border-gray-700'
                   }`}
                 >
                   {isActive && '✓ '}
@@ -806,7 +806,7 @@ function Step4Goals({ form, setForm, errors }: any) {
                 className={`rounded-xl border py-3 text-sm font-medium transition active:scale-95 ${
                   form.goalBias === option.value
                     ? 'border-cyan-500 bg-cyan-500/10 text-cyan-400'
-                    : 'border-gray-700 bg-gray-900 text-gray-400 hover:border-gray-600'
+                    : 'border-gray-800 bg-gray-900 text-gray-400 hover:border-gray-700'
                 }`}
               >
                 {option.label}
@@ -820,12 +820,12 @@ function Step4Goals({ form, setForm, errors }: any) {
           <span className="text-xs font-semibold uppercase tracking-wide text-gray-400">Health Considerations</span>
           <div className="mt-2 space-y-3">
             {form.sex === 'female' && (
-              <label className="flex items-start gap-3 rounded-xl border border-gray-700 bg-gray-900 p-4 transition hover:border-gray-600">
+              <label className="flex items-start gap-3 rounded-xl border border-gray-800 bg-gray-900 p-4 transition hover:border-gray-700">
                 <input
                   type="checkbox"
                   checked={form.hasPcos}
                   onChange={e => setForm((prev: any) => ({ ...prev, hasPcos: e.target.checked }))}
-                  className="mt-0.5 h-5 w-5 rounded border-gray-600 bg-gray-800 text-cyan-500 focus:ring-2 focus:ring-cyan-500/20 focus:ring-offset-0"
+                  className="mt-0.5 h-5 w-5 rounded border-gray-700 bg-gray-800 text-cyan-500 focus:ring-2 focus:ring-cyan-500/20 focus:ring-offset-0"
                 />
                 <div className="flex-1">
                   <p className="font-medium text-white">PCOS considerations</p>
@@ -834,12 +834,12 @@ function Step4Goals({ form, setForm, errors }: any) {
               </label>
             )}
 
-            <label className="flex items-start gap-3 rounded-xl border border-gray-700 bg-gray-900 p-4 transition hover:border-gray-600">
+            <label className="flex items-start gap-3 rounded-xl border border-gray-800 bg-gray-900 p-4 transition hover:border-gray-700">
               <input
                 type="checkbox"
                 checked={form.noHighImpact}
                 onChange={e => setForm((prev: any) => ({ ...prev, noHighImpact: e.target.checked }))}
-                className="mt-0.5 h-5 w-5 rounded border-gray-600 bg-gray-800 text-cyan-500 focus:ring-2 focus:ring-cyan-500/20 focus:ring-offset-0"
+                className="mt-0.5 h-5 w-5 rounded border-gray-700 bg-gray-800 text-cyan-500 focus:ring-2 focus:ring-cyan-500/20 focus:ring-offset-0"
               />
               <div className="flex-1">
                 <p className="font-medium text-white">Avoid high-impact movements</p>
@@ -872,7 +872,7 @@ function Step4Goals({ form, setForm, errors }: any) {
                   className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase transition active:scale-95 ${
                     isActive
                       ? 'border-cyan-500 bg-cyan-500/10 text-cyan-400'
-                      : 'border-gray-700 bg-gray-900 text-gray-400 hover:border-gray-600'
+                      : 'border-gray-800 bg-gray-900 text-gray-400 hover:border-gray-700'
                   }`}
                 >
                   {isActive && '✓ '}
