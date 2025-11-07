@@ -129,48 +129,51 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="mb-6">
-        <button
-          onClick={() => router.back()}
-          className="text-text-muted text-sm mb-4 hover:text-text-primary transition"
-        >
-          ← Back
-        </button>
+    <div className="min-h-screen bg-black -mx-4 -mt-6 -mb-32">
+      {/* Header - Sticky */}
+      <div className="sticky top-0 z-50 bg-black/95 backdrop-blur-sm border-b border-gray-800">
+        <div className="px-4 py-3">
+          <button
+            onClick={() => router.back()}
+            className="text-gray-400 text-sm mb-2 hover:text-white transition flex items-center gap-1"
+          >
+            ← Back
+          </button>
 
-        <div className="flex items-start justify-between mb-4">
           <div>
-            <h1 className="text-3xl font-bold text-text-primary mb-2">
+            <h1 className="text-xl font-bold text-white mb-1">
               {workout.title}
             </h1>
-            <div className="flex gap-4 text-sm text-text-muted">
+            <div className="flex gap-3 text-xs text-gray-400">
               {workout.sessionDate && (
                 <span className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" />
+                  <Calendar className="h-3 w-3" />
                   {new Date(workout.sessionDate).toLocaleDateString("en-US", {
-                    month: "long",
+                    month: "short",
                     day: "numeric",
-                    year: "numeric",
                   })}
                 </span>
               )}
               <span>Week {(workout.weekIndex || 0) + 1}</span>
               {workout.isDeload && (
-                <span className="text-xs font-medium text-yellow-500 bg-yellow-500/10 px-2 py-0.5 rounded">
-                  Deload Week
+                <span className="text-xs font-medium text-yellow-400 bg-yellow-500/10 px-2 py-0.5 rounded">
+                  Deload
                 </span>
               )}
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Main Content */}
+      <main className="mx-auto max-w-md px-3 pt-4 pb-20 space-y-3">
 
         {/* Contextual Action Button */}
         {isToday && (
-          <div className="mb-6">
+          <div className="rounded-lg border border-gray-800 bg-gradient-to-br from-cyan-500/5 to-indigo-500/5 p-1">
             <PrimaryButton
               onClick={() => setIsLogging(true)}
-              className="w-full py-4 text-lg font-semibold bg-gradient-to-r from-cyan-500 to-indigo-500 hover:from-cyan-600 hover:to-indigo-600"
+              className="w-full py-4 text-base font-semibold bg-gradient-to-r from-cyan-500 to-indigo-500 hover:from-cyan-600 hover:to-indigo-600"
             >
               <Zap className="h-5 w-5 mr-2 inline" />
               Start Today's Workout
@@ -179,73 +182,68 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
         )}
 
         {isFuture && (
-          <div className="mb-6">
-            <div className="w-full py-4 text-center rounded-lg border-2 border-indigo-500/30 bg-indigo-500/5">
-              <div className="flex items-center justify-center gap-2 text-indigo-400 mb-1">
-                <Calendar className="h-4 w-4" />
-                <span className="text-sm font-medium">Scheduled for</span>
-              </div>
-              <div className="text-lg font-semibold text-white">
-                {new Date(workout.sessionDate!).toLocaleDateString("en-US", {
-                  weekday: "long",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </div>
+          <div className="rounded-lg border border-indigo-500/30 bg-indigo-500/5 p-4 text-center">
+            <div className="flex items-center justify-center gap-2 text-indigo-400 mb-1">
+              <Calendar className="h-4 w-4" />
+              <span className="text-sm font-medium">Scheduled for</span>
+            </div>
+            <div className="text-base font-semibold text-white">
+              {new Date(workout.sessionDate!).toLocaleDateString("en-US", {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+              })}
             </div>
           </div>
         )}
 
         {isPast && !stats?.hasHistory && (
-          <div className="mb-6">
-            <div className="w-full py-4 text-center rounded-lg border border-gray-700 bg-gray-800/50">
-              <span className="text-sm text-gray-400">This workout was scheduled for the past</span>
-            </div>
+          <div className="rounded-lg border border-gray-800 bg-gray-900 p-4 text-center">
+            <span className="text-sm text-gray-400">This workout was scheduled for the past</span>
           </div>
         )}
-      </div>
 
       {/* Overall Stats Cards */}
       {stats?.hasHistory && (
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-text-primary mb-3 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
             <BarChart3 className="h-5 w-5 text-cyan-400" />
             Performance Overview
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="bg-surface-1 border border-surface-border rounded-lg p-4">
-              <div className="text-text-muted text-xs uppercase tracking-wide mb-1">
+            <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+              <div className="text-gray-400 text-xs uppercase tracking-wide mb-1">
                 Total Sessions
               </div>
-              <div className="text-2xl font-bold text-text-primary">
+              <div className="text-2xl font-bold text-white">
                 {stats.overallStats.totalSessions}
               </div>
             </div>
-            <div className="bg-surface-1 border border-surface-border rounded-lg p-4">
-              <div className="text-text-muted text-xs uppercase tracking-wide mb-1">
+            <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+              <div className="text-gray-400 text-xs uppercase tracking-wide mb-1">
                 Total Volume
               </div>
-              <div className="text-2xl font-bold text-text-primary">
+              <div className="text-2xl font-bold text-white">
                 {(stats.overallStats.totalVolume / 1000).toFixed(1)}
-                <span className="text-sm text-text-muted ml-1">tons</span>
+                <span className="text-sm text-gray-400 ml-1">tons</span>
               </div>
             </div>
-            <div className="bg-surface-1 border border-surface-border rounded-lg p-4">
-              <div className="text-text-muted text-xs uppercase tracking-wide mb-1">
+            <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+              <div className="text-gray-400 text-xs uppercase tracking-wide mb-1">
                 Avg Duration
               </div>
-              <div className="text-2xl font-bold text-text-primary">
+              <div className="text-2xl font-bold text-white">
                 {stats.overallStats.avgDuration}
-                <span className="text-sm text-text-muted ml-1">min</span>
+                <span className="text-sm text-gray-400 ml-1">min</span>
               </div>
             </div>
-            <div className="bg-surface-1 border border-surface-border rounded-lg p-4">
-              <div className="text-text-muted text-xs uppercase tracking-wide mb-1">
+            <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+              <div className="text-gray-400 text-xs uppercase tracking-wide mb-1">
                 Avg RPE
               </div>
-              <div className="text-2xl font-bold text-text-primary">
+              <div className="text-2xl font-bold text-white">
                 {stats.overallStats.avgRpe || "—"}
-                <span className="text-sm text-text-muted ml-1">/10</span>
+                <span className="text-sm text-gray-400 ml-1">/10</span>
               </div>
             </div>
           </div>
@@ -255,7 +253,7 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
       {/* Recent Sessions */}
       {stats?.hasHistory && stats.sessions.length > 0 && (
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-text-primary mb-3 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
             <Clock className="h-5 w-5 text-cyan-400" />
             Recent Sessions
           </h2>
@@ -263,14 +261,14 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
             {stats.sessions.map((session) => (
               <div
                 key={session.logId}
-                className="bg-surface-1 border border-surface-border rounded-lg p-4 hover:bg-surface-2 transition"
+                className="bg-gray-900 border border-gray-800 rounded-lg p-4 hover:bg-gray-800 transition"
               >
                 <div className="flex items-start justify-between mb-2">
                   <div>
-                    <div className="font-medium text-text-primary">
+                    <div className="font-medium text-white">
                       {formatDate(session.date)}
                     </div>
-                    <div className="text-xs text-text-muted mt-0.5">
+                    <div className="text-xs text-gray-400 mt-0.5">
                       {session.exerciseCount} exercises • {session.totalSets} sets
                     </div>
                   </div>
@@ -278,14 +276,14 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
                     <div className="text-sm font-semibold text-cyan-400">
                       {session.totalVolume.toLocaleString()} kg
                     </div>
-                    <div className="text-xs text-text-muted">
+                    <div className="text-xs text-gray-400">
                       {session.duration} min
                       {session.rpeLastSet && ` • ${session.rpeLastSet} RPE`}
                     </div>
                   </div>
                 </div>
                 {session.notes && (
-                  <div className="text-xs text-text-secondary mt-2 pt-2 border-t border-surface-border">
+                  <div className="text-xs text-gray-300 mt-2 pt-2 border-t border-gray-800">
                     {session.notes}
                   </div>
                 )}
@@ -298,7 +296,7 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
       {/* Exercise PRs */}
       {stats?.hasHistory && Object.keys(stats.exerciseStats).length > 0 && (
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-text-primary mb-3 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
             <Award className="h-5 w-5 text-yellow-400" />
             Personal Records
           </h2>
@@ -306,36 +304,36 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
             {Object.entries(stats.exerciseStats).map(([exerciseId, exerciseData]) => (
               <div
                 key={exerciseId}
-                className="bg-surface-1 border border-surface-border rounded-lg p-4"
+                className="bg-gray-900 border border-gray-800 rounded-lg p-4"
               >
-                <div className="font-medium text-text-primary mb-3">
+                <div className="font-medium text-white mb-3">
                   {getExerciseName(exerciseId)}
                 </div>
                 <div className="grid grid-cols-3 gap-3 text-sm">
                   <div>
-                    <div className="text-text-muted text-xs mb-1">Max Weight</div>
-                    <div className="font-semibold text-text-primary">
+                    <div className="text-gray-400 text-xs mb-1">Max Weight</div>
+                    <div className="font-semibold text-white">
                       {exerciseData.personalRecords.maxWeight.value} kg
                     </div>
-                    <div className="text-xs text-text-muted">
+                    <div className="text-xs text-gray-400">
                       {exerciseData.personalRecords.maxWeight.reps} reps
                     </div>
                   </div>
                   <div>
-                    <div className="text-text-muted text-xs mb-1">Max Volume</div>
-                    <div className="font-semibold text-text-primary">
+                    <div className="text-gray-400 text-xs mb-1">Max Volume</div>
+                    <div className="font-semibold text-white">
                       {exerciseData.personalRecords.maxVolume.value} kg
                     </div>
-                    <div className="text-xs text-text-muted">
+                    <div className="text-xs text-gray-400">
                       {formatDate(exerciseData.personalRecords.maxVolume.date)}
                     </div>
                   </div>
                   <div>
-                    <div className="text-text-muted text-xs mb-1">Max Reps</div>
-                    <div className="font-semibold text-text-primary">
+                    <div className="text-gray-400 text-xs mb-1">Max Reps</div>
+                    <div className="font-semibold text-white">
                       {exerciseData.personalRecords.maxReps.value} reps
                     </div>
-                    <div className="text-xs text-text-muted">
+                    <div className="text-xs text-gray-400">
                       @ {exerciseData.personalRecords.maxReps.weight} kg
                     </div>
                   </div>
@@ -343,8 +341,8 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
 
                 {/* Mini volume chart */}
                 {exerciseData.sessions.length > 1 && (
-                  <div className="mt-4 pt-3 border-t border-surface-border">
-                    <div className="text-xs text-text-muted mb-2 flex items-center gap-1">
+                  <div className="mt-4 pt-3 border-t border-gray-800">
+                    <div className="text-xs text-gray-400 mb-2 flex items-center gap-1">
                       <TrendingUp className="h-3 w-3" />
                       Volume Trend
                     </div>
@@ -374,24 +372,24 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
 
       {/* Workout Details (Collapsible) */}
       <div className="mb-6">
-        <h2 className="text-lg font-semibold text-text-primary mb-3">
+        <h2 className="text-lg font-semibold text-white mb-3">
           Workout Details
         </h2>
-        <div className="bg-surface-1 border border-surface-border rounded-lg p-4 mb-3">
+        <div className="bg-gray-900 border border-gray-800 rounded-lg p-4 mb-3">
           <div className="grid grid-cols-3 gap-4 text-sm">
             <div>
-              <div className="text-text-muted text-xs mb-1">Duration</div>
-              <div className="text-text-primary font-medium">
+              <div className="text-gray-400 text-xs mb-1">Duration</div>
+              <div className="text-white font-medium">
                 {workout.durationMinutes} min
               </div>
             </div>
             <div>
-              <div className="text-text-muted text-xs mb-1">Exercises</div>
-              <div className="text-text-primary font-medium">{totalExercises}</div>
+              <div className="text-gray-400 text-xs mb-1">Exercises</div>
+              <div className="text-white font-medium">{totalExercises}</div>
             </div>
             <div>
-              <div className="text-text-muted text-xs mb-1">Focus</div>
-              <div className="text-text-primary font-medium capitalize">
+              <div className="text-gray-400 text-xs mb-1">Focus</div>
+              <div className="text-white font-medium capitalize">
                 {workoutPayload.focus?.replace(/_/g, " ") || "Training"}
               </div>
             </div>
@@ -404,11 +402,11 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
         {workoutPayload.blocks?.map((block, blockIndex) => (
           <div
             key={blockIndex}
-            className="bg-surface-0 border border-surface-border rounded-lg p-4"
+            className="bg-gray-800 border border-gray-800 rounded-lg p-4"
           >
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-text-primary">{block.title}</h3>
-              <span className="text-xs text-text-muted uppercase tracking-wide">
+              <h3 className="font-semibold text-white">{block.title}</h3>
+              <span className="text-xs text-gray-400 uppercase tracking-wide">
                 {block.type}
               </span>
             </div>
@@ -417,14 +415,14 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
               {block.exercises?.map((exercise, exIndex) => (
                 <div
                   key={exIndex}
-                  className="bg-surface-1 rounded-md p-3 border border-surface-border"
+                  className="bg-gray-900 rounded-md p-3 border border-gray-800"
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div>
-                      <div className="font-medium text-text-primary mb-1">
+                      <div className="font-medium text-white mb-1">
                         {exercise.name || exercise.id}
                       </div>
-                      <div className="text-sm text-text-muted">
+                      <div className="text-sm text-gray-400">
                         {exercise.equipment && (
                           <span className="capitalize">
                             {exercise.equipment.replace(/_/g, " ")}
@@ -436,29 +434,29 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
 
                   <div className="flex gap-4 text-sm">
                     <div>
-                      <span className="text-text-muted">Sets:</span>{" "}
-                      <span className="text-text-primary font-medium">
+                      <span className="text-gray-400">Sets:</span>{" "}
+                      <span className="text-white font-medium">
                         {exercise.sets}
                       </span>
                     </div>
                     <div>
-                      <span className="text-text-muted">Reps:</span>{" "}
-                      <span className="text-text-primary font-medium">
+                      <span className="text-gray-400">Reps:</span>{" "}
+                      <span className="text-white font-medium">
                         {exercise.reps}
                       </span>
                     </div>
                     {exercise.tempo && (
                       <div>
-                        <span className="text-text-muted">Tempo:</span>{" "}
-                        <span className="text-text-primary font-medium">
+                        <span className="text-gray-400">Tempo:</span>{" "}
+                        <span className="text-white font-medium">
                           {exercise.tempo}
                         </span>
                       </div>
                     )}
                     {exercise.restSeconds && (
                       <div>
-                        <span className="text-text-muted">Rest:</span>{" "}
-                        <span className="text-text-primary font-medium">
+                        <span className="text-gray-400">Rest:</span>{" "}
+                        <span className="text-white font-medium">
                           {exercise.restSeconds}s
                         </span>
                       </div>
@@ -466,9 +464,9 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
                   </div>
 
                   {exercise.cues && exercise.cues.length > 0 && (
-                    <div className="mt-2 pt-2 border-t border-surface-border">
-                      <div className="text-xs text-text-muted mb-1">Form Cues:</div>
-                      <ul className="text-xs text-text-secondary space-y-0.5">
+                    <div className="mt-2 pt-2 border-t border-gray-800">
+                      <div className="text-xs text-gray-400 mb-1">Form Cues:</div>
+                      <ul className="text-xs text-gray-300 space-y-0.5">
                         {exercise.cues.map((cue, cueIndex) => (
                           <li key={cueIndex}>• {cue}</li>
                         ))}
@@ -483,26 +481,30 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
       </div>
 
       {/* Action Buttons */}
-      <div className="space-y-3">
+      <div className="rounded-lg border border-gray-800 bg-gray-900 p-3">
         <button
           onClick={() => setIsEditing(true)}
-          className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-surface-1 hover:bg-surface-2 text-text-primary rounded-lg border border-surface-border transition"
+          className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg border border-gray-700 transition active:scale-95"
         >
           <Edit2 className="h-5 w-5" />
           Edit Workout
         </button>
       </div>
 
-      {/* Workout Editor Modal */}
-      <WorkoutEditor
-        workout={workout}
-        isOpen={isEditing}
-        onClose={() => setIsEditing(false)}
-        onSave={() => {
-          setIsEditing(false);
-          router.refresh();
-        }}
-      />
+      {/* Spacer for bottom navigation */}
+      <div className="h-20" />
+    </main>
+
+    {/* Workout Editor Modal */}
+    <WorkoutEditor
+      workout={workout}
+      isOpen={isEditing}
+      onClose={() => setIsEditing(false)}
+      onSave={() => {
+        setIsEditing(false);
+        router.refresh();
+      }}
+    />
     </div>
   );
 }
