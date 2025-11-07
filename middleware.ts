@@ -32,8 +32,8 @@ function clearSupabaseCookies(request: NextRequest, response: NextResponse) {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Define protected routes that require profile completion
-  const protectedRoutes = ["/dashboard", "/plan", "/progress", "/settings", "/workout"];
+  // Define protected routes that require authentication
+  const protectedRoutes = ["/dashboard", "/plan", "/progress", "/settings", "/workout", "/onboarding"];
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
 
   let response = NextResponse.next();
