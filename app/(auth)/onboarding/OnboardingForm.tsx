@@ -240,15 +240,24 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
     setStep(prev => Math.min(prev + 1, steps.length - 1));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateStep(step)) return;
 
     setSubmitError(null);
-    startTransition(() => {
-      saveProfileAction(form).catch((error) => {
-        console.error('Failed to save profile:', error);
-        setSubmitError('Failed to save profile. Please try again.');
-      });
+    startTransition(async () => {
+      try {
+        await saveProfileAction(form);
+        // If we reach here, redirect happened successfully
+      } catch (error: any) {
+        // Only show error if it's NOT a Next.js redirect
+        // Next.js redirects throw errors with digest property starting with 'NEXT_REDIRECT'
+        if (!error?.digest?.startsWith('NEXT_REDIRECT')) {
+          console.error('Failed to save profile:', error);
+          setSubmitError('Failed to save profile. Please try again.');
+        }
+        // If it's a redirect error, let it propagate
+        throw error;
+      }
     });
   };
 
