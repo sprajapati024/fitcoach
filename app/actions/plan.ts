@@ -255,38 +255,58 @@ export async function deletePlanAction(planId: string) {
     throw new Error("Unable to resolve authenticated user");
   }
 
-  // Get cookies to forward to API
-  const { cookies } = await import("next/headers");
-  const cookieStore = await cookies();
-  const cookieHeader = cookieStore
-    .getAll()
-    .map((cookie) => `${cookie.name}=${cookie.value}`)
-    .join("; ");
+  const userId = userData.user.id;
 
-  // Call the delete plan API with authentication cookies
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/plan/delete`,
-    {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        "Cookie": cookieHeader,
-      },
-      body: JSON.stringify({ planId }),
-    }
-  );
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || "Failed to delete plan");
+  if (!planId || typeof planId !== "string") {
+    throw new Error("Invalid plan ID");
   }
 
-  const result = await response.json();
+  // Verify plan ownership
+  const [plan] = await db
+    .select()
+    .from(plans)
+    .where(and(eq(plans.id, planId), eq(plans.userId, userId)))
+    .limit(1);
+
+  if (!plan) {
+    throw new Error("Plan not found or unauthorized");
+  }
+
+  // Delete plan and associated data in transaction
+  await db.transaction(async (tx) => {
+    // Get all workout IDs for this plan
+    const planWorkouts = await tx
+      .select({ id: workouts.id })
+      .from(workouts)
+      .where(eq(workouts.planId, planId));
+
+    const workoutIds = planWorkouts.map((w) => w.id);
+
+    // Delete workout logs for all workouts in this plan
+    if (workoutIds.length > 0) {
+      for (const workoutId of workoutIds) {
+        await tx
+          .delete(workoutLogs)
+          .where(eq(workoutLogs.workoutId, workoutId));
+      }
+    }
+
+    // Delete all workouts for this plan
+    await tx.delete(workouts).where(eq(workouts.planId, planId));
+
+    // Delete the plan itself
+    await tx.delete(plans).where(eq(plans.id, planId));
+  });
+
+  console.log(`[Delete Plan] Successfully deleted plan: ${planId}`);
 
   // Revalidate plan and settings pages
   revalidatePath("/plan");
   revalidatePath("/settings");
   revalidatePath("/dashboard");
 
-  return result;
+  return {
+    success: true,
+    message: "Plan deleted successfully",
+  };
 }
