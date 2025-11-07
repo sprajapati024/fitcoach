@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { MyExercises } from "@/components/MyExercises";
 import { ExerciseBrowser } from "@/components/ExerciseBrowser";
-import { Dumbbell, Library, Search } from "lucide-react";
+import { Library, Search } from "lucide-react";
 
 export function ExerciseManagement() {
   const [activeTab, setActiveTab] = useState<"library" | "browse">("library");
@@ -26,49 +27,56 @@ export function ExerciseManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-surface p-6 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
-            <Dumbbell className="h-8 w-8 text-neural-400" />
-            Exercise Library
-          </h1>
-          <p className="text-neutral-400">
-            Browse exercises from ExerciseDB and save them to your personal library for tracking
-          </p>
+    <div className="min-h-screen bg-black -mx-4 -mt-6 -mb-32">
+      {/* Header - Sticky */}
+      <motion.header
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="sticky top-0 z-50 bg-black/95 backdrop-blur-sm border-b border-gray-800"
+      >
+        <div className="flex items-center justify-between h-14 px-4">
+          <div>
+            <h1 className="text-xl font-bold text-white">Exercises</h1>
+            <p className="text-xs text-gray-500">Browse and manage library</p>
+          </div>
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-border">
-          <nav className="flex gap-6">
-            <button
-              onClick={() => setActiveTab("library")}
-              className={`pb-4 px-2 border-b-2 transition-colors flex items-center gap-2 ${
-                activeTab === "library"
-                  ? "border-neural-400 text-neutral-100"
-                  : "border-transparent text-neutral-400 hover:text-neutral-200"
-              }`}
-            >
-              <Library className="h-5 w-5" />
-              <span className="font-medium">My Library</span>
-            </button>
-            <button
-              onClick={() => setActiveTab("browse")}
-              className={`pb-4 px-2 border-b-2 transition-colors flex items-center gap-2 ${
-                activeTab === "browse"
-                  ? "border-neural-400 text-neutral-100"
-                  : "border-transparent text-neutral-400 hover:text-neutral-200"
-              }`}
-            >
-              <Search className="h-5 w-5" />
-              <span className="font-medium">Browse Exercises</span>
-            </button>
-          </nav>
+        <div className="flex gap-1 px-4 pb-0">
+          <button
+            onClick={() => setActiveTab("library")}
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors border-b-2 ${
+              activeTab === "library"
+                ? "border-cyan-500 text-cyan-400"
+                : "border-transparent text-gray-400 hover:text-gray-200"
+            }`}
+          >
+            <Library className="h-4 w-4" />
+            <span>My Library</span>
+          </button>
+          <button
+            onClick={() => setActiveTab("browse")}
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors border-b-2 ${
+              activeTab === "browse"
+                ? "border-cyan-500 text-cyan-400"
+                : "border-transparent text-gray-400 hover:text-gray-200"
+            }`}
+          >
+            <Search className="h-4 w-4" />
+            <span>Browse</span>
+          </button>
         </div>
+      </motion.header>
 
-        {/* Content */}
-        <div className="mt-8">
+      {/* Main Content */}
+      <main className="mx-auto max-w-7xl px-3 pt-4 pb-20">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
           {activeTab === "library" && (
             <MyExercises onExercisesChange={fetchSavedExerciseIds} />
           )}
@@ -78,8 +86,11 @@ export function ExerciseManagement() {
               savedExerciseIds={savedExerciseIds}
             />
           )}
-        </div>
-      </div>
+        </motion.div>
+
+        {/* Spacer for bottom navigation */}
+        <div className="h-20" />
+      </main>
     </div>
   );
 }
