@@ -100,11 +100,17 @@ export async function middleware(request: NextRequest) {
       .eq("user_id", session.user.id)
       .single();
 
-    // Redirect to onboarding if no profile exists
-    if (error || !profile) {
+    // Only redirect to onboarding if profile genuinely doesn't exist
+    // PGRST116 = no rows returned (profile doesn't exist)
+    if (error?.code === "PGRST116" || (!error && !profile)) {
       const redirectResponse = NextResponse.redirect(new URL("/onboarding", request.url));
       transferCookies(response, redirectResponse);
       return redirectResponse;
+    }
+
+    // For other errors (DB connection issues, etc), log but allow request to proceed
+    if (error && error.code !== "PGRST116") {
+      console.error("Error checking profile:", error);
     }
   } catch (error) {
     console.error("Error checking profile:", error);
