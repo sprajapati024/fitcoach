@@ -87,10 +87,16 @@ export async function saveProfileAction(form: OnboardingInput) {
           coachNotes: parsed.coachNotes,
           heightCm: heightCm.toString(),
           weightKg: weightKg.toString(),
+          timezone: parsed.timezone,
           updatedAt: new Date(),
         },
       });
   });
+
+  // Revalidate to ensure middleware sees the new profile
+  revalidatePath("/plan");
+  revalidatePath("/dashboard");
+  revalidatePath("/onboarding");
 
   redirect("/plan");
 }
