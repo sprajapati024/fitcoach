@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Card } from '@/components/Card';
+import { motion, AnimatePresence } from 'framer-motion';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { WorkoutEditor } from '@/components/WorkoutEditor';
 import type { workouts, WorkoutPayload } from '@/drizzle/schema';
 import { enqueueLog } from '@/lib/offlineQueue';
 import type { WorkoutLogRequest } from '@/lib/validation';
-import { Pencil, Trash2, Menu, Plus, Minus, Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Pencil, Plus, Minus, Play, Pause, ChevronDown, ChevronUp, RotateCcw, Copy } from 'lucide-react';
 
 type Workout = typeof workouts.$inferSelect;
 
@@ -65,7 +65,8 @@ function formatSeconds(value: number) {
 
 export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLoggerProps) {
   const [entries, setEntries] = useState<LogEntry[]>([]);
-  const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
+  const [expandedExercises, setExpandedExercises] = useState<Set<string>>(new Set());
+  const [activeExerciseId, setActiveExerciseId] = useState<string | null>(null);
   const [weight, setWeight] = useState('');
   const [reps, setReps] = useState('');
   const [rpe, setRpe] = useState('');
@@ -77,16 +78,13 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
   const restTimerRef = useRef<number | null>(null);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
 
-  // New state for enhanced features
+  // Enhanced features
   const [isRestPaused, setIsRestPaused] = useState(false);
   const [workoutStartTime] = useState(Date.now());
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const [showExerciseList, setShowExerciseList] = useState(false);
   const [showWorkoutEditor, setShowWorkoutEditor] = useState(false);
   const [historicalData, setHistoricalData] = useState<Record<string, Array<{ set: number; weight: number; reps: number; rpe?: number }>> | null>(null);
   const [lastSessionDate, setLastSessionDate] = useState<string | null>(null);
-  const touchStartX = useRef<number | null>(null);
-  const touchEndX = useRef<number | null>(null);
 
   const workoutPayload = useMemo(() => workout.payload as WorkoutPayload, [workout.payload]);
 
@@ -102,17 +100,25 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
     [workoutPayload.blocks],
   );
 
-  const currentExercise = allExercises[currentExerciseIndex];
-
-  const currentExerciseSets = useMemo(
-    () => (currentExercise ? entries.filter((entry) => entry.exerciseId === currentExercise.id) : []),
-    [entries, currentExercise],
-  );
-
-  const editingEntry = editingIndex !== null ? entries[editingIndex] : null;
-  const nextSetNumber = editingEntry?.set ?? currentExerciseSets.length + 1;
   const totalSetsLogged = entries.length;
-  const isLastExercise = currentExerciseIndex === allExercises.length - 1;
+
+  // Auto-expand first incomplete exercise on mount
+  useEffect(() => {
+    if (allExercises.length > 0) {
+      const firstIncomplete = allExercises.find((ex) => {
+        const exerciseSets = entries.filter((entry) => entry.exerciseId === ex.id);
+        return exerciseSets.length < ex.sets;
+      });
+      if (firstIncomplete) {
+        setExpandedExercises(new Set([firstIncomplete.id]));
+        setActiveExerciseId(firstIncomplete.id);
+      } else {
+        // All complete, expand first
+        setExpandedExercises(new Set([allExercises[0].id]));
+        setActiveExerciseId(allExercises[0].id);
+      }
+    }
+  }, []);
 
   // Fetch historical data on mount
   useEffect(() => {
@@ -166,7 +172,7 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
 
       // Play audio notification
       try {
-        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVbHn7qlYFApEm9/0vGgfBTGD0fTVhDEHHGrC8OKdRw0PWrPm7qZWFQpFnOD1vmofBjF/0PTWgzMHHmvC8OKfRg0OWrTk7qFWFQhGnOD1v2keBTV/z/TYgjMHH2nC8OKfRg0OWbPl7qJVFghGm9/0v2kfBTR+z/TZgjMHIGnC7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRw==');
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVbHn7qlYFApEm9/0vGgfBTGD0fTVhDEHHGrC8OKdRw0PWrPm7qZWFQpFnOD1vmofBjF/0PTWgzMHHmvC8OKfRg0OWrTk7qFWFQhGnOD1v2keBTV/z/TYgjMHHmvC8OKfRg0OWbPl7qJVFghGm9/0v2kfBTR+z/TZgjMHH2nC8OKfRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnC7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRg0PWbPl7qNUFwhFm9/0wGkeBTR+zvTZgjMHIGnD7+OeRw==');
         audio.play().catch(() => {
           // Ignore errors if audio playback is not allowed
         });
@@ -252,61 +258,54 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
     }, 1000);
   };
 
-  // Quick action: Copy previous set
-  const handleCopyPreviousSet = () => {
-    if (currentExerciseSets.length === 0) return;
-    const lastSet = currentExerciseSets[currentExerciseSets.length - 1];
-    setWeight(lastSet.weight.toString());
-    setReps(lastSet.reps.toString());
-    setRpe(lastSet.rpe?.toString() ?? '');
-    setNotes(lastSet.notes ?? '');
-    setFeedback({ type: 'info', message: 'Copied previous set data' });
-  };
-
-  // Quick action: Use last session data
-  const handleUseLastSession = () => {
-    if (!historicalData || !currentExercise) return;
-    const exerciseHistory = historicalData[currentExercise.id];
-    if (!exerciseHistory || exerciseHistory.length === 0) return;
-
-    const lastSet = exerciseHistory[Math.min(nextSetNumber - 1, exerciseHistory.length - 1)];
-    setWeight(lastSet.weight.toString());
-    setReps(lastSet.reps.toString());
-    setRpe(lastSet.rpe?.toString() ?? '');
-    setFeedback({ type: 'info', message: 'Pre-filled with last session data' });
-  };
-
-  // Handle touch swipe
-  const handleTouchStart = (e: TouchEvent | React.TouchEvent<HTMLDivElement>) => {
-    if ('touches' in e) {
-      touchStartX.current = e.touches[0].clientX;
-    }
-  };
-
-  const handleTouchMove = (e: TouchEvent | React.TouchEvent<HTMLDivElement>) => {
-    if ('touches' in e) {
-      touchEndX.current = e.touches[0].clientX;
-    }
-  };
-
-  const handleTouchEnd = () => {
-    if (touchStartX.current === null || touchEndX.current === null) return;
-
-    const diff = touchStartX.current - touchEndX.current;
-    const threshold = 50;
-
-    if (Math.abs(diff) > threshold) {
-      if (diff > 0) {
-        // Swipe left - next exercise
-        handleNextExercise();
+  const toggleExercise = (exerciseId: string) => {
+    setExpandedExercises((prev) => {
+      const next = new Set(prev);
+      if (next.has(exerciseId)) {
+        next.delete(exerciseId);
       } else {
-        // Swipe right - previous exercise
-        handlePreviousExercise();
+        next.add(exerciseId);
+        setActiveExerciseId(exerciseId);
       }
+      return next;
+    });
+  };
+
+  // Play button: Copy set data and start next set
+  const handlePlaySet = (exerciseId: string, set: LogEntry) => {
+    const exercise = allExercises.find((ex) => ex.id === exerciseId);
+    if (!exercise) return;
+
+    setActiveExerciseId(exerciseId);
+    setExpandedExercises(new Set([exerciseId]));
+    setWeight(set.weight.toString());
+    setReps(set.reps.toString());
+    setRpe(set.rpe?.toString() ?? '');
+    setNotes(set.notes ?? '');
+
+    // Start rest timer if configured
+    const restSeconds = typeof exercise.restSeconds === 'number' ? exercise.restSeconds : undefined;
+    startRestTimer(restSeconds);
+
+    setFeedback({ type: 'info', message: 'Set data copied. Log when ready!' });
+  };
+
+  // Undo button: Remove set
+  const handleUndoSet = (exerciseId: string, setNumber: number) => {
+    const entryIndex = entries.findIndex(
+      (entry) => entry.exerciseId === exerciseId && entry.set === setNumber,
+    );
+
+    if (entryIndex === -1) return;
+
+    const updated = renumberEntries(entries.filter((_, index) => index !== entryIndex));
+    setEntries(updated);
+
+    if (editingIndex !== null && entryIndex === editingIndex) {
+      resetInputs();
     }
 
-    touchStartX.current = null;
-    touchEndX.current = null;
+    setFeedback({ type: 'info', message: 'Set removed.' });
   };
 
   // Increment/decrement helpers
@@ -340,8 +339,9 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
     setRpe(Math.max(5, current - 0.5).toString());
   };
 
-  const handleLogSet = () => {
-    if (!currentExercise) {
+  const handleLogSet = (exerciseId: string) => {
+    const exercise = allExercises.find((ex) => ex.id === exerciseId);
+    if (!exercise) {
       setFeedback({ type: 'error', message: 'No exercise selected.' });
       return;
     }
@@ -367,7 +367,7 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
     const formattedNotes = notes.trim() || undefined;
 
     const payload: LogEntry = {
-      exerciseId: currentExercise.id,
+      exerciseId: exercise.id,
       weight: Math.round(parsedWeight * 10) / 10,
       reps: parsedReps,
       rpe: parsedRpe ? Math.round(parsedRpe * 10) / 10 : undefined,
@@ -383,68 +383,29 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
     } else {
       nextEntries = [...entries, payload];
       const restSeconds =
-        typeof currentExercise.restSeconds === 'number'
-          ? currentExercise.restSeconds
+        typeof exercise.restSeconds === 'number'
+          ? exercise.restSeconds
           : undefined;
       startRestTimer(restSeconds);
       setFeedback({ type: 'success', message: 'Set logged.' });
+
+      // Auto-expand next incomplete exercise
+      const exerciseSets = nextEntries.filter((entry) => entry.exerciseId === exercise.id);
+      if (exerciseSets.length >= exercise.sets) {
+        // Current exercise complete, find next incomplete
+        const nextIncomplete = allExercises.find((ex) => {
+          const exSets = nextEntries.filter((entry) => entry.exerciseId === ex.id);
+          return exSets.length < ex.sets;
+        });
+        if (nextIncomplete) {
+          setExpandedExercises(new Set([nextIncomplete.id]));
+          setActiveExerciseId(nextIncomplete.id);
+        }
+      }
     }
 
     setEntries(renumberEntries(nextEntries));
     resetInputs();
-  };
-
-  const handleEditEntry = (setNumber: number) => {
-    if (!currentExercise) return;
-
-    const entryIndex = entries.findIndex(
-      (entry) => entry.exerciseId === currentExercise.id && entry.set === setNumber,
-    );
-
-    if (entryIndex === -1) return;
-
-    const entry = entries[entryIndex];
-    setWeight(entry.weight.toString());
-    setReps(entry.reps.toString());
-    setRpe(entry.rpe?.toString() ?? '');
-    setNotes(entry.notes ?? '');
-    setEditingIndex(entryIndex);
-    stopRestTimer();
-  };
-
-  const handleDeleteEntry = (setNumber: number) => {
-    if (!currentExercise) return;
-
-    const entryIndex = entries.findIndex(
-      (entry) => entry.exerciseId === currentExercise.id && entry.set === setNumber,
-    );
-
-    if (entryIndex === -1) return;
-
-    const updated = renumberEntries(entries.filter((_, index) => index !== entryIndex));
-    setEntries(updated);
-
-    if (editingIndex !== null && entryIndex === editingIndex) {
-      resetInputs();
-    }
-
-    setFeedback({ type: 'info', message: 'Set removed.' });
-  };
-
-  const handleNextExercise = () => {
-    if (currentExerciseIndex < allExercises.length - 1) {
-      setCurrentExerciseIndex((prev) => prev + 1);
-      resetInputs();
-      stopRestTimer();
-    }
-  };
-
-  const handlePreviousExercise = () => {
-    if (currentExerciseIndex > 0) {
-      setCurrentExerciseIndex((prev) => prev - 1);
-      resetInputs();
-      stopRestTimer();
-    }
   };
 
   const handleCompleteWorkout = async () => {
@@ -517,536 +478,495 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
     }
   };
 
-  if (!currentExercise) {
+  if (allExercises.length === 0) {
     return (
-      <div className="mx-auto w-full max-w-3xl p-6">
-        <Card className="flex flex-col items-center gap-4 bg-surface-1 text-center">
-          <p className="text-sm text-text-muted">No exercises found in this workout.</p>
-          <PrimaryButton
-            onClick={onCancel}
-            className="w-full max-w-xs bg-surface-2 text-text-primary normal-case hover:bg-surface-border"
-          >
+      <div className="min-h-screen bg-black flex items-center justify-center p-6">
+        <div className="max-w-md w-full bg-gray-900 border border-gray-800 rounded-lg p-6 text-center">
+          <p className="text-sm text-gray-400 mb-4">No exercises found in this workout.</p>
+          <PrimaryButton onClick={onCancel} className="w-full">
             Go back
           </PrimaryButton>
-        </Card>
+        </div>
       </div>
     );
   }
 
   // Calculate completion stats
-  const completedExercises = allExercises.filter((ex) =>
-    entries.some((entry) => entry.exerciseId === ex.id)
-  ).length;
+  const completedExercises = allExercises.filter((ex) => {
+    const exerciseSets = entries.filter((entry) => entry.exerciseId === ex.id);
+    return exerciseSets.length >= ex.sets;
+  }).length;
   const totalSets = allExercises.reduce((sum, ex) => sum + ex.sets, 0);
   const completedSets = entries.length;
-
-  // Get historical data for current exercise
-  const currentExerciseHistory =
-    currentExercise && historicalData ? historicalData[currentExercise.id] : null;
+  const allExercisesComplete = completedExercises === allExercises.length && completedSets >= totalSets;
 
   return (
-    <div
-      className="mx-auto w-full max-w-3xl space-y-4 p-4"
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-    >
-      {/* Progress Header */}
-      <Card className="bg-gradient-to-r from-cyan-900/20 to-indigo-900/20 border-cyan-500/20">
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-black -mx-4 -mt-6 -mb-32">
+      {/* Sticky Header */}
+      <motion.header
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="sticky top-0 z-50 bg-black/95 backdrop-blur-sm border-b border-gray-800"
+      >
+        <div className="flex items-center justify-between h-14 px-4">
           <div className="flex items-center gap-3">
             <button
               onClick={() => {
                 stopRestTimer();
                 onCancel();
               }}
-              className="text-text-muted hover:text-text-primary transition"
+              className="text-gray-400 hover:text-white transition text-sm"
             >
               ← Back
             </button>
-            <div className="h-4 w-px bg-surface-border" />
-            <button
-              onClick={() => setShowExerciseList(true)}
-              className="flex items-center gap-2 text-text-muted hover:text-text-primary transition"
-              title="Exercise list"
-            >
-              <Menu className="h-4 w-4" />
-            </button>
+            <div className="h-4 w-px bg-gray-800" />
             <button
               onClick={() => setShowWorkoutEditor(true)}
-              className="text-xs text-text-muted hover:text-text-primary transition"
+              className="text-xs text-gray-400 hover:text-white transition"
               title="Edit workout"
             >
-              Edit
+              <Pencil className="h-4 w-4" />
             </button>
           </div>
           <div className="text-right">
-            <div className="text-lg font-semibold text-text-primary">
+            <div className="text-lg font-semibold text-white tabular-nums">
               {formatSeconds(elapsedSeconds)}
             </div>
-            <div className="text-xs text-text-muted">
+            <div className="text-xs text-gray-500">
               {completedExercises}/{allExercises.length} exercises • {completedSets}/{totalSets} sets
             </div>
           </div>
         </div>
         {/* Progress bar */}
-        <div className="mt-3 h-1.5 bg-surface-2 rounded-full overflow-hidden">
+        <div className="h-1 bg-gray-900">
           <div
             className="h-full bg-gradient-to-r from-cyan-500 to-indigo-500 transition-all duration-300"
             style={{ width: `${(completedSets / totalSets) * 100}%` }}
           />
         </div>
-      </Card>
+      </motion.header>
 
-      {feedback ? (
-        <Card
-          className={`flex items-center justify-between border ${
-            feedback.type === 'error'
-              ? 'border-error bg-error-bg text-error-light'
-              : feedback.type === 'success'
-                ? 'border-success bg-success-bg text-success-light'
-                : 'border-text-muted text-text-secondary'
-          } bg-surface-1 text-sm`}
-        >
-          <span>{feedback.message}</span>
-          <button
-            onClick={() => setFeedback(null)}
-            className="rounded-full p-1 text-xs uppercase tracking-wide text-text-muted transition hover:text-text-primary"
+      {/* Rest Timer - Sticky when active */}
+      <AnimatePresence>
+        {restRemaining !== null && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="sticky top-14 z-40 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800"
           >
-            Dismiss
-          </button>
-        </Card>
-      ) : null}
-
-      <Card className="space-y-2 bg-surface-0">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
-              {currentExercise.blockTitle}
-            </p>
-            <h2 className="text-xl font-semibold text-text-primary">
-              {currentExercise.name || currentExercise.id}
-            </h2>
-            <p className="text-sm text-text-secondary">
-              Target: {currentExercise.sets}×{currentExercise.reps}
-              {currentExercise.tempo ? ` • Tempo: ${currentExercise.tempo}` : ''}
-            </p>
-          </div>
-          <div className="flex gap-1">
-            <button
-              onClick={handlePreviousExercise}
-              disabled={currentExerciseIndex === 0}
-              className="p-2 rounded-md hover:bg-surface-2 text-text-muted disabled:opacity-30 disabled:cursor-not-allowed transition"
-              title="Previous exercise"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button
-              onClick={handleNextExercise}
-              disabled={currentExerciseIndex === allExercises.length - 1}
-              className="p-2 rounded-md hover:bg-surface-2 text-text-muted disabled:opacity-30 disabled:cursor-not-allowed transition"
-              title="Next exercise"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
-
-        {/* Historical data display */}
-        {currentExerciseHistory && currentExerciseHistory.length > 0 && (
-          <div className="pt-2 border-t border-surface-border">
-            <p className="text-xs text-text-muted mb-1">
-              Last session ({lastSessionDate}):
-            </p>
-            <div className="flex flex-wrap gap-2 text-xs">
-              {currentExerciseHistory.map((set, idx) => (
-                <span key={idx} className="text-text-secondary">
-                  {set.weight}kg × {set.reps}
-                  {set.rpe ? ` @ ${set.rpe}` : ''}
-                  {idx < currentExerciseHistory.length - 1 ? ' •' : ''}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {currentExercise.cues && currentExercise.cues.length > 0 ? (
-          <div className="pt-2 border-t border-surface-border space-y-1 text-xs text-text-muted">
-            <p className="font-medium">Form cues:</p>
-            {currentExercise.cues.slice(0, 2).map((cue, index) => (
-              <div key={index}>• {cue}</div>
-            ))}
-          </div>
-        ) : null}
-      </Card>
-
-      {restRemaining !== null ? (
-        <Card className="bg-surface-0">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <p className="text-xs uppercase tracking-wide text-text-muted">Rest timer</p>
-              <p className="text-2xl font-bold text-text-primary tabular-nums">
-                {formatSeconds(restRemaining)}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              {isRestPaused ? (
-                <button
-                  onClick={resumeRestTimer}
-                  className="p-2 rounded-full bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 transition"
-                  title="Resume"
-                >
-                  <Play className="h-4 w-4" />
-                </button>
-              ) : (
-                <button
-                  onClick={pauseRestTimer}
-                  className="p-2 rounded-full bg-surface-2 text-text-muted hover:bg-surface-3 transition"
-                  title="Pause"
-                >
-                  <Pause className="h-4 w-4" />
-                </button>
-              )}
-              <button
-                onClick={stopRestTimer}
-                className="px-3 py-1.5 rounded-full border border-surface-border text-xs font-semibold uppercase tracking-wide text-text-muted hover:text-text-primary transition"
-              >
-                Skip
-              </button>
-            </div>
-          </div>
-          {/* Progress bar */}
-          <div className="mb-2 h-1.5 bg-surface-2 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-cyan-500 to-indigo-500 transition-all"
-              style={{
-                width: `${((currentExercise.restSeconds || 60) - restRemaining) / (currentExercise.restSeconds || 60) * 100}%`,
-              }}
-            />
-          </div>
-          {/* Quick adjust buttons */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => adjustRestTimer(-30)}
-              className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 rounded-md bg-surface-2 text-text-muted hover:bg-surface-3 text-xs font-medium transition"
-            >
-              -30s
-            </button>
-            <button
-              onClick={() => adjustRestTimer(30)}
-              className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 rounded-md bg-surface-2 text-text-muted hover:bg-surface-3 text-xs font-medium transition"
-            >
-              +30s
-            </button>
-          </div>
-        </Card>
-      ) : null}
-
-      <Card className="space-y-4 bg-surface-0">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-text-primary">
-            {editingEntry ? `Edit set ${editingEntry.set}` : `Log set ${nextSetNumber}`}
-          </h3>
-          {editingEntry ? (
-            <button
-              onClick={resetInputs}
-              className="text-xs font-semibold uppercase tracking-wide text-text-muted transition hover:text-text-primary"
-            >
-              Cancel edit
-            </button>
-          ) : null}
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-3">
-          <label className="space-y-1">
-            <span className="block text-xs font-medium text-text-muted">Weight (kg)</span>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={decrementWeight}
-                type="button"
-                className="p-2 rounded-md bg-surface-2 hover:bg-surface-3 text-text-muted transition"
-              >
-                <Minus className="h-4 w-4" />
-              </button>
-              <input
-                type="number"
-                step="2.5"
-                inputMode="decimal"
-                value={weight}
-                onChange={(event) => setWeight(event.target.value)}
-                className="flex-1 rounded-md border border-surface-border bg-surface-0 px-3 py-2 text-sm text-text-primary text-center placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
-                placeholder="0"
-              />
-              <button
-                onClick={incrementWeight}
-                type="button"
-                className="p-2 rounded-md bg-surface-2 hover:bg-surface-3 text-text-muted transition"
-              >
-                <Plus className="h-4 w-4" />
-              </button>
-            </div>
-          </label>
-
-          <label className="space-y-1">
-            <span className="block text-xs font-medium text-text-muted">Reps</span>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={decrementReps}
-                type="button"
-                className="p-2 rounded-md bg-surface-2 hover:bg-surface-3 text-text-muted transition"
-              >
-                <Minus className="h-4 w-4" />
-              </button>
-              <input
-                type="number"
-                inputMode="numeric"
-                value={reps}
-                onChange={(event) => setReps(event.target.value)}
-                className="flex-1 rounded-md border border-surface-border bg-surface-0 px-3 py-2 text-sm text-text-primary text-center placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
-                placeholder="0"
-              />
-              <button
-                onClick={incrementReps}
-                type="button"
-                className="p-2 rounded-md bg-surface-2 hover:bg-surface-3 text-text-muted transition"
-              >
-                <Plus className="h-4 w-4" />
-              </button>
-            </div>
-          </label>
-
-          <label className="space-y-1">
-            <span className="block text-xs font-medium text-text-muted">RPE (5-10)</span>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={decrementRpe}
-                type="button"
-                className="p-2 rounded-md bg-surface-2 hover:bg-surface-3 text-text-muted transition"
-              >
-                <Minus className="h-4 w-4" />
-              </button>
-              <input
-                type="number"
-                step="0.5"
-                inputMode="decimal"
-                value={rpe}
-                min={5}
-                max={10}
-                onChange={(event) => setRpe(event.target.value)}
-                className="flex-1 rounded-md border border-surface-border bg-surface-0 px-3 py-2 text-sm text-text-primary text-center placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
-                placeholder="7.5"
-              />
-              <button
-                onClick={incrementRpe}
-                type="button"
-                className="p-2 rounded-md bg-surface-2 hover:bg-surface-3 text-text-muted transition"
-              >
-                <Plus className="h-4 w-4" />
-              </button>
-            </div>
-          </label>
-        </div>
-
-        <label className="space-y-1">
-          <span className="block text-xs font-medium text-text-muted">Notes (optional)</span>
-          <input
-            type="text"
-            value={notes}
-            onChange={(event) => setNotes(event.target.value)}
-            className="w-full rounded-md border border-surface-border bg-surface-0 px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
-            placeholder="Felt strong, smooth tempo"
-          />
-        </label>
-
-        {/* Quick action buttons */}
-        {!editingEntry && (
-          <div className="flex gap-2">
-            {currentExerciseSets.length > 0 && (
-              <button
-                onClick={handleCopyPreviousSet}
-                className="flex-1 px-3 py-2 rounded-md bg-surface-2 hover:bg-surface-3 text-text-secondary text-xs font-medium transition border border-surface-border"
-              >
-                📋 Copy Set {currentExerciseSets.length}
-              </button>
-            )}
-            {currentExerciseHistory && currentExerciseHistory.length > 0 && (
-              <button
-                onClick={handleUseLastSession}
-                className="flex-1 px-3 py-2 rounded-md bg-surface-2 hover:bg-surface-3 text-text-secondary text-xs font-medium transition border border-surface-border"
-              >
-                ↑ Use Last Session
-              </button>
-            )}
-          </div>
-        )}
-
-        <PrimaryButton
-          onClick={handleLogSet}
-          className="w-full normal-case"
-        >
-          {editingEntry ? 'Update Set' : `Log Set ${nextSetNumber}`}
-        </PrimaryButton>
-      </Card>
-
-      {currentExerciseSets.length > 0 ? (
-        <Card className="space-y-3 bg-surface-0">
-          <h4 className="text-sm font-semibold text-text-primary">Logged sets</h4>
-          <div className="space-y-1.5">
-            {currentExerciseSets.map((set) => (
-              <div
-                key={set.set}
-                className="flex items-center justify-between rounded-md border border-surface-border/60 px-3 py-2 text-sm text-text-secondary"
-              >
+            <div className="px-4 py-3">
+              <div className="flex items-center justify-between mb-2">
                 <div>
-                  <p className="font-semibold text-text-primary">
-                    Set {set.set}: {set.weight}kg × {set.reps}
-                  </p>
-                  <p className="text-xs text-text-muted">
-                    {set.rpe ? `@ ${set.rpe} RPE` : 'RPE —'}
-                    {set.notes ? ` • ${set.notes}` : ''}
+                  <p className="text-xs uppercase tracking-wide text-gray-500">Rest timer</p>
+                  <p className="text-2xl font-bold text-white tabular-nums">
+                    {formatSeconds(restRemaining)}
                   </p>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
+                  {isRestPaused ? (
+                    <button
+                      onClick={resumeRestTimer}
+                      className="p-2 rounded-full bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 transition active:scale-95"
+                      title="Resume"
+                    >
+                      <Play className="h-4 w-4" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={pauseRestTimer}
+                      className="p-2 rounded-full bg-gray-800 text-gray-400 hover:bg-gray-700 transition active:scale-95"
+                      title="Pause"
+                    >
+                      <Pause className="h-4 w-4" />
+                    </button>
+                  )}
                   <button
-                    onClick={() => handleEditEntry(set.set)}
-                    className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide text-text-muted transition hover:text-text-primary"
+                    onClick={stopRestTimer}
+                    className="px-3 py-1.5 rounded-full border border-gray-700 text-xs font-semibold uppercase tracking-wide text-gray-400 hover:text-white transition active:scale-95"
                   >
-                    <Pencil className="h-3 w-3" aria-hidden />
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDeleteEntry(set.set)}
-                    className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide text-text-muted transition hover:text-red-400"
-                  >
-                    <Trash2 className="h-3 w-3" aria-hidden />
-                    Delete
+                    Skip
                   </button>
                 </div>
               </div>
-            ))}
-          </div>
-        </Card>
-      ) : null}
+              {/* Progress bar */}
+              <div className="mb-2 h-1 bg-gray-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-cyan-500 to-indigo-500 transition-all"
+                  style={{
+                    width: `${((allExercises.find(ex => ex.id === activeExerciseId)?.restSeconds || 60) - restRemaining) / (allExercises.find(ex => ex.id === activeExerciseId)?.restSeconds || 60) * 100}%`,
+                  }}
+                />
+              </div>
+              {/* Quick adjust buttons */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => adjustRestTimer(-30)}
+                  className="flex-1 px-3 py-1.5 rounded-md bg-gray-800 text-gray-400 hover:bg-gray-700 text-xs font-medium transition active:scale-95"
+                >
+                  -30s
+                </button>
+                <button
+                  onClick={() => adjustRestTimer(30)}
+                  className="flex-1 px-3 py-1.5 rounded-md bg-gray-800 text-gray-400 hover:bg-gray-700 text-xs font-medium transition active:scale-95"
+                >
+                  +30s
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <div className="space-y-4">
-        {!isLastExercise ? (
-          <div className="flex flex-col gap-2 sm:flex-row">
-            {currentExerciseIndex > 0 ? (
-              <button
-                onClick={handlePreviousExercise}
-                className="flex-1 rounded-full border border-surface-border bg-surface-0 px-4 py-3 text-sm font-semibold text-text-primary transition hover:bg-surface-1"
-              >
-                ← Previous
-              </button>
-            ) : null}
-            <PrimaryButton
-              onClick={handleNextExercise}
-              className="flex-1 normal-case"
+      {/* Main Content */}
+      <main className="mx-auto max-w-md px-3 pt-4 pb-20">
+        {/* Feedback */}
+        <AnimatePresence>
+          {feedback && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className={`mb-3 rounded-lg border p-3 text-sm ${
+                feedback.type === 'error'
+                  ? 'border-red-500/30 bg-red-500/10 text-red-400'
+                  : feedback.type === 'success'
+                    ? 'border-green-500/30 bg-green-500/10 text-green-400'
+                    : 'border-cyan-500/30 bg-cyan-500/10 text-cyan-400'
+              }`}
             >
-              Next Exercise →
-            </PrimaryButton>
-          </div>
-        ) : (
-          <Card className="space-y-3 bg-surface-0">
-            <label className="block text-sm font-medium text-text-primary">
-              Overall workout RPE
-            </label>
-            <input
-              type="number"
-              inputMode="decimal"
-              step="0.5"
-              min={5}
-              max={10}
-              value={rpeLastSet}
-              onChange={(event) => setRpeLastSet(event.target.value)}
-              className="w-full rounded-md border border-surface-border bg-surface-0 px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
-              placeholder="7.5"
-            />
+              <div className="flex items-center justify-between">
+                <span>{feedback.message}</span>
+                <button
+                  onClick={() => setFeedback(null)}
+                  className="text-xs uppercase tracking-wide text-gray-400 hover:text-white transition"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Collapsible Exercise List */}
+        <div className="space-y-2">
+          {allExercises.map((exercise, index) => {
+            const exerciseSets = entries.filter((entry) => entry.exerciseId === exercise.id);
+            const isComplete = exerciseSets.length >= exercise.sets;
+            const hasLogs = exerciseSets.length > 0;
+            const isExpanded = expandedExercises.has(exercise.id);
+            const isActive = activeExerciseId === exercise.id;
+            const exerciseHistory = historicalData?.[exercise.id];
+
+            return (
+              <motion.div
+                key={exercise.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className={`rounded-lg border ${
+                  isActive
+                    ? 'border-cyan-500/30 bg-gray-900'
+                    : 'border-gray-800 bg-gray-900'
+                }`}
+              >
+                {/* Collapsed Header - Always visible */}
+                <button
+                  onClick={() => toggleExercise(exercise.id)}
+                  className="w-full p-3 text-left transition active:scale-[0.99]"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        {isComplete ? (
+                          <span className="text-green-400 text-lg">✓</span>
+                        ) : hasLogs ? (
+                          <span className="text-yellow-400 text-lg">◐</span>
+                        ) : (
+                          <span className="text-gray-600 text-lg">○</span>
+                        )}
+                        <div>
+                          <h3 className="font-medium text-white text-sm">{exercise.name}</h3>
+                          <p className="text-xs text-gray-500">
+                            {exercise.blockTitle} • Target: {exercise.sets}×{exercise.reps}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className={`text-xs font-semibold ${
+                        isComplete ? 'text-green-400' : hasLogs ? 'text-yellow-400' : 'text-gray-600'
+                      }`}>
+                        {exerciseSets.length}/{exercise.sets} sets
+                      </span>
+                      {isExpanded ? (
+                        <ChevronUp className="h-4 w-4 text-gray-400" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4 text-gray-400" />
+                      )}
+                    </div>
+                  </div>
+                </button>
+
+                {/* Expanded Content */}
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-3 pb-3 space-y-3 border-t border-gray-800 pt-3">
+                        {/* Historical data */}
+                        {exerciseHistory && exerciseHistory.length > 0 && (
+                          <div className="text-xs">
+                            <p className="text-gray-500 mb-1">
+                              Last session ({lastSessionDate}):
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {exerciseHistory.map((set, idx) => (
+                                <span key={idx} className="text-gray-400">
+                                  {set.weight}kg × {set.reps}
+                                  {set.rpe ? ` @ ${set.rpe}` : ''}
+                                  {idx < exerciseHistory.length - 1 ? ' •' : ''}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Form cues */}
+                        {exercise.cues && exercise.cues.length > 0 && (
+                          <div className="text-xs text-gray-500">
+                            {exercise.cues.slice(0, 2).map((cue, idx) => (
+                              <div key={idx}>• {cue}</div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Logged sets with Play/Undo buttons */}
+                        {exerciseSets.length > 0 && (
+                          <div className="space-y-1.5">
+                            <p className="text-xs font-medium text-gray-400">Logged sets:</p>
+                            {exerciseSets.map((set) => (
+                              <div
+                                key={set.set}
+                                className="flex items-center justify-between rounded-md border border-gray-800 bg-black/30 px-3 py-2"
+                              >
+                                <div className="flex-1">
+                                  <p className="text-sm font-medium text-white">
+                                    Set {set.set}: {set.weight}kg × {set.reps}
+                                    {set.rpe ? ` @ ${set.rpe} RPE` : ''}
+                                  </p>
+                                  {set.notes && (
+                                    <p className="text-xs text-gray-500">{set.notes}</p>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    onClick={() => handlePlaySet(exercise.id, set)}
+                                    className="p-2 rounded-md bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 transition active:scale-95"
+                                    title="Copy and start next set"
+                                  >
+                                    <Play className="h-3.5 w-3.5" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleUndoSet(exercise.id, set.set)}
+                                    className="p-2 rounded-md bg-gray-800 text-gray-400 hover:bg-gray-700 transition active:scale-95"
+                                    title="Remove set"
+                                  >
+                                    <RotateCcw className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Set logging form */}
+                        <div className="space-y-3 pt-2">
+                          <h4 className="text-xs font-semibold text-gray-400">
+                            Log set {exerciseSets.length + 1}
+                          </h4>
+
+                          <div className="grid grid-cols-3 gap-2">
+                            {/* Weight */}
+                            <div className="space-y-1">
+                              <label className="block text-xs font-medium text-gray-500">Weight (kg)</label>
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={decrementWeight}
+                                  type="button"
+                                  className="p-1.5 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-400 transition active:scale-95"
+                                >
+                                  <Minus className="h-3 w-3" />
+                                </button>
+                                <input
+                                  type="number"
+                                  step="2.5"
+                                  inputMode="decimal"
+                                  value={weight}
+                                  onChange={(e) => setWeight(e.target.value)}
+                                  className="flex-1 rounded-md border border-gray-800 bg-black px-2 py-1.5 text-sm text-white text-center placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
+                                  placeholder="0"
+                                />
+                                <button
+                                  onClick={incrementWeight}
+                                  type="button"
+                                  className="p-1.5 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-400 transition active:scale-95"
+                                >
+                                  <Plus className="h-3 w-3" />
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Reps */}
+                            <div className="space-y-1">
+                              <label className="block text-xs font-medium text-gray-500">Reps</label>
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={decrementReps}
+                                  type="button"
+                                  className="p-1.5 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-400 transition active:scale-95"
+                                >
+                                  <Minus className="h-3 w-3" />
+                                </button>
+                                <input
+                                  type="number"
+                                  inputMode="numeric"
+                                  value={reps}
+                                  onChange={(e) => setReps(e.target.value)}
+                                  className="flex-1 rounded-md border border-gray-800 bg-black px-2 py-1.5 text-sm text-white text-center placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
+                                  placeholder="0"
+                                />
+                                <button
+                                  onClick={incrementReps}
+                                  type="button"
+                                  className="p-1.5 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-400 transition active:scale-95"
+                                >
+                                  <Plus className="h-3 w-3" />
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* RPE */}
+                            <div className="space-y-1">
+                              <label className="block text-xs font-medium text-gray-500">RPE</label>
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={decrementRpe}
+                                  type="button"
+                                  className="p-1.5 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-400 transition active:scale-95"
+                                >
+                                  <Minus className="h-3 w-3" />
+                                </button>
+                                <input
+                                  type="number"
+                                  step="0.5"
+                                  inputMode="decimal"
+                                  value={rpe}
+                                  min={5}
+                                  max={10}
+                                  onChange={(e) => setRpe(e.target.value)}
+                                  className="flex-1 rounded-md border border-gray-800 bg-black px-2 py-1.5 text-sm text-white text-center placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
+                                  placeholder="7.5"
+                                />
+                                <button
+                                  onClick={incrementRpe}
+                                  type="button"
+                                  className="p-1.5 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-400 transition active:scale-95"
+                                >
+                                  <Plus className="h-3 w-3" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Notes */}
+                          <div className="space-y-1">
+                            <label className="block text-xs font-medium text-gray-500">Notes (optional)</label>
+                            <input
+                              type="text"
+                              value={notes}
+                              onChange={(e) => setNotes(e.target.value)}
+                              className="w-full rounded-md border border-gray-800 bg-black px-3 py-2 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
+                              placeholder="Felt strong, smooth tempo"
+                            />
+                          </div>
+
+                          {/* Quick copy last set */}
+                          {exerciseSets.length > 0 && (
+                            <button
+                              onClick={() => {
+                                const lastSet = exerciseSets[exerciseSets.length - 1];
+                                handlePlaySet(exercise.id, lastSet);
+                              }}
+                              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-400 text-xs font-medium transition active:scale-95"
+                            >
+                              <Copy className="h-3.5 w-3.5" />
+                              Copy Set {exerciseSets.length}
+                            </button>
+                          )}
+
+                          <PrimaryButton
+                            onClick={() => handleLogSet(exercise.id)}
+                            className="w-full"
+                          >
+                            Log Set {exerciseSets.length + 1}
+                          </PrimaryButton>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Complete Workout Section */}
+        {allExercisesComplete && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-6 space-y-3 rounded-lg border border-gray-800 bg-gray-900 p-4"
+          >
+            <h3 className="text-sm font-semibold text-white">Complete Workout</h3>
+            <div className="space-y-1">
+              <label className="block text-xs font-medium text-gray-400">
+                Overall workout RPE (5-10)
+              </label>
+              <input
+                type="number"
+                inputMode="decimal"
+                step="0.5"
+                min={5}
+                max={10}
+                value={rpeLastSet}
+                onChange={(e) => setRpeLastSet(e.target.value)}
+                className="w-full rounded-md border border-gray-800 bg-black px-3 py-2 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
+                placeholder="7.5"
+              />
+            </div>
             <PrimaryButton
               onClick={handleCompleteWorkout}
               disabled={isSubmitting}
-              className="w-full normal-case disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmitting ? 'Saving…' : 'Complete Workout'}
             </PrimaryButton>
-          </Card>
+          </motion.div>
         )}
 
-        <p className="text-center text-xs text-text-muted">
+        <p className="mt-4 text-center text-xs text-gray-600">
           {totalSetsLogged} {totalSetsLogged === 1 ? 'set logged' : 'sets logged'}
         </p>
-      </div>
 
-      {/* Exercise Quick Navigation Modal */}
-      {showExerciseList && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-end justify-center z-50"
-          onClick={() => setShowExerciseList(false)}
-        >
-          <div
-            className="bg-surface-0 rounded-t-2xl w-full max-w-3xl max-h-[70vh] overflow-hidden flex flex-col border-t border-surface-border"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="p-4 border-b border-surface-border">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-text-primary">Exercises</h3>
-                <button
-                  onClick={() => setShowExerciseList(false)}
-                  className="text-text-muted hover:text-text-primary"
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-2">
-              {allExercises.map((exercise, index) => {
-                const hasLogs = entries.some((entry) => entry.exerciseId === exercise.id);
-                const exerciseSets = entries.filter((entry) => entry.exerciseId === exercise.id);
-                const isComplete = exerciseSets.length >= exercise.sets;
-                const isCurrent = index === currentExerciseIndex;
-
-                return (
-                  <button
-                    key={exercise.id}
-                    onClick={() => {
-                      setCurrentExerciseIndex(index);
-                      setShowExerciseList(false);
-                      resetInputs();
-                      stopRestTimer();
-                    }}
-                    className={`w-full text-left p-3 rounded-lg border transition ${
-                      isCurrent
-                        ? 'bg-cyan-500/10 border-cyan-500/30'
-                        : 'bg-surface-1 border-surface-border hover:bg-surface-2'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          {isComplete ? (
-                            <span className="text-green-400">✓</span>
-                          ) : hasLogs ? (
-                            <span className="text-yellow-400">◐</span>
-                          ) : (
-                            <span className="text-text-muted">○</span>
-                          )}
-                          <span className="font-medium text-text-primary">{exercise.name}</span>
-                        </div>
-                        <div className="text-xs text-text-muted mt-1">
-                          {exercise.blockTitle} • {exerciseSets.length}/{exercise.sets} sets
-                        </div>
-                      </div>
-                      {isCurrent && (
-                        <span className="text-xs font-semibold text-cyan-400">Current</span>
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
+        {/* Spacer for bottom navigation */}
+        <div className="h-20" />
+      </main>
 
       {/* Workout Editor Modal */}
       {showWorkoutEditor && (
@@ -1056,7 +976,6 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
           onClose={() => setShowWorkoutEditor(false)}
           onSave={() => {
             setShowWorkoutEditor(false);
-            // Reload the page to reflect changes
             window.location.reload();
           }}
         />
