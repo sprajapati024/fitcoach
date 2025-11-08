@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { getActivePlanAction } from "@/app/actions/plan";
 import { workoutLogs, workoutLogSets } from "@/drizzle/schema";
 import { desc, eq, sql } from "drizzle-orm";
 import { ProgressView } from "./ProgressView";
@@ -76,6 +77,8 @@ export default async function ProgressPage() {
     day: "numeric",
   }) ?? null;
 
+  const activePlan = await getActivePlanAction();
+
   return (
     <ProgressView
       totalCompleted={totalCompleted}
@@ -87,6 +90,7 @@ export default async function ProgressPage() {
       averageRpe={averageRpe}
       recentRpeCount={recentRpeValues.length}
       lastWorkoutDate={lastWorkoutDate}
+      hasActivePlan={!!activePlan}
     />
   );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { TrendingUp, Dumbbell } from 'lucide-react';
+import { TrendingUp, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
 interface CompactProgressHeroProps {
@@ -12,6 +12,7 @@ interface CompactProgressHeroProps {
   completedWindow: number;
   windowTotal: number;
   lastWorkoutDate: string | null;
+  hasActivePlan: boolean;
 }
 
 export function CompactProgressHero({
@@ -22,6 +23,7 @@ export function CompactProgressHero({
   completedWindow,
   windowTotal,
   lastWorkoutDate,
+  hasActivePlan,
 }: CompactProgressHeroProps) {
   const compliancePercent = windowCompliance ?? 0;
 
@@ -53,8 +55,8 @@ export function CompactProgressHero({
     return 'bg-gradient-to-r from-purple-500 to-indigo-600 shadow-purple-500/20';
   };
 
-  if (totalCompleted === 0) {
-    // Empty state - no workouts yet
+  if (totalCompleted === 0 && !hasActivePlan) {
+    // No plan exists - show "Ready to Transform?" prompt
     return (
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -70,18 +72,18 @@ export function CompactProgressHero({
             </span>
           </div>
 
-          <h2 className="text-xl font-bold text-white leading-tight">Start Your Journey</h2>
+          <h2 className="text-xl font-bold text-white leading-tight">Ready to Transform?</h2>
 
           <p className="text-sm text-gray-400">
-            Complete your first workout to start tracking your progress and building momentum!
+            Create your personalized workout plan and start tracking your fitness journey!
           </p>
 
           <Link
-            href="/dashboard"
-            className={`w-full flex items-center justify-center gap-2 h-12 rounded-lg ${getButtonGradient()} font-semibold text-white shadow-lg transition active:scale-95 hover:scale-[1.02]`}
+            href="/plan"
+            className="w-full flex items-center justify-center gap-2 h-12 rounded-lg bg-gradient-to-r from-purple-500 to-indigo-600 font-semibold text-white shadow-lg shadow-purple-500/20 transition active:scale-95 hover:scale-[1.02]"
           >
-            <Dumbbell className="h-4 w-4" />
-            <span>Go to Dashboard</span>
+            <Sparkles className="h-4 w-4" />
+            <span>Create Your Plan</span>
           </Link>
         </div>
       </motion.div>
