@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import type { CoachResponse } from '@/lib/validation';
@@ -62,56 +62,43 @@ export function CompactCoachBrief({ userId, hasActivePlan }: CompactCoachBriefPr
           initial={{ opacity: 0, y: 20, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
-          className="relative overflow-hidden rounded-xl border border-purple-500/30 bg-gradient-to-br from-purple-500/10 via-indigo-500/10 to-cyan-500/10 cursor-pointer hover:scale-[1.02] transition-transform"
+          className="relative overflow-hidden rounded-2xl border border-purple-400/20 bg-gradient-to-br from-purple-950/40 to-indigo-950/40 backdrop-blur-sm cursor-pointer hover:border-purple-400/30 transition-all duration-300"
         >
-          {/* Animated gradient background glow */}
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-transparent to-cyan-500/20 opacity-50 animate-pulse" />
+          {/* Subtle top accent */}
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-400/50 to-transparent" />
 
-          <div className="relative space-y-4 p-4">
-            {/* Header with Avatar */}
-            <div className="flex items-start gap-3">
-              {/* Coach Avatar */}
+          <div className="relative p-5">
+            {/* Content */}
+            <div className="space-y-3">
+              {/* Badge */}
               <motion.div
-                initial={{ rotate: -10, scale: 0.8 }}
-                animate={{ rotate: 0, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.3, type: "spring", stiffness: 200 }}
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-400/30 to-cyan-400/30 ring-2 ring-purple-400/20"
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.2 }}
+                className="inline-flex items-center gap-1.5 rounded-md border border-purple-400/20 bg-purple-400/5 px-2 py-0.5"
               >
-                <Sparkles className="h-6 w-6 text-purple-400" />
+                <div className="h-1 w-1 rounded-full bg-purple-400" />
+                <span className="text-[9px] font-semibold uppercase tracking-wider text-purple-400/90">Coach</span>
               </motion.div>
 
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                {/* Badge */}
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: 0.4 }}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-purple-400/30 bg-purple-400/10 px-2.5 py-1 mb-2"
-                >
-                  <div className="h-1.5 w-1.5 rounded-full bg-purple-400 animate-pulse" />
-                  <span className="text-[10px] font-bold uppercase tracking-wide text-purple-400">Your Coach</span>
-                </motion.div>
+              {/* Headline */}
+              <motion.h3
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.3 }}
+                className="text-xl font-bold leading-snug text-white tracking-tight"
+              >
+                Ready to Transform?
+              </motion.h3>
 
-                {/* Headline - Large and Prominent */}
-                <motion.h3
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.5 }}
-                  className="text-lg font-bold leading-tight text-white mb-2"
-                >
-                  Ready to Transform?
-                </motion.h3>
+              <p className="text-sm text-gray-300/90 leading-relaxed">
+                Welcome! I'm here to guide you on your fitness journey. Let's create your personalized workout plan together.
+              </p>
 
-                <p className="text-sm text-gray-300 mb-3">
-                  Welcome! I'm here to guide you on your fitness journey. Let's create your personalized workout plan together.
-                </p>
-
-                {/* CTA */}
-                <div className="inline-flex items-center gap-2 text-sm font-semibold text-purple-400">
-                  <span>Create Your Plan</span>
-                  <span>→</span>
-                </div>
+              {/* CTA */}
+              <div className="inline-flex items-center gap-2 text-sm font-semibold text-purple-400 pt-1 group">
+                <span className="group-hover:translate-x-1 transition-transform">Create Your Plan</span>
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
               </div>
             </div>
           </div>
@@ -128,18 +115,14 @@ export function CompactCoachBrief({ userId, hasActivePlan }: CompactCoachBriefPr
         initial={{ opacity: 0, y: 20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
-        className="relative overflow-hidden rounded-xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 via-cyan-500/5 to-blue-500/5 p-4"
+        className="relative overflow-hidden rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-emerald-950/40 to-cyan-950/40 backdrop-blur-sm"
       >
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400/20 to-cyan-400/20 animate-pulse">
-              <Sparkles className="h-6 w-6 text-emerald-400" />
-            </div>
-            <div className="flex-1 space-y-2">
-              <div className="h-6 w-3/4 animate-pulse rounded-md bg-gray-800" />
-              <div className="h-3 w-1/2 animate-pulse rounded-md bg-gray-800" />
-            </div>
-          </div>
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
+
+        <div className="p-5 space-y-3">
+          <div className="h-5 w-20 animate-pulse rounded-md bg-gray-800/50" />
+          <div className="h-8 w-4/5 animate-pulse rounded-md bg-gray-800/50" />
+          <div className="h-4 w-2/5 animate-pulse rounded-md bg-gray-800/50" />
         </div>
       </motion.div>
     );
@@ -150,62 +133,49 @@ export function CompactCoachBrief({ userId, hasActivePlan }: CompactCoachBriefPr
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
-      className="relative overflow-hidden rounded-xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 via-cyan-500/5 to-blue-500/5"
+      className="relative overflow-hidden rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-emerald-950/40 to-cyan-950/40 backdrop-blur-sm"
     >
-      {/* Animated gradient background glow */}
-      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-blue-500/10 opacity-50 animate-pulse" />
+      {/* Subtle top accent */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
 
-      <div className="relative space-y-4 p-4">
-        {/* Header with Avatar */}
-        <div className="flex items-start gap-3">
-          {/* Coach Avatar */}
+      <div className="relative p-5">
+        {/* Content */}
+        <div className="space-y-3">
+          {/* Badge - More Subtle */}
           <motion.div
-            initial={{ rotate: -10, scale: 0.8 }}
-            animate={{ rotate: 0, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.3, type: "spring", stiffness: 200 }}
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400/30 to-cyan-400/30 ring-2 ring-emerald-400/20"
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+            className="inline-flex items-center gap-1.5 rounded-md border border-emerald-400/20 bg-emerald-400/5 px-2 py-0.5"
           >
-            <Sparkles className="h-6 w-6 text-emerald-400" />
+            <div className="h-1 w-1 rounded-full bg-emerald-400" />
+            <span className="text-[9px] font-semibold uppercase tracking-wider text-emerald-400/90">Coach</span>
           </motion.div>
 
-          {/* Content */}
-          <div className="flex-1 min-w-0">
-            {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3, delay: 0.4 }}
-              className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2.5 py-1 mb-2"
-            >
-              <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[10px] font-bold uppercase tracking-wide text-emerald-400">Your Coach</span>
-            </motion.div>
+          {/* Headline - Larger and More Prominent */}
+          <motion.h3
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+            className="text-xl font-bold leading-snug text-white tracking-tight"
+          >
+            {coachMessage}
+          </motion.h3>
 
-            {/* Headline - Large and Prominent */}
-            <motion.h3
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.5 }}
-              className="text-lg font-bold leading-tight text-white mb-1"
+          {/* Expand/Collapse Button */}
+          {data?.bullets && data.bullets.length > 0 && (
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="mt-1 inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400/70 hover:text-emerald-400 transition-colors group"
             >
-              {coachMessage}
-            </motion.h3>
-
-            {/* Expand/Collapse Button */}
-            {data?.bullets && data.bullets.length > 0 && (
-              <button
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="mt-2 flex items-center gap-1.5 text-xs font-medium text-emerald-400/80 hover:text-emerald-400 transition-colors"
-              >
-                <span>{isExpanded ? 'Show less' : 'Show more'}</span>
-                {isExpanded ? (
-                  <ChevronUp className="h-3.5 w-3.5" />
-                ) : (
-                  <ChevronDown className="h-3.5 w-3.5" />
-                )}
-              </button>
-            )}
-          </div>
+              <span>{isExpanded ? 'Less' : 'More details'}</span>
+              {isExpanded ? (
+                <ChevronUp className="h-3.5 w-3.5 group-hover:translate-y-[-2px] transition-transform" />
+              ) : (
+                <ChevronDown className="h-3.5 w-3.5 group-hover:translate-y-[2px] transition-transform" />
+              )}
+            </button>
+          )}
         </div>
 
         {/* Collapsible Bullets */}
@@ -215,18 +185,18 @@ export function CompactCoachBrief({ userId, hasActivePlan }: CompactCoachBriefPr
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
               className="overflow-hidden"
             >
-              <div className="border-t border-emerald-500/10 pt-3 pl-15">
-                <ul className="space-y-2">
+              <div className="mt-4 pt-4 border-t border-emerald-400/10">
+                <ul className="space-y-2.5">
                   {data.bullets.map((bullet, idx) => (
                     <motion.li
                       key={idx}
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3, delay: idx * 0.1 }}
-                      className="text-sm text-gray-300 pl-4 relative before:content-['→'] before:absolute before:left-0 before:text-emerald-400/60"
+                      transition={{ duration: 0.25, delay: idx * 0.08 }}
+                      className="text-sm text-gray-300/90 pl-5 relative before:content-['•'] before:absolute before:left-0 before:text-emerald-400/70 before:font-bold"
                     >
                       {bullet}
                     </motion.li>
