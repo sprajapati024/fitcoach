@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { ChevronDown, ChevronUp, MessageCircle } from 'lucide-react';
+import { ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { CoachResponse } from '@/lib/validation';
 
@@ -57,65 +57,118 @@ export function CompactCoachBrief({ userId }: CompactCoachBriefProps) {
   if (isLoading) {
     return (
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.55 }}
-        className="rounded-lg border border-gray-800 bg-gray-900/50 p-3"
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
+        className="relative overflow-hidden rounded-xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 via-cyan-500/5 to-blue-500/5 p-4"
       >
-        <div className="h-10 w-full animate-pulse rounded-md bg-gray-800" />
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400/20 to-cyan-400/20 animate-pulse">
+              <Sparkles className="h-6 w-6 text-emerald-400" />
+            </div>
+            <div className="flex-1 space-y-2">
+              <div className="h-6 w-3/4 animate-pulse rounded-md bg-gray-800" />
+              <div className="h-3 w-1/2 animate-pulse rounded-md bg-gray-800" />
+            </div>
+          </div>
+        </div>
       </motion.div>
     );
   }
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: 0.55 }}
-      className="rounded-lg border border-gray-800 bg-gray-900/50 overflow-hidden"
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
+      className="relative overflow-hidden rounded-xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 via-cyan-500/5 to-blue-500/5"
     >
-      {/* Header (Always Visible) */}
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="flex w-full items-center justify-between p-3 transition active:bg-gray-800/50"
-      >
-        <div className="flex items-center gap-2">
-          <MessageCircle className="h-4 w-4 text-cyan-500" />
-          <span className="text-xs font-semibold uppercase tracking-wide text-gray-400">Coach Says</span>
-        </div>
-        {isExpanded ? (
-          <ChevronUp className="h-4 w-4 text-gray-500" />
-        ) : (
-          <ChevronDown className="h-4 w-4 text-gray-500" />
-        )}
-      </button>
+      {/* Animated gradient background glow */}
+      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-blue-500/10 opacity-50 animate-pulse" />
 
-      {/* Collapsible Content */}
-      <AnimatePresence>
-        {isExpanded && (
+      <div className="relative space-y-4 p-4">
+        {/* Header with Avatar */}
+        <div className="flex items-start gap-3">
+          {/* Coach Avatar */}
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="border-t border-gray-800"
+            initial={{ rotate: -10, scale: 0.8 }}
+            animate={{ rotate: 0, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.3, type: "spring", stiffness: 200 }}
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400/30 to-cyan-400/30 ring-2 ring-emerald-400/20"
           >
-            <div className="p-3 pt-2">
-              <p className="text-xs leading-relaxed text-gray-300">{coachMessage}</p>
+            <Sparkles className="h-6 w-6 text-emerald-400" />
+          </motion.div>
 
-              {data?.bullets && data.bullets.length > 0 && (
-                <ul className="mt-2 space-y-1">
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: 0.4 }}
+              className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2.5 py-1 mb-2"
+            >
+              <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[10px] font-bold uppercase tracking-wide text-emerald-400">Your Coach</span>
+            </motion.div>
+
+            {/* Headline - Large and Prominent */}
+            <motion.h3
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.5 }}
+              className="text-lg font-bold leading-tight text-white mb-1"
+            >
+              {coachMessage}
+            </motion.h3>
+
+            {/* Expand/Collapse Button */}
+            {data?.bullets && data.bullets.length > 0 && (
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="mt-2 flex items-center gap-1.5 text-xs font-medium text-emerald-400/80 hover:text-emerald-400 transition-colors"
+              >
+                <span>{isExpanded ? 'Show less' : 'Show more'}</span>
+                {isExpanded ? (
+                  <ChevronUp className="h-3.5 w-3.5" />
+                ) : (
+                  <ChevronDown className="h-3.5 w-3.5" />
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Collapsible Bullets */}
+        <AnimatePresence>
+          {isExpanded && data?.bullets && data.bullets.length > 0 && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="overflow-hidden"
+            >
+              <div className="border-t border-emerald-500/10 pt-3 pl-15">
+                <ul className="space-y-2">
                   {data.bullets.map((bullet, idx) => (
-                    <li key={idx} className="text-xs text-gray-400 pl-3 relative before:content-['•'] before:absolute before:left-0">
+                    <motion.li
+                      key={idx}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3, delay: idx * 0.1 }}
+                      className="text-sm text-gray-300 pl-4 relative before:content-['→'] before:absolute before:left-0 before:text-emerald-400/60"
+                    >
                       {bullet}
-                    </li>
+                    </motion.li>
                   ))}
                 </ul>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </motion.div>
   );
 }
