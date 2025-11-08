@@ -7,7 +7,7 @@ import { WorkoutEditor } from '@/components/WorkoutEditor';
 import type { workouts, WorkoutPayload } from '@/drizzle/schema';
 import { enqueueLog } from '@/lib/offlineQueue';
 import type { WorkoutLogRequest } from '@/lib/validation';
-import { Pencil, Plus, Minus, Play, Pause, ChevronDown, ChevronUp, RotateCcw, Copy } from 'lucide-react';
+import { Pencil, Play, Pause, ChevronDown, ChevronUp, RotateCcw, Copy } from 'lucide-react';
 
 type Workout = typeof workouts.$inferSelect;
 
@@ -304,26 +304,6 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
     setFeedback({ type: 'info', message: 'Set removed.' });
   };
 
-  // Increment/decrement helpers
-  const incrementWeight = () => {
-    const current = parseFloat(weight) || 0;
-    setWeight((current + 2.5).toString());
-  };
-
-  const decrementWeight = () => {
-    const current = parseFloat(weight) || 0;
-    setWeight(Math.max(0, current - 2.5).toString());
-  };
-
-  const incrementReps = () => {
-    const current = parseInt(reps) || 0;
-    setReps((current + 1).toString());
-  };
-
-  const decrementReps = () => {
-    const current = parseInt(reps) || 0;
-    setReps(Math.max(0, current - 1).toString());
-  };
 
   const handleLogSet = (exerciseId: string) => {
     const exercise = allExercises.find((ex) => ex.id === exerciseId);
@@ -771,60 +751,28 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
                             {/* Weight */}
                             <div className="space-y-1">
                               <label className="block text-xs font-medium text-gray-500">Weight (kg)</label>
-                              <div className="flex items-center gap-1.5">
-                                <button
-                                  onClick={decrementWeight}
-                                  type="button"
-                                  className="p-2 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-400 transition active:scale-95"
-                                >
-                                  <Minus className="h-4 w-4" />
-                                </button>
-                                <input
-                                  type="number"
-                                  step="2.5"
-                                  inputMode="decimal"
-                                  value={weight}
-                                  onChange={(e) => setWeight(e.target.value)}
-                                  className="flex-1 rounded-md border border-gray-800 bg-black px-3 py-2 text-base text-white text-center placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
-                                  placeholder="0"
-                                />
-                                <button
-                                  onClick={incrementWeight}
-                                  type="button"
-                                  className="p-2 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-400 transition active:scale-95"
-                                >
-                                  <Plus className="h-4 w-4" />
-                                </button>
-                              </div>
+                              <input
+                                type="number"
+                                step="2.5"
+                                inputMode="decimal"
+                                value={weight}
+                                onChange={(e) => setWeight(e.target.value)}
+                                className="w-full rounded-md border border-gray-800 bg-black px-3 py-2 text-sm text-white text-center placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
+                                placeholder="0"
+                              />
                             </div>
 
                             {/* Reps */}
                             <div className="space-y-1">
                               <label className="block text-xs font-medium text-gray-500">Reps</label>
-                              <div className="flex items-center gap-1.5">
-                                <button
-                                  onClick={decrementReps}
-                                  type="button"
-                                  className="p-2 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-400 transition active:scale-95"
-                                >
-                                  <Minus className="h-4 w-4" />
-                                </button>
-                                <input
-                                  type="number"
-                                  inputMode="numeric"
-                                  value={reps}
-                                  onChange={(e) => setReps(e.target.value)}
-                                  className="flex-1 rounded-md border border-gray-800 bg-black px-3 py-2 text-base text-white text-center placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
-                                  placeholder="0"
-                                />
-                                <button
-                                  onClick={incrementReps}
-                                  type="button"
-                                  className="p-2 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-400 transition active:scale-95"
-                                >
-                                  <Plus className="h-4 w-4" />
-                                </button>
-                              </div>
+                              <input
+                                type="number"
+                                inputMode="numeric"
+                                value={reps}
+                                onChange={(e) => setReps(e.target.value)}
+                                className="w-full rounded-md border border-gray-800 bg-black px-3 py-2 text-sm text-white text-center placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
+                                placeholder="0"
+                              />
                             </div>
                           </div>
 
