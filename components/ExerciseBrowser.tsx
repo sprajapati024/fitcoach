@@ -191,26 +191,41 @@ export function ExerciseBrowser({
           <p>No exercises found. Try adjusting your search or filters.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredExercises.map((exercise) => (
             <div
               key={exercise.id}
-              className="bg-surface-1 border border-border rounded-lg overflow-hidden hover:border-neural-400 transition-colors"
+              className="bg-surface-1 border border-border rounded-lg overflow-hidden hover:border-neural-400 transition-colors relative"
             >
               {/* Exercise Image/GIF */}
               {(exercise.imageUrl || exercise.gifUrl) && (
-                <div className="aspect-video bg-surface-2 overflow-hidden">
+                <div className="aspect-[4/3] bg-surface-2 overflow-hidden relative">
                   <img
                     src={exercise.gifUrl || exercise.imageUrl}
                     alt={exercise.name}
                     className="w-full h-full object-cover"
                   />
+                  {/* Add Button - Top Right Corner */}
+                  <button
+                    onClick={() => handleAddExercise(exercise)}
+                    disabled={isExerciseSaved(exercise.id) || addingExercise === exercise.id}
+                    className="absolute top-2 right-2 h-8 w-8 bg-cyan-900/80 hover:bg-cyan-900 text-cyan-200 rounded-lg flex items-center justify-center backdrop-blur-sm disabled:opacity-50 transition-colors"
+                    title={isExerciseSaved(exercise.id) ? "Already in library" : "Add to library"}
+                  >
+                    {addingExercise === exercise.id ? (
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    ) : isExerciseSaved(exercise.id) ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <Plus className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
               )}
 
               {/* Exercise Info */}
-              <div className="p-4 space-y-3">
-                <h3 className="font-semibold text-lg">{exercise.name}</h3>
+              <div className="p-3 space-y-2">
+                <h3 className="font-semibold text-base">{exercise.name}</h3>
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-2">
@@ -252,30 +267,6 @@ export function ExerciseBrowser({
                     {exercise.impactLevel} impact
                   </span>
                 )}
-
-                {/* Add Button */}
-                <PrimaryButton
-                  onClick={() => handleAddExercise(exercise)}
-                  disabled={isExerciseSaved(exercise.id) || addingExercise === exercise.id}
-                  className="w-full mt-4"
-                >
-                  {addingExercise === exercise.id ? (
-                    <>
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                      Adding...
-                    </>
-                  ) : isExerciseSaved(exercise.id) ? (
-                    <>
-                      <Check className="h-4 w-4" />
-                      Added
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="h-4 w-4" />
-                      Add to Library
-                    </>
-                  )}
-                </PrimaryButton>
               </div>
             </div>
           ))}
