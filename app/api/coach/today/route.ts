@@ -28,11 +28,22 @@ export async function GET() {
 
     const today = isoToday();
 
+    // Get profile first to include coachTone in cache key
+    const profile = await db.query.profiles.findFirst({
+      where: eq(profiles.userId, user.id),
+    });
+
+    // Get coach tone from user profile (default to analyst)
+    const userCoachTone = profile?.coachTone || "analyst";
+
+    // Cache key includes tone so changing preference invalidates old cache
+    const cacheKey = `${today}-${userCoachTone}`;
+
     const cached = await db.query.coachCache.findFirst({
       where: and(
         eq(coachCache.userId, user.id),
         eq(coachCache.context, "today"),
-        eq(coachCache.cacheKey, today),
+        eq(coachCache.cacheKey, cacheKey),
       ),
     });
 
@@ -43,10 +54,6 @@ export async function GET() {
         cached: true,
       });
     }
-
-    const profile = await db.query.profiles.findFirst({
-      where: eq(profiles.userId, user.id),
-    });
 
     const [todayWorkout] = await db
       .select()
@@ -86,8 +93,6 @@ export async function GET() {
       context,
     ].join("\n\n");
 
-    // Get coach tone from user profile (default to analyst)
-    const userCoachTone = profile?.coachTone || "analyst";
     const systemPrompt = getCoachSystemPrompt(userCoachTone as "analyst" | "flirty");
 
     const coachResult = await callCoach({
@@ -118,7 +123,7 @@ export async function GET() {
         userId: user.id,
         planId: todayWorkout?.planId ?? null,
         context: "today",
-        cacheKey: today,
+        cacheKey: cacheKey,
         targetDate: today,
         payload,
         expiresAt: expires,

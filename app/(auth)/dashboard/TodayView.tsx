@@ -51,6 +51,9 @@ export function TodayView({ workout, userId, userName, nutrition }: TodayViewPro
           </h1>
         </div>
 
+        {/* Coach Brief - Prominent Position */}
+        <CompactCoachBrief userId={userId} />
+
         {/* Hero Card (Workout or Rest Day) */}
         <CompactHeroCard workout={workout} />
 
@@ -62,9 +65,6 @@ export function TodayView({ workout, userId, userName, nutrition }: TodayViewPro
           <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">Quick Actions</h2>
           <QuickActions />
         </div>
-
-        {/* Coach Brief (Collapsible) */}
-        <CompactCoachBrief userId={userId} />
       </main>
     </div>
   );
