@@ -197,29 +197,30 @@ export function ExerciseBrowser({
               key={exercise.id}
               className="bg-surface-1 border border-border rounded-lg overflow-hidden hover:border-neural-400 transition-colors relative"
             >
+              {/* Add Button - Top Right Corner of Card */}
+              <button
+                onClick={() => handleAddExercise(exercise)}
+                disabled={isExerciseSaved(exercise.id) || addingExercise === exercise.id}
+                className="absolute top-2 right-2 z-10 h-8 w-8 bg-cyan-900/90 hover:bg-cyan-900 text-cyan-200 rounded-lg flex items-center justify-center backdrop-blur-sm disabled:opacity-50 transition-colors shadow-lg"
+                title={isExerciseSaved(exercise.id) ? "Already in library" : "Add to library"}
+              >
+                {addingExercise === exercise.id ? (
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                ) : isExerciseSaved(exercise.id) ? (
+                  <Check className="h-4 w-4" />
+                ) : (
+                  <Plus className="h-4 w-4" />
+                )}
+              </button>
+
               {/* Exercise Image/GIF */}
               {(exercise.imageUrl || exercise.gifUrl) && (
-                <div className="aspect-[4/3] bg-surface-2 overflow-hidden relative">
+                <div className="aspect-[4/3] bg-surface-2 overflow-hidden">
                   <img
                     src={exercise.gifUrl || exercise.imageUrl}
                     alt={exercise.name}
                     className="w-full h-full object-cover"
                   />
-                  {/* Add Button - Top Right Corner */}
-                  <button
-                    onClick={() => handleAddExercise(exercise)}
-                    disabled={isExerciseSaved(exercise.id) || addingExercise === exercise.id}
-                    className="absolute top-2 right-2 h-8 w-8 bg-cyan-900/80 hover:bg-cyan-900 text-cyan-200 rounded-lg flex items-center justify-center backdrop-blur-sm disabled:opacity-50 transition-colors"
-                    title={isExerciseSaved(exercise.id) ? "Already in library" : "Add to library"}
-                  >
-                    {addingExercise === exercise.id ? (
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                    ) : isExerciseSaved(exercise.id) ? (
-                      <Check className="h-4 w-4" />
-                    ) : (
-                      <Plus className="h-4 w-4" />
-                    )}
-                  </button>
                 </div>
               )}
 
