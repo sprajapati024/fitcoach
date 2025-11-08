@@ -56,36 +56,23 @@ export function CompactProgressHero({
   };
 
   if (totalCompleted === 0 && !hasActivePlan) {
-    // No plan exists - show "Ready to Transform?" prompt
+    // No plan exists - show simple message to create plan
     return (
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.2 }}
-        className="relative overflow-hidden rounded-lg border border-purple-500/30 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 p-4"
+        className="relative overflow-hidden rounded-lg border border-gray-800 bg-gray-900 p-6 text-center"
       >
-        <div className="space-y-3">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 px-2.5 py-1">
-            <div className="h-1.5 w-1.5 rounded-full bg-purple-500 animate-pulse" />
-            <span className="text-[10px] font-bold uppercase tracking-wide text-purple-500">
-              Getting Started
-            </span>
-          </div>
-
-          <h2 className="text-xl font-bold text-white leading-tight">Ready to Transform?</h2>
-
-          <p className="text-sm text-gray-400">
-            Create your personalized workout plan and start tracking your fitness journey!
-          </p>
-
-          <Link
-            href="/plan"
-            className="w-full flex items-center justify-center gap-2 h-12 rounded-lg bg-gradient-to-r from-purple-500 to-indigo-600 font-semibold text-white shadow-lg shadow-purple-500/20 transition active:scale-95 hover:scale-[1.02]"
-          >
-            <Sparkles className="h-4 w-4" />
-            <span>Create Your Plan</span>
-          </Link>
-        </div>
+        <p className="text-gray-400 text-sm">
+          Your progress will appear here once you complete your first workout.
+        </p>
+        <Link
+          href="/dashboard"
+          className="mt-3 inline-block text-sm text-cyan-400 hover:text-cyan-300 transition"
+        >
+          Go to Dashboard →
+        </Link>
       </motion.div>
     );
   }

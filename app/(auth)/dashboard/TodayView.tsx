@@ -48,7 +48,7 @@ export function TodayView({ workout, userId, userName, nutrition, hasActivePlan 
         </div>
 
         {/* Coach Brief - Prominent Position */}
-        <CompactCoachBrief userId={userId} />
+        <CompactCoachBrief userId={userId} hasActivePlan={hasActivePlan} />
 
         {/* Hero Card (Workout or Rest Day) */}
         <CompactHeroCard workout={workout} hasActivePlan={hasActivePlan} />
