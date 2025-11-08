@@ -93,13 +93,13 @@ export function applyProgressiveOverload(
   const progression = getWeekProgression(weekNumber, totalWeeks);
 
   // Deep clone the microcycle to avoid mutations
-  const progressedMicrocycle = JSON.parse(JSON.stringify(baseMicrocycle));
+  const progressedMicrocycle: PlannerResponse["microcycle"] = JSON.parse(JSON.stringify(baseMicrocycle));
 
-  progressedMicrocycle.pattern.forEach((day) => {
-    day.blocks.forEach((block) => {
+  progressedMicrocycle.pattern.forEach((day: PlannerResponse["microcycle"]["pattern"][number]) => {
+    day.blocks.forEach((block: PlannerResponse["microcycle"]["pattern"][number]["blocks"][number]) => {
       // Apply progression to strength and accessory blocks
       if (block.type === "strength" || block.type === "accessory") {
-        block.exercises.forEach((exercise) => {
+        block.exercises.forEach((exercise: typeof block.exercises[number]) => {
           // Apply volume multiplier to sets
           const baseSets = exercise.sets;
           const newSets = Math.max(1, Math.round(baseSets * progression.volumeMultiplier));
