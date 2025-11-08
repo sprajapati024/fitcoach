@@ -49,8 +49,10 @@ export function TodayView({ workout, userId, userName, nutrition, hasActivePlan 
         {/* Hero Card (Workout or Rest Day) */}
         <CompactHeroCard workout={workout} hasActivePlan={hasActivePlan} />
 
-        {/* Compact Nutrition */}
-        <CompactNutrition nutrition={nutrition} />
+        {/* Compact Nutrition - Extra margin for better spacing */}
+        <div className="mt-5">
+          <CompactNutrition nutrition={nutrition} />
+        </div>
 
         {/* Quick Actions */}
         <div>
