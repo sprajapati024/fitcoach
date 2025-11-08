@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
-import { CalendarDays, Home, LineChart, Settings, Dumbbell, Apple, MoreHorizontal } from "lucide-react";
+import { CalendarDays, Home, LineChart, Settings, Dumbbell, Apple } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "@/components/Tooltip";
 
@@ -49,7 +49,7 @@ export const NAV_ITEMS: NavItem[] = [
   },
 ];
 
-// Mobile navigation items (4 main + More)
+// Mobile navigation items (5 main tabs)
 const MOBILE_NAV_ITEMS: NavItem[] = [
   {
     href: "/dashboard",
@@ -68,15 +68,14 @@ const MOBILE_NAV_ITEMS: NavItem[] = [
     icon: Apple,
   },
   {
+    href: "/exercises",
+    label: "Exercises",
+    icon: Dumbbell,
+  },
+  {
     href: "/progress",
     label: "Progress",
     icon: LineChart,
-  },
-  {
-    href: "/more",
-    label: "More",
-    icon: MoreHorizontal,
-    match: ["/more", "/exercises", "/settings"],
   },
 ];
 
