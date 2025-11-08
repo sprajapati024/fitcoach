@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Droplet, ChevronDown, Target, Settings } from "lucide-react";
+import { Droplet, ChevronDown, Target } from "lucide-react";
 import { MealLogger } from "@/components/MealLogger";
 import { WaterLogger } from "@/components/WaterLogger";
 import { GoalsModal } from "@/components/GoalsModal";
@@ -56,27 +56,6 @@ export function NutritionView() {
 
   return (
     <div className="min-h-screen bg-black -mx-4 -mt-6 -mb-32">
-      {/* Compact Header */}
-      <motion.header
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="sticky top-0 z-50 bg-black/95 backdrop-blur-sm border-b border-gray-800 md:hidden"
-      >
-        <div className="flex items-center justify-between h-14 px-4">
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-semibold text-white">Nutrition</span>
-          </div>
-
-          <button
-            onClick={() => setShowGoalsModal(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-900 text-gray-400 transition active:scale-95 hover:bg-gray-800 hover:text-white"
-          >
-            <Settings className="h-4 w-4" />
-          </button>
-        </div>
-      </motion.header>
-
       {/* Main Content */}
       <main className="mx-auto max-w-md px-3 pt-4 pb-20 space-y-3">
         {/* Date Selector */}
