@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import type { CoachResponse } from '@/lib/validation';
@@ -23,12 +23,21 @@ export function CompactCoachBrief({ userId, hasActivePlan }: CompactCoachBriefPr
   const [isExpanded, setIsExpanded] = useState(false);
   const [data, setData] = useState<CoachResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const fetchBrief = useCallback(async () => {
-    setIsLoading(true);
+  const fetchBrief = useCallback(async (forceRefresh = false) => {
+    if (forceRefresh) {
+      setIsRefreshing(true);
+    } else {
+      setIsLoading(true);
+    }
 
     try {
-      const response = await fetch(`/api/coach/today?u=${encodeURIComponent(userId)}`, {
+      const url = forceRefresh
+        ? `/api/coach/today?u=${encodeURIComponent(userId)}&refresh=true`
+        : `/api/coach/today?u=${encodeURIComponent(userId)}`;
+
+      const response = await fetch(url, {
         method: 'GET',
         cache: 'no-store',
       });
@@ -47,11 +56,16 @@ export function CompactCoachBrief({ userId, hasActivePlan }: CompactCoachBriefPr
       setData(null);
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
     }
   }, [userId]);
 
   useEffect(() => {
     void fetchBrief();
+  }, [fetchBrief]);
+
+  const handleRefresh = useCallback(() => {
+    void fetchBrief(true);
   }, [fetchBrief]);
 
   // Special onboarding message when no plan exists
@@ -141,19 +155,34 @@ export function CompactCoachBrief({ userId, hasActivePlan }: CompactCoachBriefPr
       <div className="relative p-5">
         {/* Content */}
         <div className="space-y-3">
-          {/* Badge - More Subtle */}
-          <motion.div
-            initial={{ opacity: 0, y: -5 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-            className="inline-flex items-center gap-1.5 rounded-md border border-emerald-400/20 bg-emerald-400/5 px-2 py-0.5"
-          >
-            <div className="h-1 w-1 rounded-full bg-emerald-400" />
-            <span className="text-[9px] font-semibold uppercase tracking-wider text-emerald-400/90">Coach</span>
-          </motion.div>
+          {/* Badge and Refresh Button Row */}
+          <div className="flex items-center justify-between">
+            <motion.div
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+              className="inline-flex items-center gap-1.5 rounded-md border border-emerald-400/20 bg-emerald-400/5 px-2 py-0.5"
+            >
+              <div className="h-1 w-1 rounded-full bg-emerald-400" />
+              <span className="text-[9px] font-semibold uppercase tracking-wider text-emerald-400/90">Coach</span>
+            </motion.div>
+
+            {/* Refresh Button */}
+            <button
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="p-1.5 rounded-lg border border-emerald-400/20 bg-emerald-400/5 hover:bg-emerald-400/10 hover:border-emerald-400/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group"
+              aria-label="Refresh coach message"
+            >
+              <RefreshCw
+                className={`h-3.5 w-3.5 text-emerald-400/70 group-hover:text-emerald-400 transition-colors ${isRefreshing ? 'animate-spin' : ''}`}
+              />
+            </button>
+          </div>
 
           {/* Headline - Larger and More Prominent */}
           <motion.h3
+            key={coachMessage} // Add key to trigger animation on message change
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.3 }}

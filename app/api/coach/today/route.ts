@@ -14,7 +14,7 @@ function isoToday(): string {
   return utc.toISOString().split("T")[0]!;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const supabase = await createSupabaseServerClient();
     const {
@@ -28,6 +28,10 @@ export async function GET() {
 
     const today = isoToday();
 
+    // Check if refresh is requested
+    const { searchParams } = new URL(request.url);
+    const forceRefresh = searchParams.get('refresh') === 'true';
+
     // Get profile first to include coachTone in cache key
     const profile = await db.query.profiles.findFirst({
       where: eq(profiles.userId, user.id),
@@ -39,20 +43,23 @@ export async function GET() {
     // Cache key includes tone so changing preference invalidates old cache
     const cacheKey = `${today}-${userCoachTone}`;
 
-    const cached = await db.query.coachCache.findFirst({
-      where: and(
-        eq(coachCache.userId, user.id),
-        eq(coachCache.context, "today"),
-        eq(coachCache.cacheKey, cacheKey),
-      ),
-    });
-
-    if (cached?.payload) {
-      return NextResponse.json({
-        success: true,
-        coach: cached.payload as CoachResponse,
-        cached: true,
+    // Skip cache check if refresh is requested
+    if (!forceRefresh) {
+      const cached = await db.query.coachCache.findFirst({
+        where: and(
+          eq(coachCache.userId, user.id),
+          eq(coachCache.context, "today"),
+          eq(coachCache.cacheKey, cacheKey),
+        ),
       });
+
+      if (cached?.payload) {
+        return NextResponse.json({
+          success: true,
+          coach: cached.payload as CoachResponse,
+          cached: true,
+        });
+      }
     }
 
     const [todayWorkout] = await db
