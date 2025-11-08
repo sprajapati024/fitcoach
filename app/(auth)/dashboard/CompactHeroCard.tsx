@@ -16,35 +16,8 @@ export function CompactHeroCard({ workout, hasActivePlan }: CompactHeroCardProps
   if (!workout) {
     // No workout today
     if (!hasActivePlan) {
-      // No plan exists - show "Ready to Transform?" prompt
-      return (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.2 }}
-          className="relative overflow-hidden rounded-lg border border-purple-500/30 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 p-4"
-        >
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/20">
-                <Sparkles className="h-5 w-5 text-purple-500" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-white">Ready to Transform?</h3>
-                <p className="text-xs text-gray-400">Your journey starts here</p>
-              </div>
-            </div>
-
-            <Link
-              href="/plan"
-              className="flex h-12 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-purple-500 to-indigo-600 font-semibold text-white shadow-lg shadow-purple-500/20 transition active:scale-95 hover:scale-[1.02]"
-            >
-              <Sparkles className="h-4 w-4" />
-              <span>Create Your Plan</span>
-            </Link>
-          </div>
-        </motion.div>
-      );
+      // No plan exists - coach will handle onboarding, so don't show anything
+      return null;
     }
 
     // Rest Day (has a plan, but no workout today)
