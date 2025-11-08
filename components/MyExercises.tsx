@@ -85,33 +85,46 @@ export function MyExercises({ onExercisesChange }: MyExercisesProps) {
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {exercises.map((exercise) => (
           <div
             key={exercise.id}
-            className="bg-surface-1 border border-border rounded-lg overflow-hidden hover:border-neural-400 transition-colors"
+            className="bg-surface-1 border border-border rounded-lg overflow-hidden hover:border-neural-400 transition-colors relative"
           >
             {/* Exercise Image/GIF */}
             {(exercise.imageUrl || exercise.gifUrl) && (
-              <div className="aspect-video bg-surface-2 overflow-hidden">
+              <div className="aspect-[4/3] bg-surface-2 overflow-hidden relative">
                 <img
                   src={exercise.gifUrl || exercise.imageUrl || ""}
                   alt={exercise.name}
                   className="w-full h-full object-cover"
                 />
+                {/* Remove Button - Top Right Corner */}
+                <button
+                  onClick={() => handleRemoveExercise(exercise.exerciseId)}
+                  disabled={removingExercise === exercise.exerciseId}
+                  className="absolute top-2 right-2 h-8 w-8 bg-red-900/80 hover:bg-red-900 text-red-200 rounded-lg flex items-center justify-center backdrop-blur-sm disabled:opacity-50 transition-colors"
+                  title="Remove from library"
+                >
+                  {removingExercise === exercise.exerciseId ? (
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  ) : (
+                    <Trash2 className="h-4 w-4" />
+                  )}
+                </button>
               </div>
             )}
 
             {/* Exercise Info */}
-            <div className="p-4 space-y-3">
+            <div className="p-3 space-y-2">
               <div className="flex items-start justify-between gap-2">
-                <h3 className="font-semibold text-lg flex-1">{exercise.name}</h3>
+                <h3 className="font-semibold text-base flex-1">{exercise.name}</h3>
                 <button
                   onClick={() => setSelectedExercise(exercise)}
-                  className="text-neutral-400 hover:text-neural-200"
+                  className="text-neutral-400 hover:text-neutral-200"
                   title="View details"
                 >
-                  <Info className="h-5 w-5" />
+                  <Info className="h-4 w-4" />
                 </button>
               </div>
 
@@ -158,25 +171,6 @@ export function MyExercises({ onExercisesChange }: MyExercisesProps) {
                   </span>
                 )}
               </div>
-
-              {/* Remove Button */}
-              <button
-                onClick={() => handleRemoveExercise(exercise.exerciseId)}
-                disabled={removingExercise === exercise.exerciseId}
-                className="w-full mt-4 px-4 py-2 bg-red-900/20 hover:bg-red-900/30 text-red-300 rounded-lg flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                {removingExercise === exercise.exerciseId ? (
-                  <>
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                    Removing...
-                  </>
-                ) : (
-                  <>
-                    <Trash2 className="h-4 w-4" />
-                    Remove
-                  </>
-                )}
-              </button>
             </div>
           </div>
         ))}
