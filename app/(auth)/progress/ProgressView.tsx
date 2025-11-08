@@ -16,6 +16,7 @@ interface ProgressViewProps {
   averageRpe: number | null;
   recentRpeCount: number;
   lastWorkoutDate: string | null;
+  hasActivePlan: boolean;
 }
 
 export function ProgressView({
@@ -28,6 +29,7 @@ export function ProgressView({
   averageRpe,
   recentRpeCount,
   lastWorkoutDate,
+  hasActivePlan,
 }: ProgressViewProps) {
   return (
     <div className="min-h-screen bg-black -mx-4 -mt-6 -mb-32">
@@ -63,6 +65,7 @@ export function ProgressView({
             completedWindow={completedWindow}
             windowTotal={windowTotal}
             lastWorkoutDate={lastWorkoutDate}
+            hasActivePlan={hasActivePlan}
           />
 
           {/* Stats Grid */}

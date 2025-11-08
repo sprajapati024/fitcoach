@@ -14,6 +14,7 @@ interface TodayViewProps {
   userId: string;
   userName?: string | null;
   nutrition: Awaited<ReturnType<typeof import('@/app/actions/nutrition').getTodayNutrition>>;
+  hasActivePlan: boolean;
 }
 
 function getTimeBasedGreeting() {
@@ -28,7 +29,7 @@ function getTimeBasedGreeting() {
   }
 }
 
-export function TodayView({ workout, userId, userName, nutrition }: TodayViewProps) {
+export function TodayView({ workout, userId, userName, nutrition, hasActivePlan }: TodayViewProps) {
   const greeting = getTimeBasedGreeting();
   const displayName = userName || 'there';
 
@@ -50,7 +51,7 @@ export function TodayView({ workout, userId, userName, nutrition }: TodayViewPro
         <CompactCoachBrief userId={userId} />
 
         {/* Hero Card (Workout or Rest Day) */}
-        <CompactHeroCard workout={workout} />
+        <CompactHeroCard workout={workout} hasActivePlan={hasActivePlan} />
 
         {/* Compact Nutrition */}
         <CompactNutrition nutrition={nutrition} />
