@@ -52,12 +52,14 @@ export async function GET(request: Request) {
     const formattedExercises = exercises.map(ex => ({
       id: ex.id,
       name: ex.name,
-      bodyPart: ex.primaryMuscle,
-      target: ex.primaryMuscle,
+      bodyParts: [ex.primaryMuscle],
+      targetMuscles: [ex.primaryMuscle],
       secondaryMuscles: ex.secondaryMuscles,
-      equipment: ex.equipment,
+      equipment: [ex.equipment],
       gifUrl: null, // No GIFs for local exercises
       instructions: ex.notes ? [ex.notes] : [],
+      isPcosSafe: ex.isPcosFriendly,
+      impactLevel: ex.impact,
     }));
 
     return NextResponse.json({ exercises: formattedExercises });

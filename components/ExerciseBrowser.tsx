@@ -83,9 +83,9 @@ export function ExerciseBrowser({
           imageUrl: exercise.imageUrl,
           videoUrl: exercise.videoUrl,
           gifUrl: exercise.gifUrl,
-          equipment: exercise.equipment,
-          bodyParts: exercise.bodyPart ? [exercise.bodyPart] : [],
-          targetMuscles: exercise.target ? [exercise.target] : [],
+          equipment: exercise.equipment || [],
+          bodyParts: exercise.bodyParts || [],
+          targetMuscles: exercise.targetMuscles || [],
           secondaryMuscles: exercise.secondaryMuscles || [],
           exerciseType: exercise.exerciseType || "strength",
           source: "catalog",
@@ -214,9 +214,9 @@ export function ExerciseBrowser({
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-2">
-                  {exercise.bodyPart && (
+                  {exercise.bodyParts && exercise.bodyParts.length > 0 && (
                     <span className="px-2 py-1 bg-neural-900/30 text-neural-300 text-xs rounded capitalize">
-                      {exercise.bodyPart}
+                      {exercise.bodyParts[0]}
                     </span>
                   )}
                   {exercise.secondaryMuscles && exercise.secondaryMuscles.length > 0 && (
@@ -224,9 +224,9 @@ export function ExerciseBrowser({
                       {exercise.secondaryMuscles[0]}
                     </span>
                   )}
-                  {exercise.equipment && (
+                  {exercise.equipment && exercise.equipment.length > 0 && (
                     <span className="px-2 py-1 bg-surface-2 text-neutral-400 text-xs rounded capitalize">
-                      {exercise.equipment}
+                      {exercise.equipment[0]}
                     </span>
                   )}
                 </div>
