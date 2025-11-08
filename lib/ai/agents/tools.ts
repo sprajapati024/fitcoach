@@ -4,26 +4,46 @@ import { listExercises } from '@/lib/exerciseLibrary';
 
 export const queryExercisesTool = tool({
   name: 'query_exercises',
-  description: 'Search exercises by movement pattern, impact level, and PCOS compatibility',
+  description: 'Search exercises by movement pattern, impact level, equipment, and PCOS compatibility. Returns exercise IDs and names.',
   parameters: z.object({
-    movement: z.union([z.string(), z.null()]).optional().describe('Movement pattern: squat, hinge, lunge, push, pull, carry, etc.'),
-    impact: z.union([z.enum(['low', 'moderate', 'high']), z.null()]).optional(),
+    movement: z.union([z.string(), z.null()]).optional().describe('Movement pattern: squat, hinge, lunge, horizontal_push, horizontal_pull, vertical_push, vertical_pull, carry, core, conditioning, mobility'),
+    impact: z.union([z.enum(['low', 'moderate', 'high']), z.null()]).optional().describe('Impact level for PCOS safety'),
     pcosFriendly: z.union([z.boolean(), z.null()]).optional().describe('Filter for PCOS-safe exercises'),
+    equipment: z.union([z.array(z.string()), z.null()]).optional().describe('Array of available equipment types: barbell, dumbbell, cable, machine, bodyweight, band, kettlebell, etc.'),
   }),
-  async execute({ movement, impact, pcosFriendly }) {
+  async execute({ movement, impact, pcosFriendly, equipment }) {
     const exercises = listExercises();
     const filtered = exercises.filter(ex => {
+      // Movement pattern filter
       if (movement !== undefined && movement !== null && ex.movement !== movement) return false;
+
+      // Impact level filter
       if (impact !== undefined && impact !== null && ex.impact !== impact) return false;
+
+      // PCOS-friendly filter
       if (pcosFriendly !== undefined && pcosFriendly !== null && ex.isPcosFriendly !== pcosFriendly) return false;
+
+      // Equipment filter - check if exercise equipment is in the available equipment list
+      if (equipment !== undefined && equipment !== null && equipment.length > 0) {
+        const exerciseEquipment = ex.equipment.toLowerCase();
+        const hasEquipment = equipment.some((eq: string) => {
+          const normalizedEq = eq.toLowerCase().trim();
+          // Check for exact match or partial match (e.g., "barbell" matches "trap_bar")
+          return exerciseEquipment.includes(normalizedEq) || normalizedEq.includes(exerciseEquipment);
+        });
+        if (!hasEquipment) return false;
+      }
+
       return true;
     });
 
     if (filtered.length === 0) {
-      return 'No exercises found matching the criteria.';
+      return 'No exercises found matching the criteria. Try broadening your search (remove equipment filters or use different movement patterns).';
     }
 
-    return filtered.map(ex => `${ex.id}: ${ex.name}`).join(', ');
+    // Return up to 30 exercises to avoid overwhelming the AI
+    const limited = filtered.slice(0, 30);
+    return limited.map(ex => `${ex.id}: ${ex.name} (${ex.equipment})`).join(', ');
   },
 });
 
