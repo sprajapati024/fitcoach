@@ -26,7 +26,7 @@ export const queryExercisesTool = tool({
       // Equipment filter - check if exercise equipment is in the available equipment list
       if (equipment !== undefined && equipment !== null && equipment.length > 0) {
         const exerciseEquipment = ex.equipment.toLowerCase();
-        const hasEquipment = equipment.some(eq => {
+        const hasEquipment = equipment.some((eq: string) => {
           const normalizedEq = eq.toLowerCase().trim();
           // Check for exact match or partial match (e.g., "barbell" matches "trap_bar")
           return exerciseEquipment.includes(normalizedEq) || normalizedEq.includes(exerciseEquipment);
