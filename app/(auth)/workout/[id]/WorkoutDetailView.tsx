@@ -131,7 +131,7 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
   return (
     <div className="min-h-screen bg-black -mx-4 -mt-6 -mb-32">
       {/* Header - Sticky */}
-      <div className="sticky top-0 z-50 bg-black/95 backdrop-blur-sm border-b border-gray-800">
+      <div className="sticky top-0 z-50 bg-black/95 backdrop-blur-sm border-b border-gray-800 md:hidden">
         <div className="px-4 py-3">
           <button
             onClick={() => router.back()}

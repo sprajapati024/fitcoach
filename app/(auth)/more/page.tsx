@@ -27,7 +27,7 @@ export default function MorePage() {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="sticky top-0 z-50 bg-black/95 backdrop-blur-sm border-b border-gray-800"
+        className="sticky top-0 z-50 bg-black/95 backdrop-blur-sm border-b border-gray-800 md:hidden"
       >
         <div className="flex items-center justify-between h-14 px-4">
           <div>
