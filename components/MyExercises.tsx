@@ -91,27 +91,28 @@ export function MyExercises({ onExercisesChange }: MyExercisesProps) {
             key={exercise.id}
             className="bg-surface-1 border border-border rounded-lg overflow-hidden hover:border-neural-400 transition-colors relative"
           >
+            {/* Remove Button - Top Right Corner of Card */}
+            <button
+              onClick={() => handleRemoveExercise(exercise.exerciseId)}
+              disabled={removingExercise === exercise.exerciseId}
+              className="absolute top-2 right-2 z-10 h-8 w-8 bg-red-900/90 hover:bg-red-900 text-red-200 rounded-lg flex items-center justify-center backdrop-blur-sm disabled:opacity-50 transition-colors shadow-lg"
+              title="Remove from library"
+            >
+              {removingExercise === exercise.exerciseId ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
+            </button>
+
             {/* Exercise Image/GIF */}
             {(exercise.imageUrl || exercise.gifUrl) && (
-              <div className="aspect-[4/3] bg-surface-2 overflow-hidden relative">
+              <div className="aspect-[4/3] bg-surface-2 overflow-hidden">
                 <img
                   src={exercise.gifUrl || exercise.imageUrl || ""}
                   alt={exercise.name}
                   className="w-full h-full object-cover"
                 />
-                {/* Remove Button - Top Right Corner */}
-                <button
-                  onClick={() => handleRemoveExercise(exercise.exerciseId)}
-                  disabled={removingExercise === exercise.exerciseId}
-                  className="absolute top-2 right-2 h-8 w-8 bg-red-900/80 hover:bg-red-900 text-red-200 rounded-lg flex items-center justify-center backdrop-blur-sm disabled:opacity-50 transition-colors"
-                  title="Remove from library"
-                >
-                  {removingExercise === exercise.exerciseId ? (
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  ) : (
-                    <Trash2 className="h-4 w-4" />
-                  )}
-                </button>
               </div>
             )}
 
