@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { TrendingUp, Flame, Dumbbell } from 'lucide-react';
+import { TrendingUp, Dumbbell } from 'lucide-react';
 import Link from 'next/link';
 
 interface CompactProgressHeroProps {
@@ -23,8 +23,6 @@ export function CompactProgressHero({
   windowTotal,
   lastWorkoutDate,
 }: CompactProgressHeroProps) {
-  // Calculate streak (simplified - consecutive days with workouts)
-  const streak = completedWindow;
   const compliancePercent = windowCompliance ?? 0;
 
   // Color coding based on compliance
@@ -140,13 +138,6 @@ export function CompactProgressHero({
             <span className="font-medium text-white">{totalSets}</span>
             <span className="text-xs text-gray-600">sets</span>
           </div>
-          {streak > 0 && (
-            <div className="flex items-center gap-1.5">
-              <span>🔥</span>
-              <span className="font-medium text-white">{streak}</span>
-              <span className="text-xs text-gray-600">this week</span>
-            </div>
-          )}
         </div>
 
         {/* Last Workout Info */}

@@ -1,7 +1,6 @@
 'use client';
 
 import { CompactHeader } from './CompactHeader';
-import { StreakBadge } from './StreakBadge';
 import { CompactHeroCard } from './CompactHeroCard';
 import { CompactNutrition } from './CompactNutrition';
 import { QuickActions } from './QuickActions';
@@ -33,9 +32,6 @@ export function TodayView({ workout, userId, userName, nutrition }: TodayViewPro
   const greeting = getTimeBasedGreeting();
   const displayName = userName || 'there';
 
-  // Mock streak - in production, fetch from database
-  const streakDays = 12;
-
   return (
     <div className="min-h-screen bg-black -mx-4 -mt-6 -mb-32">
       {/* Compact Header */}
@@ -43,9 +39,8 @@ export function TodayView({ workout, userId, userName, nutrition }: TodayViewPro
 
       {/* Main Content - Phone App Style */}
       <main className="mx-auto max-w-md px-3 pt-4 pb-20 space-y-3">
-        {/* Streak Badge + Greeting */}
+        {/* Greeting */}
         <div className="space-y-1.5">
-          <StreakBadge days={streakDays} />
           <h1 className="text-sm font-medium text-gray-400">
             {greeting}, {displayName}
           </h1>
