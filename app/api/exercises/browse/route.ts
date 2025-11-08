@@ -1,15 +1,10 @@
 import { NextResponse } from "next/server";
-import {
-  fetchExercises,
-  searchExercises,
-  fetchBodyParts,
-  fetchEquipmentTypes,
-} from "@/lib/exercisedb";
+import { listExercises } from "@/lib/exerciseLibrary";
 import { getCurrentUser } from "@/lib/auth";
 
 /**
  * GET /api/exercises/browse
- * Browse exercises from ExerciseDB with filters
+ * Browse exercises from local catalog with filters
  */
 export async function GET(request: Request) {
   try {
@@ -20,23 +15,54 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const query = searchParams.get("q");
-    const bodyPart = searchParams.get("bodyPart");
+    const movement = searchParams.get("movement");
     const equipment = searchParams.get("equipment");
-    const limit = searchParams.get("limit");
+    const impact = searchParams.get("impact");
 
-    let exercises;
+    // Get all exercises from local catalog
+    let exercises = listExercises();
 
-    if (query) {
-      exercises = await searchExercises(query);
-    } else {
-      exercises = await fetchExercises({
-        bodyPart: bodyPart || undefined,
-        equipment: equipment || undefined,
-        limit: limit ? parseInt(limit) : undefined,
-      });
+    // Apply filters
+    if (movement && movement !== "all") {
+      exercises = exercises.filter(ex => ex.movement === movement);
     }
 
-    return NextResponse.json({ exercises });
+    if (equipment && equipment !== "all") {
+      exercises = exercises.filter(ex =>
+        ex.equipment.toLowerCase().includes(equipment.toLowerCase())
+      );
+    }
+
+    if (impact && impact !== "all") {
+      exercises = exercises.filter(ex => ex.impact === impact);
+    }
+
+    // Apply search query
+    if (query) {
+      const searchLower = query.toLowerCase();
+      exercises = exercises.filter(ex =>
+        ex.name.toLowerCase().includes(searchLower) ||
+        ex.primaryMuscle.toLowerCase().includes(searchLower) ||
+        ex.secondaryMuscles.some(m => m.toLowerCase().includes(searchLower)) ||
+        ex.aliases.some(a => a.toLowerCase().includes(searchLower))
+      );
+    }
+
+    // Map to format expected by frontend
+    const formattedExercises = exercises.map(ex => ({
+      id: ex.id,
+      name: ex.name,
+      bodyParts: [ex.primaryMuscle],
+      targetMuscles: [ex.primaryMuscle],
+      secondaryMuscles: ex.secondaryMuscles,
+      equipment: [ex.equipment],
+      gifUrl: null, // No GIFs for local exercises
+      instructions: ex.notes ? [ex.notes] : [],
+      isPcosSafe: ex.isPcosFriendly,
+      impactLevel: ex.impact,
+    }));
+
+    return NextResponse.json({ exercises: formattedExercises });
   } catch (error) {
     console.error("Error browsing exercises:", error);
     return NextResponse.json(
