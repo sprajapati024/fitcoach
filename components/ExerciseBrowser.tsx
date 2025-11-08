@@ -18,9 +18,9 @@ export function ExerciseBrowser({
   const [filteredExercises, setFilteredExercises] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedBodyPart, setSelectedBodyPart] = useState<string>("");
+  const [selectedMovement, setSelectedMovement] = useState<string>("");
   const [selectedEquipment, setSelectedEquipment] = useState<string>("");
-  const [bodyParts, setBodyParts] = useState<string[]>([]);
+  const [movements, setMovements] = useState<Array<{ value: string; label: string }>>([]);
   const [equipmentTypes, setEquipmentTypes] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const [addingExercise, setAddingExercise] = useState<string | null>(null);
@@ -31,7 +31,7 @@ export function ExerciseBrowser({
       try {
         const response = await fetch("/api/exercises/filters");
         const data = await response.json();
-        setBodyParts(data.bodyParts || []);
+        setMovements(data.movements || []);
         setEquipmentTypes(data.equipmentTypes || []);
       } catch (error) {
         console.error("Error fetching filters:", error);
@@ -47,7 +47,7 @@ export function ExerciseBrowser({
       try {
         const params = new URLSearchParams();
         if (searchQuery) params.set("q", searchQuery);
-        if (selectedBodyPart) params.set("bodyPart", selectedBodyPart);
+        if (selectedMovement) params.set("movement", selectedMovement);
         if (selectedEquipment) params.set("equipment", selectedEquipment);
 
         const response = await fetch(`/api/exercises/browse?${params.toString()}`);
@@ -65,7 +65,7 @@ export function ExerciseBrowser({
 
     const debounce = setTimeout(fetchExercises, 300);
     return () => clearTimeout(debounce);
-  }, [searchQuery, selectedBodyPart, selectedEquipment]);
+  }, [searchQuery, selectedMovement, selectedEquipment]);
 
   const handleAddExercise = async (exercise: Exercise) => {
     setAddingExercise(exercise.id);
@@ -78,17 +78,17 @@ export function ExerciseBrowser({
         body: JSON.stringify({
           exerciseId: exercise.id,
           name: exercise.name,
-          description: exercise.description,
-          instructions: exercise.instructions,
+          description: exercise.instructions?.[0] || "",
+          instructions: exercise.instructions || [],
           imageUrl: exercise.imageUrl,
           videoUrl: exercise.videoUrl,
           gifUrl: exercise.gifUrl,
           equipment: exercise.equipment,
-          bodyParts: exercise.bodyParts,
-          targetMuscles: exercise.targetMuscles,
-          secondaryMuscles: exercise.secondaryMuscles,
-          exerciseType: exercise.exerciseType,
-          source: "exercisedb",
+          bodyParts: exercise.bodyPart ? [exercise.bodyPart] : [],
+          targetMuscles: exercise.target ? [exercise.target] : [],
+          secondaryMuscles: exercise.secondaryMuscles || [],
+          exerciseType: exercise.exerciseType || "strength",
+          source: "catalog",
           isPcosSafe: exercise.isPcosSafe,
           impactLevel: exercise.impactLevel,
         }),
@@ -139,16 +139,16 @@ export function ExerciseBrowser({
         {showFilters && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-surface-1 rounded-lg border border-border">
             <div>
-              <label className="block text-sm font-medium mb-2">Body Part</label>
+              <label className="block text-sm font-medium mb-2">Movement Pattern</label>
               <select
-                value={selectedBodyPart}
-                onChange={(e) => setSelectedBodyPart(e.target.value)}
+                value={selectedMovement}
+                onChange={(e) => setSelectedMovement(e.target.value)}
                 className="w-full px-3 py-2 bg-surface-0 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
               >
-                <option value="">All Body Parts</option>
-                {bodyParts.map((part) => (
-                  <option key={part} value={part}>
-                    {part}
+                <option value="">All Movements</option>
+                {movements.map((movement) => (
+                  <option key={movement.value} value={movement.value}>
+                    {movement.label}
                   </option>
                 ))}
               </select>
@@ -214,28 +214,27 @@ export function ExerciseBrowser({
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-2">
-                  {exercise.bodyParts.slice(0, 2).map((part) => (
-                    <span
-                      key={part}
-                      className="px-2 py-1 bg-neural-900/30 text-neural-300 text-xs rounded"
-                    >
-                      {part}
+                  {exercise.bodyPart && (
+                    <span className="px-2 py-1 bg-neural-900/30 text-neural-300 text-xs rounded capitalize">
+                      {exercise.bodyPart}
                     </span>
-                  ))}
-                  {exercise.equipment.slice(0, 1).map((equip) => (
-                    <span
-                      key={equip}
-                      className="px-2 py-1 bg-surface-2 text-neutral-400 text-xs rounded"
-                    >
-                      {equip}
+                  )}
+                  {exercise.secondaryMuscles && exercise.secondaryMuscles.length > 0 && (
+                    <span className="px-2 py-1 bg-neural-900/30 text-neural-300 text-xs rounded capitalize">
+                      {exercise.secondaryMuscles[0]}
                     </span>
-                  ))}
+                  )}
+                  {exercise.equipment && (
+                    <span className="px-2 py-1 bg-surface-2 text-neutral-400 text-xs rounded capitalize">
+                      {exercise.equipment}
+                    </span>
+                  )}
                 </div>
 
-                {/* Description */}
-                {exercise.description && (
+                {/* Instructions/Notes */}
+                {exercise.instructions && exercise.instructions.length > 0 && (
                   <p className="text-sm text-neutral-400 line-clamp-2">
-                    {exercise.description}
+                    {exercise.instructions[0]}
                   </p>
                 )}
 
