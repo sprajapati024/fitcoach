@@ -4,6 +4,7 @@ import { useState } from "react";
 import { User, Activity, Calendar, Dumbbell, Heart, MessageSquare, Globe } from "lucide-react";
 import type { profiles } from "@/drizzle/schema";
 import { PrimaryButton } from "@/components/PrimaryButton";
+import { CollapsibleCard } from "@/components/CollapsibleCard";
 import { updateFullProfileAction } from "@/app/actions/profile";
 
 type Profile = typeof profiles.$inferSelect;
@@ -123,13 +124,8 @@ export function ProfileEditor({ profile }: ProfileEditorProps) {
       )}
 
       {/* Personal Information */}
-      <div className="space-y-4 rounded-lg border border-gray-800 bg-gray-900 p-4">
-        <div className="flex items-center gap-3 border-b border-gray-800 pb-3">
-          <User className="h-5 w-5 text-cyan-500" />
-          <h3 className="text-base font-semibold text-white">Personal Information</h3>
-        </div>
-
-        <div className="space-y-4">
+      <CollapsibleCard icon={User} title="Personal Information">
+        <div className="space-y-4 pt-4">
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-300">Full Name</label>
             <input
@@ -166,16 +162,11 @@ export function ProfileEditor({ profile }: ProfileEditorProps) {
             />
           </div>
         </div>
-      </div>
+      </CollapsibleCard>
 
       {/* Body Metrics */}
-      <div className="space-y-4 rounded-lg border border-gray-800 bg-gray-900 p-4">
-        <div className="flex items-center gap-3 border-b border-gray-800 pb-3">
-          <Activity className="h-5 w-5 text-cyan-500" />
-          <h3 className="text-base font-semibold text-white">Body Metrics</h3>
-        </div>
-
-        <div className="space-y-4">
+      <CollapsibleCard icon={Activity} title="Body Metrics">
+        <div className="space-y-4 pt-4">
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-300">Unit System</label>
             <div className="grid grid-cols-2 gap-3">
@@ -234,16 +225,11 @@ export function ProfileEditor({ profile }: ProfileEditorProps) {
             </div>
           </div>
         </div>
-      </div>
+      </CollapsibleCard>
 
       {/* Training Goals */}
-      <div className="space-y-4 rounded-lg border border-gray-800 bg-gray-900 p-4">
-        <div className="flex items-center gap-3 border-b border-gray-800 pb-3">
-          <Dumbbell className="h-5 w-5 text-cyan-500" />
-          <h3 className="text-base font-semibold text-white">Training Goals</h3>
-        </div>
-
-        <div className="space-y-4">
+      <CollapsibleCard icon={Dumbbell} title="Training Goals">
+        <div className="space-y-4 pt-4">
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-300">Primary Goal</label>
             <div className="grid grid-cols-2 gap-3">
@@ -297,16 +283,11 @@ export function ProfileEditor({ profile }: ProfileEditorProps) {
             </div>
           </div>
         </div>
-      </div>
+      </CollapsibleCard>
 
       {/* Training Schedule */}
-      <div className="space-y-4 rounded-lg border border-gray-800 bg-gray-900 p-4">
-        <div className="flex items-center gap-3 border-b border-gray-800 pb-3">
-          <Calendar className="h-5 w-5 text-cyan-500" />
-          <h3 className="text-base font-semibold text-white">Training Schedule</h3>
-        </div>
-
-        <div className="space-y-4">
+      <CollapsibleCard icon={Calendar} title="Training Schedule">
+        <div className="space-y-4 pt-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-300">Days/Week</label>
@@ -366,16 +347,11 @@ export function ProfileEditor({ profile }: ProfileEditorProps) {
             </div>
           </div>
         </div>
-      </div>
+      </CollapsibleCard>
 
       {/* Equipment & Restrictions */}
-      <div className="space-y-4 rounded-lg border border-gray-800 bg-gray-900 p-4">
-        <div className="flex items-center gap-3 border-b border-gray-800 pb-3">
-          <Dumbbell className="h-5 w-5 text-cyan-500" />
-          <h3 className="text-base font-semibold text-white">Equipment & Restrictions</h3>
-        </div>
-
-        <div className="space-y-4">
+      <CollapsibleCard icon={Dumbbell} title="Equipment & Restrictions">
+        <div className="space-y-4 pt-4">
           <div>
             <label className="mb-3 block text-sm font-medium text-gray-300">Available Equipment</label>
             <div className="flex flex-wrap gap-2">
@@ -422,16 +398,12 @@ export function ProfileEditor({ profile }: ProfileEditorProps) {
             <span className="text-sm text-white">Avoid high-impact movements</span>
           </label>
         </div>
-      </div>
+      </CollapsibleCard>
 
       {/* Health */}
-      <div className="space-y-4 rounded-lg border border-gray-800 bg-gray-900 p-4">
-        <div className="flex items-center gap-3 border-b border-gray-800 pb-3">
-          <Heart className="h-5 w-5 text-cyan-500" />
-          <h3 className="text-base font-semibold text-white">Health</h3>
-        </div>
-
-        <label className="flex items-center gap-3">
+      <CollapsibleCard icon={Heart} title="Health">
+        <div className="space-y-4 pt-4">
+          <label className="flex items-center gap-3">
           <input
             type="checkbox"
             checked={formData.hasPcos}
@@ -443,16 +415,12 @@ export function ProfileEditor({ profile }: ProfileEditorProps) {
             <span className="text-xs text-gray-400">Adjusts nutrition recommendations</span>
           </div>
         </label>
-      </div>
+        </div>
+      </CollapsibleCard>
 
       {/* Coach Preferences */}
-      <div className="space-y-4 rounded-lg border border-gray-800 bg-gray-900 p-4">
-        <div className="flex items-center gap-3 border-b border-gray-800 pb-3">
-          <MessageSquare className="h-5 w-5 text-cyan-500" />
-          <h3 className="text-base font-semibold text-white">Coach Preferences</h3>
-        </div>
-
-        <div className="space-y-4">
+      <CollapsibleCard icon={MessageSquare} title="Coach Preferences">
+        <div className="space-y-4 pt-4">
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-300">Coach Tone</label>
             <div className="grid grid-cols-2 gap-3">
@@ -513,16 +481,11 @@ export function ProfileEditor({ profile }: ProfileEditorProps) {
             </label>
           </div>
         </div>
-      </div>
+      </CollapsibleCard>
 
       {/* Timezone */}
-      <div className="space-y-4 rounded-lg border border-gray-800 bg-gray-900 p-4">
-        <div className="flex items-center gap-3 border-b border-gray-800 pb-3">
-          <Globe className="h-5 w-5 text-cyan-500" />
-          <h3 className="text-base font-semibold text-white">Timezone</h3>
-        </div>
-
-        <div>
+      <CollapsibleCard icon={Globe} title="Timezone">
+        <div className="pt-4">
           <label className="mb-2 block text-sm font-medium text-gray-300">Your Timezone</label>
           <input
             type="text"
@@ -535,7 +498,7 @@ export function ProfileEditor({ profile }: ProfileEditorProps) {
             e.g., America/New_York, Europe/London, Asia/Tokyo
           </p>
         </div>
-      </div>
+      </CollapsibleCard>
 
       {/* Save Button */}
       <div className="sticky bottom-20 md:bottom-4">

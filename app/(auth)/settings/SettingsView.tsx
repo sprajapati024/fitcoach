@@ -8,7 +8,8 @@ import type { profiles, plans } from "@/drizzle/schema";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { ProfileEditor } from "./ProfileEditor";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
-import { Download } from "lucide-react";
+import { CollapsibleCard } from "@/components/CollapsibleCard";
+import { Download, FileText, CalendarDays } from "lucide-react";
 
 type Profile = typeof profiles.$inferSelect;
 type Plan = typeof plans.$inferSelect;
@@ -66,33 +67,31 @@ export function SettingsView({ profile, userPlans }: SettingsViewProps) {
       {showInstallPrompt && <InstallPrompt onClose={() => setShowInstallPrompt(false)} />}
 
       {/* Install App Section */}
-      <div className="rounded-lg border border-gray-800 bg-gray-900 p-4">
-        <h2 className="mb-2 text-base font-semibold text-white">Install App</h2>
-        <p className="mb-4 text-sm text-gray-400">
-          Install FitCoach on your home screen for the best experience
-        </p>
-        <button
-          onClick={() => setShowInstallPrompt(true)}
-          className="inline-flex items-center gap-2 h-11 px-5 rounded-full border border-gray-700 bg-gray-800 text-sm font-medium text-white transition-all hover:bg-gray-700 active:scale-95"
-        >
-          <Download className="h-4 w-4" />
-          Install FitCoach
-        </button>
-      </div>
+      <CollapsibleCard icon={Download} title="Install App">
+        <div className="space-y-4 pt-4">
+          <p className="text-sm text-gray-400">
+            Install FitCoach on your home screen for the best experience
+          </p>
+          <button
+            onClick={() => setShowInstallPrompt(true)}
+            className="inline-flex items-center gap-2 h-11 px-5 rounded-full border border-gray-700 bg-gray-800 text-sm font-medium text-white transition-all hover:bg-gray-700 active:scale-95"
+          >
+            <Download className="h-4 w-4" />
+            Install FitCoach
+          </button>
+        </div>
+      </CollapsibleCard>
 
       {/* Profile Editor */}
       <ProfileEditor profile={profile} />
 
       {/* Custom Instructions Section */}
-      <div className="rounded-lg border border-gray-800 bg-gray-900 p-4">
-        <h2 className="mb-2 text-base font-semibold text-white">
-          Plan Generation Preferences
-        </h2>
-        <p className="mb-4 text-sm text-gray-400">
-          Add custom instructions to personalize your workout plans
-        </p>
+      <CollapsibleCard icon={FileText} title="Plan Generation Preferences">
+        <div className="space-y-3 pt-4">
+          <p className="text-sm text-gray-400">
+            Add custom instructions to personalize your workout plans
+          </p>
 
-        <div className="space-y-3">
           <label htmlFor="customInstructions" className="block text-sm font-medium text-gray-300">
             Custom Instructions for Workout Plans
           </label>
@@ -129,85 +128,86 @@ export function SettingsView({ profile, userPlans }: SettingsViewProps) {
             Save Preferences
           </PrimaryButton>
         </div>
-      </div>
+      </CollapsibleCard>
 
       {/* My Workout Plans Section */}
-      <div className="rounded-lg border border-gray-800 bg-gray-900 p-4">
-        <h2 className="mb-2 text-base font-semibold text-white">My Workout Plans</h2>
-        <p className="mb-4 text-sm text-gray-400">
-          Manage your training plans
-        </p>
-
-        {userPlans.length === 0 ? (
-          <p className="text-sm text-gray-500">No workout plans yet. Generate one from the Plan page!</p>
-        ) : (
-          <div className="space-y-3">
-            {userPlans.map((plan) => (
-              <div
-                key={plan.id}
-                className="flex items-center justify-between rounded-md border border-gray-700 bg-gray-800 p-4"
-              >
-                <div className="flex-1">
-                  <div className="flex items-center gap-3">
-                    <h3 className="font-medium text-white">{plan.title}</h3>
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs font-medium uppercase ${
-                        plan.status === "active"
-                          ? "bg-green-500/20 text-green-500"
-                          : plan.status === "draft"
-                          ? "bg-yellow-500/20 text-yellow-500"
-                          : "bg-gray-500/20 text-gray-500"
-                      }`}
-                    >
-                      {plan.status}
-                    </span>
-                  </div>
-                  <div className="mt-1 flex gap-4 text-xs text-gray-500">
-                    <span>{plan.durationWeeks} weeks</span>
-                    <span>{plan.daysPerWeek} days/week</span>
-                    <span>
-                      Created {new Date(plan.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-
-                {deleteConfirmId === plan.id ? (
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-400">Delete this plan?</span>
-                    <button
-                      onClick={() => handleDeletePlan(plan.id)}
-                      disabled={isPending}
-                      className="rounded-full bg-red-500 px-3 py-1 text-xs font-medium text-white shadow-[0_2px_6px_rgba(239,68,68,0.4)] transition-all hover:bg-red-600 active:scale-95 disabled:opacity-50"
-                    >
-                      {isPending ? "Deleting..." : "Confirm"}
-                    </button>
-                    <button
-                      onClick={() => setDeleteConfirmId(null)}
-                      disabled={isPending}
-                      className="rounded-full border border-gray-700 px-3 py-1 text-xs font-medium text-gray-400 transition-all hover:bg-gray-700 active:scale-95"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setDeleteConfirmId(plan.id)}
-                    className="rounded-full border border-gray-700 px-4 py-1.5 text-xs font-medium uppercase tracking-wide text-gray-400 transition-all hover:border-red-500 hover:text-red-500 active:scale-95"
-                  >
-                    Delete
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {userPlans.length > 0 && (
-          <p className="mt-4 text-xs text-gray-500">
-            ⚠️ Deleting a plan will permanently remove all workouts and logs. This action cannot be undone.
+      <CollapsibleCard icon={CalendarDays} title="My Workout Plans">
+        <div className="space-y-4 pt-4">
+          <p className="text-sm text-gray-400">
+            Manage your training plans
           </p>
-        )}
-      </div>
+
+          {userPlans.length === 0 ? (
+            <p className="text-sm text-gray-500">No workout plans yet. Generate one from the Plan page!</p>
+          ) : (
+            <div className="space-y-3">
+              {userPlans.map((plan) => (
+                <div
+                  key={plan.id}
+                  className="flex items-center justify-between rounded-md border border-gray-700 bg-gray-800 p-4"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-medium text-white">{plan.title}</h3>
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs font-medium uppercase ${
+                          plan.status === "active"
+                            ? "bg-green-500/20 text-green-500"
+                            : plan.status === "draft"
+                            ? "bg-yellow-500/20 text-yellow-500"
+                            : "bg-gray-500/20 text-gray-500"
+                        }`}
+                      >
+                        {plan.status}
+                      </span>
+                    </div>
+                    <div className="mt-1 flex gap-4 text-xs text-gray-500">
+                      <span>{plan.durationWeeks} weeks</span>
+                      <span>{plan.daysPerWeek} days/week</span>
+                      <span>
+                        Created {new Date(plan.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+
+                  {deleteConfirmId === plan.id ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-400">Delete this plan?</span>
+                      <button
+                        onClick={() => handleDeletePlan(plan.id)}
+                        disabled={isPending}
+                        className="rounded-full bg-red-500 px-3 py-1 text-xs font-medium text-white shadow-[0_2px_6px_rgba(239,68,68,0.4)] transition-all hover:bg-red-600 active:scale-95 disabled:opacity-50"
+                      >
+                        {isPending ? "Deleting..." : "Confirm"}
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirmId(null)}
+                        disabled={isPending}
+                        className="rounded-full border border-gray-700 px-3 py-1 text-xs font-medium text-gray-400 transition-all hover:bg-gray-700 active:scale-95"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setDeleteConfirmId(plan.id)}
+                      className="rounded-full border border-gray-700 px-4 py-1.5 text-xs font-medium uppercase tracking-wide text-gray-400 transition-all hover:border-red-500 hover:text-red-500 active:scale-95"
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {userPlans.length > 0 && (
+            <p className="text-xs text-gray-500">
+              ⚠️ Deleting a plan will permanently remove all workouts and logs. This action cannot be undone.
+            </p>
+          )}
+        </div>
+      </CollapsibleCard>
     </div>
   );
 }
