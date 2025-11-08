@@ -319,18 +319,20 @@ body {
    ======================================== */
 .navbar,
 .tabbar {
-  backdrop-filter: blur(20px) saturate(1.2);
-  -webkit-backdrop-filter: blur(20px) saturate(1.2);
-  background: color-mix(in oklab, var(--surface-0), transparent 30%);
   border-top: 1px solid color-mix(in oklab, var(--text-primary), transparent 92%);
   border-bottom: 1px solid color-mix(in oklab, var(--text-primary), transparent 92%);
 }
 
 .navbar {
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  background: color-mix(in oklab, var(--surface-0), transparent 30%);
   border-top: none;
 }
 
 .tabbar {
+  /* Fully opaque background to prevent visual movement when scrolling */
+  background: var(--surface-0);
   border-bottom: none;
 }
 
