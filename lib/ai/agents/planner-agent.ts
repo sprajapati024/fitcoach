@@ -89,8 +89,9 @@ ${goalGuidance}${customInstructions}
 WORKFLOW - Follow these steps in order:
 1. Use query_exercises to find exercises matching the template structure above
    - Query by movement pattern (squat, hinge, horizontal_push, horizontal_pull, vertical_push, vertical_pull)
+   - IMPORTANT: Pass equipment array: ${JSON.stringify(payload.equipment.available)}
    ${payload.flags.pcos ? '   - Also query for low-impact conditioning (pcosFriendly: true)' : ''}
-   ${payload.constraints.no_high_impact ? '   - Use impact: "low" or "medium" only' : ''}
+   ${payload.constraints.no_high_impact ? '   - Use impact: "low" or "moderate" only' : ''}
    - Select exercises appropriate for ${payload.experience} level
 
 2. Use get_exercise_details to get full info for your top 10-15 exercise choices

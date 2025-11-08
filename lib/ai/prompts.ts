@@ -30,31 +30,73 @@ WORKOUT TEMPLATES BY TRAINING FREQUENCY:
 
 EXERCISE SELECTION BY EXPERIENCE LEVEL:
 Beginner (mastery & fundamentals):
-  - PRIMARY: Basic bilateral compounds - back squat, conventional deadlift, barbell bench, barbell row
-  - SECONDARY: Simple variations - goblet squat, dumbbell press, lat pulldown
-  - AVOID: Complex variations, Olympic lifts, advanced techniques
+  - PRIMARY: Basic bilateral compounds
+    * Squat: Back Squat, Goblet Squat, Leg Press
+    * Hinge: Conventional Deadlift, Romanian Deadlift, Glute Bridge
+    * Horizontal Push: Barbell Bench Press, Dumbbell Bench Press, Push-Up
+    * Horizontal Pull: Barbell Row, Dumbbell Row, Seated Cable Row
+    * Vertical Push: Overhead Press, Seated Dumbbell Press
+    * Vertical Pull: Lat Pulldown, Assisted Pull-Up, Inverted Row
+  - SECONDARY: Simple variations with dumbbells or machines
+  - AVOID: Complex variations, Olympic lifts, advanced techniques, heavy barbells week 1
   - FOCUS: Movement quality, 8-12 rep range, RPE 6-7
   - RATIONALE: Build movement literacy and work capacity
+  - EQUIPMENT PRIORITY: Machines > Dumbbells > Barbells for new movers
 
 Intermediate (progressive overload & variation):
-  - PRIMARY: Compound movements with moderate variations - front squat, RDL, incline press
-  - SECONDARY: Targeted accessories - split squats, face pulls, hammer curls
-  - CAN INCLUDE: Tempo work, pause reps, moderate intensity techniques
+  - PRIMARY: Compound movements with moderate variations
+    * Squat: Back/Front Squat, Safety Bar Squat, Box Squat, Leg Press
+    * Hinge: Deadlift, RDL, Trap Bar Deadlift, Sumo Deadlift, Hip Thrust
+    * Horizontal Push: Bench/Incline Bench, Dumbbell variations, Floor Press, Dip
+    * Horizontal Pull: Barbell Row, T-Bar Row, Dumbbell Row, Chest-Supported Row
+    * Vertical Push: Overhead Press, Seated Dumbbell Press, Landmine Press
+    * Vertical Pull: Pull-Up, Chin-Up, Lat Pulldown (various grips)
+  - SECONDARY: Targeted accessories - split squats, face pulls, lateral raises, curls
+  - CAN INCLUDE: Tempo work, pause reps, unilateral variations
   - FOCUS: Strength building, 6-12 rep range, RPE 7-8
   - RATIONALE: Develop strength while managing fatigue
+  - VARIETY: Use 3-4 different variations per movement pattern per week
 
 Advanced (specialization & periodization):
-  - PRIMARY: Varied compound movements - all squat/hinge/press variations
-  - SECONDARY: Advanced variations - deficit deadlifts, board press, cluster sets
-  - CAN INCLUDE: Complex periodization, intensity techniques, specialty bars
+  - PRIMARY: Full exercise library available
+    * All squat variations including paused, tempo, specialty bars
+    * All deadlift variations including deficit, block pulls, snatch grip
+    * Advanced pressing: Board press, floor press, chains/bands
+    * Advanced pulling: Weighted pull-ups, pendlay rows, seal rows
+  - SECONDARY: Advanced variations targeting specific weaknesses
+  - CAN INCLUDE: Complex periodization, cluster sets, rest-pause, accommodating resistance
   - FOCUS: Peak performance, 4-15 rep range depending on phase, RPE 8-9
   - RATIONALE: Maximize strength adaptations with sophisticated programming
+  - VARIETY: Use 4-6 different exercises per movement pattern per week
 
 EXERCISE SELECTION HIERARCHY (for each workout):
-1. PRIMARY COMPOUND: Main movement for the session (squat, deadlift, bench, etc.)
-2. SECONDARY COMPOUND: Complementary compound (e.g., if primary is squat → RDL as secondary)
-3. ACCESSORIES: 2-3 isolation or assistance exercises targeting weak points
-4. OPTIONAL: Core work or conditioning if time permits
+1. PRIMARY COMPOUND: Main movement for the session (squat, deadlift, bench, overhead press, row, pull-up)
+   - This should be the highest priority exercise of the day
+   - Example primary compounds: Back Squat, Conventional Deadlift, Bench Press, Barbell Row, Pull-Up
+2. SECONDARY COMPOUND: Complementary compound in a different movement pattern
+   - If primary is squat → use hinge as secondary (e.g., Romanian Deadlift)
+   - If primary is horizontal push → use horizontal pull as secondary (e.g., Barbell Row)
+   - Creates balanced training stimulus
+3. ACCESSORIES: 2-3 assistance exercises targeting weak points or muscle groups
+   - Examples: Dumbbell Lateral Raise, Bicep Curl, Leg Curl, Face Pull
+   - Use for hypertrophy, injury prevention, or aesthetic goals
+4. CORE/CONDITIONING: Optional based on time budget
+   - Core: Plank variations, Pallof Press, Dead Bug
+   - Conditioning: Zone 2 cardio, Sled Push, Assault Bike
+
+EXERCISE VARIETY GUIDELINES:
+- Use AT LEAST 3 different exercises per movement pattern across the week
+- Example for horizontal_push in 4-day split:
+  * Day 1: Barbell Bench Press
+  * Day 3: Incline Dumbbell Press
+  * (Could also use: Dumbbell Bench Press, Floor Press, Push-Up, Dip)
+- DO NOT repeat the exact same exercise on multiple days unless it's a primary compound
+- Vary grips, angles, and equipment for similar movements
+- Example for horizontal_pull:
+  * Day 1: Barbell Row
+  * Day 2: Dumbbell Row
+  * Day 3: Seated Cable Row
+  * Day 4: Chest-Supported Row
 
 GOAL-SPECIFIC PROGRAMMING:
 Strength:

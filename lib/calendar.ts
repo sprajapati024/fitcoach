@@ -3,6 +3,7 @@ import { shiftUtcDate } from "@/lib/tz";
 import type { PlannerResponse, PlanMicrocycleInput } from "@/lib/validation";
 import type { PlanCalendar, PlanMicrocycle, WorkoutPayload } from "@/drizzle/schema";
 import type { workouts } from "@/drizzle/schema";
+import { applyProgressiveOverload, getWeeklySummary, getRPEGuidance } from "@/lib/ai/progressive-overload";
 
 type WorkoutInsert = typeof workouts.$inferInsert;
 
@@ -102,7 +103,15 @@ export function generateWorkouts(
   let globalDayIndex = 0;
 
   for (let weekIndex = 0; weekIndex < weeks; weekIndex++) {
+    const weekNumber = weekIndex + 1; // 1-indexed week number
     const isDeloadWeek = deloadWeeks.includes(weekIndex);
+
+    // Apply progressive overload to microcycle for this week
+    const progressedMicrocycle = applyProgressiveOverload(
+      { daysPerWeek: microcycle.daysPerWeek, pattern: microcycle.pattern },
+      weekNumber,
+      weeks
+    );
 
     // For each training day in this week
     for (let sessionIndex = 0; sessionIndex < daysPerWeek; sessionIndex++) {
@@ -112,14 +121,14 @@ export function generateWorkouts(
       const daysFromStart = weekIndex * 7 + dayOfWeek;
       const sessionDate = startDate ? shiftUtcDate(startDate, daysFromStart) : undefined;
 
-      // Rotate through microcycle pattern (A/B rotation)
-      const patternIndex = sessionIndex % pattern.length;
-      const templateDay = pattern[patternIndex];
+      // Rotate through progressed microcycle pattern
+      const patternIndex = sessionIndex % progressedMicrocycle.pattern.length;
+      const templateDay = progressedMicrocycle.pattern[patternIndex];
 
       // Create workout ID
       const workoutId = createWorkoutId();
 
-      // Build workout payload
+      // Build workout payload with progressed exercises
       let blocks = templateDay.blocks.map((block) => ({
         type: convertBlockType(block.type),
         title: block.title,
@@ -131,14 +140,13 @@ export function generateWorkouts(
           reps: ex.reps,
           ...(ex.tempo && { tempo: ex.tempo }),
           ...(ex.cues && { cues: ex.cues }),
+          ...(ex.notes && { notes: ex.notes }),
           restSeconds: 90, // Default rest
         })),
       }));
 
-      // Apply deload modifications if needed
-      if (isDeloadWeek) {
-        blocks = applyDeloadModifications(blocks);
-      }
+      // Note: Progressive overload already handles deload logic
+      // No need for separate deload modifications
 
       const payload: WorkoutPayload = {
         workoutId,
