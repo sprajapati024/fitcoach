@@ -16,7 +16,6 @@ interface LogEntry {
   set: number;
   weight: number;
   reps: number;
-  rpe?: number;
   notes?: string;
 }
 
@@ -69,7 +68,6 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
   const [activeExerciseId, setActiveExerciseId] = useState<string | null>(null);
   const [weight, setWeight] = useState('');
   const [reps, setReps] = useState('');
-  const [rpe, setRpe] = useState('');
   const [notes, setNotes] = useState('');
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [rpeLastSet, setRpeLastSet] = useState('');
@@ -192,7 +190,6 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
   const resetInputs = () => {
     setWeight('');
     setReps('');
-    setRpe('');
     setNotes('');
     setEditingIndex(null);
   };
@@ -280,7 +277,6 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
     setExpandedExercises(new Set([exerciseId]));
     setWeight(set.weight.toString());
     setReps(set.reps.toString());
-    setRpe(set.rpe?.toString() ?? '');
     setNotes(set.notes ?? '');
 
     // Start rest timer if configured
@@ -329,16 +325,6 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
     setReps(Math.max(0, current - 1).toString());
   };
 
-  const incrementRpe = () => {
-    const current = parseFloat(rpe) || 5;
-    setRpe(Math.min(10, current + 0.5).toString());
-  };
-
-  const decrementRpe = () => {
-    const current = parseFloat(rpe) || 5;
-    setRpe(Math.max(5, current - 0.5).toString());
-  };
-
   const handleLogSet = (exerciseId: string) => {
     const exercise = allExercises.find((ex) => ex.id === exerciseId);
     if (!exercise) {
@@ -358,19 +344,12 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
       return;
     }
 
-    const parsedRpe = rpe.trim() === '' ? undefined : parseFloat(rpe);
-    if (parsedRpe !== undefined && (Number.isNaN(parsedRpe) || parsedRpe < 5 || parsedRpe > 10)) {
-      setFeedback({ type: 'error', message: 'RPE must be between 5 and 10.' });
-      return;
-    }
-
     const formattedNotes = notes.trim() || undefined;
 
     const payload: LogEntry = {
       exerciseId: exercise.id,
       weight: Math.round(parsedWeight * 10) / 10,
       reps: parsedReps,
-      rpe: parsedRpe ? Math.round(parsedRpe * 10) / 10 : undefined,
       notes: formattedNotes,
       set: 0,
     };
@@ -427,7 +406,6 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
         set: entry.set,
         reps: entry.reps,
         weight: entry.weight,
-        rpe: entry.rpe,
         notes: entry.notes,
       })),
       rpeLastSet: Math.round(parsedOverallRpe * 10) / 10,
@@ -729,7 +707,6 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
                               {exerciseHistory.map((set, idx) => (
                                 <span key={idx} className="text-gray-400">
                                   {set.weight}kg × {set.reps}
-                                  {set.rpe ? ` @ ${set.rpe}` : ''}
                                   {idx < exerciseHistory.length - 1 ? ' •' : ''}
                                 </span>
                               ))}
@@ -758,7 +735,6 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
                                 <div className="flex-1">
                                   <p className="text-sm font-medium text-white">
                                     Set {set.set}: {set.weight}kg × {set.reps}
-                                    {set.rpe ? ` @ ${set.rpe} RPE` : ''}
                                   </p>
                                   {set.notes && (
                                     <p className="text-xs text-gray-500">{set.notes}</p>
@@ -791,17 +767,17 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
                             Log set {exerciseSets.length + 1}
                           </h4>
 
-                          <div className="grid grid-cols-3 gap-2">
+                          <div className="grid grid-cols-2 gap-3">
                             {/* Weight */}
                             <div className="space-y-1">
                               <label className="block text-xs font-medium text-gray-500">Weight (kg)</label>
-                              <div className="flex items-center gap-1">
+                              <div className="flex items-center gap-1.5">
                                 <button
                                   onClick={decrementWeight}
                                   type="button"
-                                  className="p-1.5 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-400 transition active:scale-95"
+                                  className="p-2 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-400 transition active:scale-95"
                                 >
-                                  <Minus className="h-3 w-3" />
+                                  <Minus className="h-4 w-4" />
                                 </button>
                                 <input
                                   type="number"
@@ -809,15 +785,15 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
                                   inputMode="decimal"
                                   value={weight}
                                   onChange={(e) => setWeight(e.target.value)}
-                                  className="flex-1 rounded-md border border-gray-800 bg-black px-2 py-1.5 text-sm text-white text-center placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
+                                  className="flex-1 rounded-md border border-gray-800 bg-black px-3 py-2 text-base text-white text-center placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
                                   placeholder="0"
                                 />
                                 <button
                                   onClick={incrementWeight}
                                   type="button"
-                                  className="p-1.5 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-400 transition active:scale-95"
+                                  className="p-2 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-400 transition active:scale-95"
                                 >
-                                  <Plus className="h-3 w-3" />
+                                  <Plus className="h-4 w-4" />
                                 </button>
                               </div>
                             </div>
@@ -825,60 +801,28 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
                             {/* Reps */}
                             <div className="space-y-1">
                               <label className="block text-xs font-medium text-gray-500">Reps</label>
-                              <div className="flex items-center gap-1">
+                              <div className="flex items-center gap-1.5">
                                 <button
                                   onClick={decrementReps}
                                   type="button"
-                                  className="p-1.5 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-400 transition active:scale-95"
+                                  className="p-2 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-400 transition active:scale-95"
                                 >
-                                  <Minus className="h-3 w-3" />
+                                  <Minus className="h-4 w-4" />
                                 </button>
                                 <input
                                   type="number"
                                   inputMode="numeric"
                                   value={reps}
                                   onChange={(e) => setReps(e.target.value)}
-                                  className="flex-1 rounded-md border border-gray-800 bg-black px-2 py-1.5 text-sm text-white text-center placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
+                                  className="flex-1 rounded-md border border-gray-800 bg-black px-3 py-2 text-base text-white text-center placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
                                   placeholder="0"
                                 />
                                 <button
                                   onClick={incrementReps}
                                   type="button"
-                                  className="p-1.5 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-400 transition active:scale-95"
+                                  className="p-2 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-400 transition active:scale-95"
                                 >
-                                  <Plus className="h-3 w-3" />
-                                </button>
-                              </div>
-                            </div>
-
-                            {/* RPE */}
-                            <div className="space-y-1">
-                              <label className="block text-xs font-medium text-gray-500">RPE</label>
-                              <div className="flex items-center gap-1">
-                                <button
-                                  onClick={decrementRpe}
-                                  type="button"
-                                  className="p-1.5 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-400 transition active:scale-95"
-                                >
-                                  <Minus className="h-3 w-3" />
-                                </button>
-                                <input
-                                  type="number"
-                                  step="0.5"
-                                  inputMode="decimal"
-                                  value={rpe}
-                                  min={5}
-                                  max={10}
-                                  onChange={(e) => setRpe(e.target.value)}
-                                  className="flex-1 rounded-md border border-gray-800 bg-black px-2 py-1.5 text-sm text-white text-center placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
-                                  placeholder="7.5"
-                                />
-                                <button
-                                  onClick={incrementRpe}
-                                  type="button"
-                                  className="p-1.5 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-400 transition active:scale-95"
-                                >
-                                  <Plus className="h-3 w-3" />
+                                  <Plus className="h-4 w-4" />
                                 </button>
                               </div>
                             </div>
