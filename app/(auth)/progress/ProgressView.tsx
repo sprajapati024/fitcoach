@@ -30,9 +30,9 @@ export function ProgressView({
   hasActivePlan,
 }: ProgressViewProps) {
   return (
-    <div className="min-h-screen bg-black -mx-4 -mt-6 -mb-32">
+    <div className="min-h-screen bg-black -mx-4 -mt-6">
       {/* Main Content */}
-      <main className="mx-auto max-w-md px-3 pt-6 pb-20 space-y-3">
+      <main className="mx-auto max-w-md px-3 pt-6 pb-24 space-y-3">
           {/* Hero Card */}
           <CompactProgressHero
             totalCompleted={totalCompleted}
