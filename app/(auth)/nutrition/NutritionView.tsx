@@ -55,9 +55,9 @@ export function NutritionView() {
   };
 
   return (
-    <div className="min-h-screen bg-black -mx-4 -mt-6 -mb-32">
+    <div className="min-h-screen bg-black -mx-4 -mt-6">
       {/* Main Content */}
-      <main className="mx-auto max-w-md px-3 pt-4 pb-20 space-y-3">
+      <main className="mx-auto max-w-md px-3 pt-4 pb-24 space-y-3">
         {/* Date Selector */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}

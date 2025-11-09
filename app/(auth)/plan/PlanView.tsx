@@ -244,7 +244,7 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
   // Case 1: No plans exist
   if (userPlans.length === 0) {
     return (
-      <div className="min-h-screen bg-black -mx-4 -mt-6 -mb-32 flex items-center justify-center px-3">
+      <div className="min-h-screen bg-black -mx-4 -mt-6 flex items-center justify-center px-3">
         {isGenerating ? (
           <PlanGenerationProgress
             stage={progressState.stage}
@@ -311,7 +311,7 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
 
     if (isGenerating) {
       return (
-        <div className="min-h-screen bg-black -mx-4 -mt-6 -mb-32 flex items-center justify-center px-3">
+        <div className="min-h-screen bg-black -mx-4 -mt-6 flex items-center justify-center px-3">
           <PlanGenerationProgress
             stage={progressState.stage}
             message={progressState.message}
@@ -322,8 +322,8 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
     }
 
     return (
-      <div className="min-h-screen bg-black -mx-4 -mt-6 -mb-32">
-        <main className="mx-auto max-w-md px-3 pt-4 pb-20 space-y-3">
+      <div className="min-h-screen bg-black -mx-4 -mt-6">
+        <main className="mx-auto max-w-md px-3 pt-4 pb-24 space-y-3">
           {/* Success message */}
           {success && (
             <motion.div
@@ -403,7 +403,7 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
   // Case 3: Active plan exists - show calendar view
   if (isGenerating) {
     return (
-      <div className="min-h-screen bg-black -mx-4 -mt-6 -mb-32 flex items-center justify-center px-3">
+      <div className="min-h-screen bg-black -mx-4 -mt-6 flex items-center justify-center px-3">
         <PlanGenerationProgress
           stage={progressState.stage}
           message={progressState.message}
@@ -414,8 +414,8 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
   }
 
   return (
-    <div className="min-h-screen bg-black -mx-4 -mt-6 -mb-32">
-      <main className="mx-auto max-w-md px-3 pt-4 pb-20 space-y-3">
+    <div className="min-h-screen bg-black -mx-4 -mt-6">
+      <main className="mx-auto max-w-md px-3 pt-4 pb-24 space-y-3">
         {/* Success message */}
         {success && (
           <motion.div

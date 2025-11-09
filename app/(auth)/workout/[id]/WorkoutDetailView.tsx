@@ -129,7 +129,7 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
   };
 
   return (
-    <div className="min-h-screen bg-black -mx-4 -mt-6 -mb-32">
+    <div className="min-h-screen bg-black -mx-4 -mt-6">
       {/* Header - Sticky */}
       <div className="sticky top-0 z-50 bg-black/95 backdrop-blur-sm border-b border-gray-800 md:hidden">
         <div className="px-4 py-3">
@@ -166,7 +166,7 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
       </div>
 
       {/* Main Content */}
-      <main className="mx-auto max-w-md px-3 pt-4 pb-20 space-y-3">
+      <main className="mx-auto max-w-md px-3 pt-4 pb-24 space-y-3">
 
         {/* Contextual Action Button */}
         {isToday && (
