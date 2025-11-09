@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { User, Activity, Calendar, Dumbbell, Heart, MessageSquare, Globe } from "lucide-react";
 import type { profiles } from "@/drizzle/schema";
 import { PrimaryButton } from "@/components/PrimaryButton";
@@ -36,6 +37,7 @@ const DAY_OPTIONS = [
 ];
 
 export function ProfileEditor({ profile }: ProfileEditorProps) {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     fullName: profile?.fullName || "",
     sex: profile?.sex || "unspecified",
@@ -80,6 +82,10 @@ export function ProfileEditor({ profile }: ProfileEditorProps) {
       });
 
       setSaveMessage({ type: "success", text: "Profile updated successfully!" });
+
+      // Force a router refresh to reload server components with new data
+      router.refresh();
+
       setTimeout(() => setSaveMessage(null), 3000);
     } catch (error) {
       setSaveMessage({
