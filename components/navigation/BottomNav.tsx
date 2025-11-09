@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 import { CalendarDays, Home, LineChart, Settings, Dumbbell, Apple } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Tooltip } from "@/components/Tooltip";
 
 type NavItem = {
   href: string;
@@ -104,26 +103,25 @@ export function BottomNav() {
           const active = isActive(pathname ?? "", item);
 
           return (
-            <Tooltip key={item.href} content={item.label} side="top">
-              <Link
-                href={item.href}
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "touch-feedback flex flex-1 flex-col items-center gap-1 rounded-full px-3 py-2 text-xs font-medium transition-all duration-150",
+                active
+                  ? "text-white"
+                  : "text-text-muted hover:text-text-secondary active:bg-surface-2"
+              )}
+            >
+              <Icon
                 className={cn(
-                  "touch-feedback flex flex-1 flex-col items-center gap-1 rounded-full px-3 py-2 text-xs font-medium transition-all duration-150",
-                  active
-                    ? "text-white"
-                    : "text-text-muted hover:text-text-secondary active:bg-surface-2"
+                  "h-6 w-6 transition-all",
+                  active ? "text-white" : "text-text-secondary"
                 )}
-              >
-                <Icon
-                  className={cn(
-                    "h-6 w-6 transition-all",
-                    active ? "text-white" : "text-text-secondary"
-                  )}
-                  aria-hidden
-                />
-                <span>{item.label}</span>
-              </Link>
-            </Tooltip>
+                aria-hidden
+              />
+              <span>{item.label}</span>
+            </Link>
           );
         })}
       </div>
