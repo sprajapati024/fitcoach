@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, Activity, Calendar, Dumbbell, Heart, MessageSquare, Globe } from "lucide-react";
+import { User, Dumbbell, MessageSquare } from "lucide-react";
 import type { profiles } from "@/drizzle/schema";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { CollapsibleCard } from "@/components/CollapsibleCard";
@@ -12,6 +12,7 @@ type Profile = typeof profiles.$inferSelect;
 
 interface ProfileEditorProps {
   profile: Profile | null;
+  signOutAction?: () => Promise<void>;
 }
 
 const EQUIPMENT_OPTIONS = [
@@ -36,7 +37,7 @@ const DAY_OPTIONS = [
   { value: "sun", label: "Sunday" },
 ];
 
-export function ProfileEditor({ profile }: ProfileEditorProps) {
+export function ProfileEditor({ profile, signOutAction }: ProfileEditorProps) {
   const router = useRouter();
   const [formData, setFormData] = useState({
     fullName: profile?.fullName || "",
@@ -82,10 +83,7 @@ export function ProfileEditor({ profile }: ProfileEditorProps) {
       });
 
       setSaveMessage({ type: "success", text: "Profile updated successfully!" });
-
-      // Force a router refresh to reload server components with new data
       router.refresh();
-
       setTimeout(() => setSaveMessage(null), 3000);
     } catch (error) {
       setSaveMessage({
@@ -116,7 +114,7 @@ export function ProfileEditor({ profile }: ProfileEditorProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form onSubmit={handleSubmit} className="space-y-6">
       {saveMessage && (
         <div
           className={`rounded-lg border p-4 text-sm ${
@@ -129,387 +127,399 @@ export function ProfileEditor({ profile }: ProfileEditorProps) {
         </div>
       )}
 
-      {/* Personal Information */}
-      <CollapsibleCard icon={User} title="Personal Information">
-        <div className="space-y-4 pt-4">
-          <div>
-            <label className="mb-2 block text-sm font-medium text-gray-300">Full Name</label>
-            <input
-              type="text"
-              value={formData.fullName}
-              onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-              className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
-              placeholder="Your name"
-            />
-          </div>
+      {/* Section 1: Account & Profile */}
+      <div className="space-y-3">
+        <h2 className="text-lg font-semibold text-white">Account & Profile</h2>
 
-          <div>
-            <label className="mb-2 block text-sm font-medium text-gray-300">Sex</label>
-            <select
-              value={formData.sex}
-              onChange={(e) => setFormData({ ...formData, sex: e.target.value as any })}
-              className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
-            >
-              <option value="unspecified">Prefer not to say</option>
-              <option value="female">Female</option>
-              <option value="male">Male</option>
-              <option value="non_binary">Non-binary</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-medium text-gray-300">Date of Birth</label>
-            <input
-              type="date"
-              value={formData.dateOfBirth}
-              onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-              max={new Date().toISOString().split("T")[0]}
-              className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
-            />
-          </div>
-        </div>
-      </CollapsibleCard>
-
-      {/* Body Metrics */}
-      <CollapsibleCard icon={Activity} title="Body Metrics">
-        <div className="space-y-4 pt-4">
-          <div>
-            <label className="mb-2 block text-sm font-medium text-gray-300">Unit System</label>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, unitSystem: "metric" })}
-                className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
-                  formData.unitSystem === "metric"
-                    ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"
-                    : "border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700"
-                }`}
-              >
-                Metric (kg, cm)
-              </button>
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, unitSystem: "imperial" })}
-                className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
-                  formData.unitSystem === "imperial"
-                    ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"
-                    : "border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700"
-                }`}
-              >
-                Imperial (lb, in)
-              </button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+        <CollapsibleCard icon={User} title="Personal Information" defaultOpen={true}>
+          <div className="space-y-4 pt-4">
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-300">
-                Height ({formData.unitSystem === "metric" ? "cm" : "in"})
-              </label>
+              <label className="mb-2 block text-sm font-medium text-gray-300">Full Name</label>
               <input
-                type="number"
-                step="0.1"
-                value={formData.heightCm}
-                onChange={(e) => setFormData({ ...formData, heightCm: e.target.value })}
+                type="text"
+                value={formData.fullName}
+                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                 className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
-                placeholder="170"
+                placeholder="Your name"
               />
             </div>
 
-            <div>
-              <label className="mb-2 block text-sm font-medium text-gray-300">
-                Weight ({formData.unitSystem === "metric" ? "kg" : "lb"})
-              </label>
-              <input
-                type="number"
-                step="0.1"
-                value={formData.weightKg}
-                onChange={(e) => setFormData({ ...formData, weightKg: e.target.value })}
-                className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
-                placeholder="70"
-              />
-            </div>
-          </div>
-        </div>
-      </CollapsibleCard>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-300">Sex</label>
+                <select
+                  value={formData.sex}
+                  onChange={(e) => setFormData({ ...formData, sex: e.target.value as any })}
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+                >
+                  <option value="unspecified">Prefer not to say</option>
+                  <option value="female">Female</option>
+                  <option value="male">Male</option>
+                  <option value="non_binary">Non-binary</option>
+                </select>
+              </div>
 
-      {/* Training Goals */}
-      <CollapsibleCard icon={Dumbbell} title="Training Goals">
-        <div className="space-y-4 pt-4">
-          <div>
-            <label className="mb-2 block text-sm font-medium text-gray-300">Primary Goal</label>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { value: "strength", label: "Strength" },
-                { value: "balanced", label: "Balanced" },
-                { value: "hypertrophy", label: "Muscle Growth" },
-                { value: "fat_loss", label: "Fat Loss" },
-              ].map((goal) => (
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-300">Date of Birth</label>
+                <input
+                  type="date"
+                  value={formData.dateOfBirth}
+                  onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                  max={new Date().toISOString().split("T")[0]}
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-300">Unit System</label>
+              <div className="grid grid-cols-2 gap-3">
                 <button
-                  key={goal.value}
                   type="button"
-                  onClick={() => setFormData({ ...formData, goalBias: goal.value as any })}
+                  onClick={() => setFormData({ ...formData, unitSystem: "metric" })}
                   className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
-                    formData.goalBias === goal.value
+                    formData.unitSystem === "metric"
                       ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"
                       : "border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700"
                   }`}
                 >
-                  {goal.label}
+                  Metric (kg, cm)
                 </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-medium text-gray-300">Experience Level</label>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, experienceLevel: "beginner" })}
-                className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
-                  formData.experienceLevel === "beginner"
-                    ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"
-                    : "border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700"
-                }`}
-              >
-                Beginner
-              </button>
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, experienceLevel: "intermediate" })}
-                className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
-                  formData.experienceLevel === "intermediate"
-                    ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"
-                    : "border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700"
-                }`}
-              >
-                Intermediate
-              </button>
-            </div>
-          </div>
-        </div>
-      </CollapsibleCard>
-
-      {/* Training Schedule */}
-      <CollapsibleCard icon={Calendar} title="Training Schedule">
-        <div className="space-y-4 pt-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-gray-300">Days/Week</label>
-              <input
-                type="number"
-                min="1"
-                max="7"
-                value={formData.scheduleDaysPerWeek}
-                onChange={(e) => setFormData({ ...formData, scheduleDaysPerWeek: e.target.value })}
-                className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-gray-300">Minutes/Session</label>
-              <input
-                type="number"
-                min="15"
-                max="180"
-                step="15"
-                value={formData.scheduleMinutesPerSession}
-                onChange={(e) => setFormData({ ...formData, scheduleMinutesPerSession: e.target.value })}
-                className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-gray-300">Program Weeks</label>
-              <input
-                type="number"
-                min="4"
-                max="16"
-                value={formData.scheduleWeeks}
-                onChange={(e) => setFormData({ ...formData, scheduleWeeks: e.target.value })}
-                className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="mb-3 block text-sm font-medium text-gray-300">Preferred Training Days</label>
-            <div className="flex flex-wrap gap-2">
-              {DAY_OPTIONS.map((day) => (
                 <button
-                  key={day.value}
                   type="button"
-                  onClick={() => togglePreferredDay(day.value)}
-                  className={`rounded-xl border px-4 py-2 text-sm font-medium transition-all ${
-                    formData.preferredDays.includes(day.value)
+                  onClick={() => setFormData({ ...formData, unitSystem: "imperial" })}
+                  className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+                    formData.unitSystem === "imperial"
                       ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"
                       : "border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700"
                   }`}
                 >
-                  {day.label}
+                  Imperial (lb, in)
                 </button>
-              ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-300">
+                  Height ({formData.unitSystem === "metric" ? "cm" : "in"})
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={formData.heightCm}
+                  onChange={(e) => setFormData({ ...formData, heightCm: e.target.value })}
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+                  placeholder="170"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-300">
+                  Weight ({formData.unitSystem === "metric" ? "kg" : "lb"})
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={formData.weightKg}
+                  onChange={(e) => setFormData({ ...formData, weightKg: e.target.value })}
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+                  placeholder="70"
+                />
+              </div>
             </div>
           </div>
-        </div>
-      </CollapsibleCard>
+        </CollapsibleCard>
 
-      {/* Equipment & Restrictions */}
-      <CollapsibleCard icon={Dumbbell} title="Equipment & Restrictions">
-        <div className="space-y-4 pt-4">
-          <div>
-            <label className="mb-3 block text-sm font-medium text-gray-300">Available Equipment</label>
-            <div className="flex flex-wrap gap-2">
-              {EQUIPMENT_OPTIONS.map((equipment) => (
+        {signOutAction && (
+          <div className="rounded-lg border border-gray-800 bg-gray-900 p-4">
+            <h3 className="mb-3 text-sm font-semibold text-white">Account Actions</h3>
+            <form action={signOutAction}>
+              <button
+                type="submit"
+                className="inline-flex h-11 items-center justify-center rounded-full border border-gray-700 bg-gray-800 px-5 text-sm font-medium uppercase tracking-wide text-white transition-all hover:bg-gray-700 active:scale-95"
+              >
+                Sign out
+              </button>
+            </form>
+          </div>
+        )}
+      </div>
+
+      {/* Section 2: Training Configuration */}
+      <div className="space-y-3">
+        <h2 className="text-lg font-semibold text-white">Training Configuration</h2>
+
+        <CollapsibleCard icon={Dumbbell} title="Goals & Experience">
+          <div className="space-y-4 pt-4">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-300">Primary Goal</label>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { value: "strength", label: "Strength" },
+                  { value: "balanced", label: "Balanced" },
+                  { value: "hypertrophy", label: "Muscle Growth" },
+                  { value: "fat_loss", label: "Fat Loss" },
+                ].map((goal) => (
+                  <button
+                    key={goal.value}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, goalBias: goal.value as any })}
+                    className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+                      formData.goalBias === goal.value
+                        ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"
+                        : "border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700"
+                    }`}
+                  >
+                    {goal.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-300">Experience Level</label>
+              <div className="grid grid-cols-2 gap-3">
                 <button
-                  key={equipment}
                   type="button"
-                  onClick={() => toggleEquipment(equipment)}
-                  className={`rounded-xl border px-4 py-2 text-sm font-medium transition-all ${
-                    formData.equipment.includes(equipment)
+                  onClick={() => setFormData({ ...formData, experienceLevel: "beginner" })}
+                  className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+                    formData.experienceLevel === "beginner"
                       ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"
                       : "border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700"
                   }`}
                 >
-                  {equipment}
+                  Beginner
                 </button>
-              ))}
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, experienceLevel: "intermediate" })}
+                  className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+                    formData.experienceLevel === "intermediate"
+                      ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"
+                      : "border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700"
+                  }`}
+                >
+                  Intermediate
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-300">Days/Week</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="7"
+                  value={formData.scheduleDaysPerWeek}
+                  onChange={(e) => setFormData({ ...formData, scheduleDaysPerWeek: e.target.value })}
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-300">Mins/Session</label>
+                <input
+                  type="number"
+                  min="15"
+                  max="180"
+                  step="15"
+                  value={formData.scheduleMinutesPerSession}
+                  onChange={(e) => setFormData({ ...formData, scheduleMinutesPerSession: e.target.value })}
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-300">Weeks</label>
+                <input
+                  type="number"
+                  min="4"
+                  max="16"
+                  value={formData.scheduleWeeks}
+                  onChange={(e) => setFormData({ ...formData, scheduleWeeks: e.target.value })}
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="mb-3 block text-sm font-medium text-gray-300">Preferred Training Days</label>
+              <div className="flex flex-wrap gap-2">
+                {DAY_OPTIONS.map((day) => (
+                  <button
+                    key={day.value}
+                    type="button"
+                    onClick={() => togglePreferredDay(day.value)}
+                    className={`rounded-xl border px-3 py-2 text-xs font-medium transition-all ${
+                      formData.preferredDays.includes(day.value)
+                        ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"
+                        : "border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700"
+                    }`}
+                  >
+                    {day.label.slice(0, 3)}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
+        </CollapsibleCard>
 
-          <div>
-            <label className="mb-2 block text-sm font-medium text-gray-300">
-              Exercises to Avoid (comma-separated)
-            </label>
-            <input
-              type="text"
-              value={formData.avoidList}
-              onChange={(e) => setFormData({ ...formData, avoidList: e.target.value })}
-              className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
-              placeholder="e.g. deadlifts, overhead press"
-            />
-            <p className="mt-1 text-xs text-gray-400">
-              List any exercises you want to avoid due to injury or preference
-            </p>
-          </div>
+        <CollapsibleCard icon={Dumbbell} title="Equipment & Restrictions">
+          <div className="space-y-4 pt-4">
+            <div>
+              <label className="mb-3 block text-sm font-medium text-gray-300">Available Equipment</label>
+              <div className="flex flex-wrap gap-2">
+                {EQUIPMENT_OPTIONS.map((equipment) => (
+                  <button
+                    key={equipment}
+                    type="button"
+                    onClick={() => toggleEquipment(equipment)}
+                    className={`rounded-xl border px-3 py-2 text-xs font-medium transition-all ${
+                      formData.equipment.includes(equipment)
+                        ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"
+                        : "border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700"
+                    }`}
+                  >
+                    {equipment}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-          <label className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              checked={formData.noHighImpact}
-              onChange={(e) => setFormData({ ...formData, noHighImpact: e.target.checked })}
-              className="h-5 w-5 rounded border-gray-700 bg-gray-800 text-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
-            />
-            <span className="text-sm text-white">Avoid high-impact movements</span>
-          </label>
-        </div>
-      </CollapsibleCard>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-300">
+                Exercises to Avoid
+              </label>
+              <input
+                type="text"
+                value={formData.avoidList}
+                onChange={(e) => setFormData({ ...formData, avoidList: e.target.value })}
+                className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+                placeholder="e.g. deadlifts, overhead press"
+              />
+              <p className="mt-1 text-xs text-gray-400">
+                Comma-separated list of exercises to avoid
+              </p>
+            </div>
 
-      {/* Health */}
-      <CollapsibleCard icon={Heart} title="Health">
-        <div className="space-y-4 pt-4">
-          <label className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            checked={formData.hasPcos}
-            onChange={(e) => setFormData({ ...formData, hasPcos: e.target.checked })}
-            className="h-5 w-5 rounded border-gray-700 bg-gray-800 text-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
-          />
-          <div>
-            <span className="block text-sm font-medium text-gray-300">I have PCOS</span>
-            <span className="text-xs text-gray-400">Adjusts nutrition recommendations</span>
-          </div>
-        </label>
-        </div>
-      </CollapsibleCard>
+            <div className="space-y-3">
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={formData.noHighImpact}
+                  onChange={(e) => setFormData({ ...formData, noHighImpact: e.target.checked })}
+                  className="h-5 w-5 rounded border-gray-700 bg-gray-800 text-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                />
+                <span className="text-sm text-white">Avoid high-impact movements</span>
+              </label>
 
-      {/* Coach Preferences */}
-      <CollapsibleCard icon={MessageSquare} title="Coach Preferences">
-        <div className="space-y-4 pt-4">
-          <div>
-            <label className="mb-2 block text-sm font-medium text-gray-300">Coach Tone</label>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, coachTone: "analyst" })}
-                className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
-                  formData.coachTone === "analyst"
-                    ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"
-                    : "border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700"
-                }`}
-              >
-                Analyst
-              </button>
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, coachTone: "flirty" })}
-                className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
-                  formData.coachTone === "flirty"
-                    ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"
-                    : "border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700"
-                }`}
-              >
-                Flirty
-              </button>
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={formData.hasPcos}
+                  onChange={(e) => setFormData({ ...formData, hasPcos: e.target.checked })}
+                  className="h-5 w-5 rounded border-gray-700 bg-gray-800 text-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                />
+                <div>
+                  <span className="block text-sm font-medium text-gray-300">I have PCOS</span>
+                  <span className="text-xs text-gray-400">Adjusts nutrition recommendations</span>
+                </div>
+              </label>
             </div>
           </div>
+        </CollapsibleCard>
+      </div>
 
-          <div className="space-y-3">
-            <label className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                checked={formData.coachTodayEnabled}
-                onChange={(e) => setFormData({ ...formData, coachTodayEnabled: e.target.checked })}
-                className="h-5 w-5 rounded border-gray-700 bg-gray-800 text-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
-              />
-              <span className="text-sm text-white">Daily coach briefing</span>
-            </label>
+      {/* Section 3: Coach Settings - Moved before save button */}
+      <div className="space-y-3">
+        <h2 className="text-lg font-semibold text-white">Coach Settings</h2>
 
-            <label className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                checked={formData.coachDebriefEnabled}
-                onChange={(e) => setFormData({ ...formData, coachDebriefEnabled: e.target.checked })}
-                className="h-5 w-5 rounded border-gray-700 bg-gray-800 text-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
-              />
-              <span className="text-sm text-white">Post-workout debriefing</span>
-            </label>
+        <CollapsibleCard icon={MessageSquare} title="Coach Preferences">
+          <div className="space-y-4 pt-4">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-300">Coach Tone</label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, coachTone: "analyst" })}
+                  className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+                    formData.coachTone === "analyst"
+                      ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"
+                      : "border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700"
+                  }`}
+                >
+                  Analyst
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, coachTone: "flirty" })}
+                  className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+                    formData.coachTone === "flirty"
+                      ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"
+                      : "border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700"
+                  }`}
+                >
+                  Flirty
+                </button>
+              </div>
+            </div>
 
-            <label className="flex items-center gap-3">
+            <div className="space-y-3">
+              <p className="text-xs text-gray-400">Choose which coach messages you'd like to receive:</p>
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={formData.coachTodayEnabled}
+                  onChange={(e) => setFormData({ ...formData, coachTodayEnabled: e.target.checked })}
+                  className="h-5 w-5 rounded border-gray-700 bg-gray-800 text-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                />
+                <span className="text-sm text-white">Daily coach briefing</span>
+              </label>
+
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={formData.coachDebriefEnabled}
+                  onChange={(e) => setFormData({ ...formData, coachDebriefEnabled: e.target.checked })}
+                  className="h-5 w-5 rounded border-gray-700 bg-gray-800 text-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                />
+                <span className="text-sm text-white">Post-workout debriefing</span>
+              </label>
+
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={formData.coachWeeklyEnabled}
+                  onChange={(e) => setFormData({ ...formData, coachWeeklyEnabled: e.target.checked })}
+                  className="h-5 w-5 rounded border-gray-700 bg-gray-800 text-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                />
+                <span className="text-sm text-white">Weekly progress review</span>
+              </label>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-300">Your Timezone</label>
               <input
-                type="checkbox"
-                checked={formData.coachWeeklyEnabled}
-                onChange={(e) => setFormData({ ...formData, coachWeeklyEnabled: e.target.checked })}
-                className="h-5 w-5 rounded border-gray-700 bg-gray-800 text-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                type="text"
+                value={formData.timezone}
+                onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
+                className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+                placeholder="America/New_York"
               />
-              <span className="text-sm text-white">Weekly progress review</span>
-            </label>
+              <p className="mt-1 text-xs text-gray-400">
+                e.g., America/New_York, Europe/London, Asia/Tokyo
+              </p>
+            </div>
           </div>
-        </div>
-      </CollapsibleCard>
-
-      {/* Timezone */}
-      <CollapsibleCard icon={Globe} title="Timezone">
-        <div className="pt-4">
-          <label className="mb-2 block text-sm font-medium text-gray-300">Your Timezone</label>
-          <input
-            type="text"
-            value={formData.timezone}
-            onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
-            className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
-            placeholder="America/New_York"
-          />
-          <p className="mt-1 text-xs text-gray-400">
-            e.g., America/New_York, Europe/London, Asia/Tokyo
-          </p>
-        </div>
-      </CollapsibleCard>
+        </CollapsibleCard>
+      </div>
 
       {/* Save Button */}
       <div className="sticky bottom-20 md:bottom-4">
         <PrimaryButton type="submit" disabled={isSaving} loading={isSaving} className="w-full">
-          Save Profile Changes
+          Save All Changes
         </PrimaryButton>
       </div>
     </form>
