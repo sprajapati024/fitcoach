@@ -190,7 +190,7 @@ export async function updateFullProfileAction(data: UpdateProfileInput) {
 
     if (validatedData.fullName !== undefined) updateData.fullName = validatedData.fullName;
     if (validatedData.sex !== undefined) updateData.sex = validatedData.sex;
-    if (validatedData.dateOfBirth !== undefined) updateData.dateOfBirth = validatedData.dateOfBirth;
+    if (validatedData.dateOfBirth !== undefined) updateData.dateOfBirth = validatedData.dateOfBirth || null;
     if (validatedData.heightCm !== undefined) updateData.heightCm = validatedData.heightCm.toString();
     if (validatedData.weightKg !== undefined) updateData.weightKg = validatedData.weightKg.toString();
     if (validatedData.unitSystem !== undefined) updateData.unitSystem = validatedData.unitSystem;
@@ -224,9 +224,14 @@ export async function updateFullProfileAction(data: UpdateProfileInput) {
 
     return { success: true };
   } catch (error) {
+    // Log detailed error for debugging
+    console.error("Profile update error:", error);
+    console.error("Data received:", JSON.stringify(data, null, 2));
+
     // Provide detailed error messages for validation errors
     if (error instanceof Error) {
       if (error.name === 'ZodError') {
+        console.error("Zod validation error details:", error);
         throw new Error(`Validation failed: ${error.message}`);
       }
       throw new Error(`Failed to update profile: ${error.message}`);
