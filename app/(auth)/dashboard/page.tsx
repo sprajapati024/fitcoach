@@ -20,5 +20,5 @@ export default async function DashboardPage() {
     getActivePlanAction(),
   ]);
 
-  return <TodayView workout={workout} userId={user.id} userName={profile?.fullName} nutrition={nutrition} hasActivePlan={!!activePlan} />;
+  return <TodayView workout={workout} userId={user.id} nutrition={nutrition} hasActivePlan={!!activePlan} />;
 }
