@@ -22,17 +22,6 @@ function formatDate(date: string): string {
   return dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-function getWorkoutEmoji(focus: string): string {
-  const lower = focus.toLowerCase();
-  if (lower.includes('push') || lower.includes('chest') || lower.includes('shoulder')) return '🫸';
-  if (lower.includes('pull') || lower.includes('back')) return '🫷';
-  if (lower.includes('leg') || lower.includes('squat')) return '🦵';
-  if (lower.includes('cardio') || lower.includes('run')) return '🏃';
-  if (lower.includes('upper')) return '💪';
-  if (lower.includes('full') || lower.includes('total')) return '🏋️';
-  return '💪';
-}
-
 export function CompactWeekDayCard({
   date,
   dayOfWeek,
@@ -57,25 +46,20 @@ export function CompactWeekDayCard({
         `}
       >
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-800/50">
-              <span className="text-xl">😴</span>
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-white uppercase tracking-wide">
-                  {dayOfWeek}
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-white uppercase tracking-wide">
+                {dayOfWeek}
+              </span>
+              <span className="text-xs text-gray-500">{formatDate(date)}</span>
+              {isToday && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-0.5">
+                  <div className="h-1 w-1 rounded-full bg-white animate-pulse" />
+                  <span className="text-[10px] font-bold uppercase tracking-wide text-gray-300">Today</span>
                 </span>
-                <span className="text-xs text-gray-500">{formatDate(date)}</span>
-                {isToday && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-0.5">
-                    <div className="h-1 w-1 rounded-full bg-white animate-pulse" />
-                    <span className="text-[10px] font-bold uppercase tracking-wide text-gray-300">Today</span>
-                  </span>
-                )}
-              </div>
-              <p className="text-sm text-gray-400">Rest Day</p>
+              )}
             </div>
+            <p className="text-sm text-gray-400 mt-1">Rest Day</p>
           </div>
         </div>
       </motion.div>
@@ -88,7 +72,6 @@ export function CompactWeekDayCard({
   const totalExercises =
     workoutPayload.blocks?.reduce((sum, block) => sum + (block.exercises?.length ?? 0), 0) ?? 0;
   const duration = workout.durationMinutes || 60;
-  const emoji = getWorkoutEmoji(workoutType);
 
   const cardContent = (
     <motion.div
@@ -110,40 +93,31 @@ export function CompactWeekDayCard({
       )}
 
       <div className="flex items-center justify-between gap-3">
-        {/* Left: Icon + Info */}
-        <div className="flex items-center gap-3 flex-1 min-w-0">
-          <div className={`
-            flex h-10 w-10 items-center justify-center rounded-lg flex-shrink-0
-            ${isToday ? 'bg-gray-700/50' : 'bg-gray-800/50'}
-          `}>
-            <span className="text-xl">{emoji}</span>
+        {/* Left: Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-sm font-semibold text-white uppercase tracking-wide">
+              {dayOfWeek}
+            </span>
+            <span className="text-xs text-gray-500">{formatDate(date)}</span>
+            {isToday && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-0.5">
+                <div className="h-1 w-1 rounded-full bg-white animate-pulse" />
+                <span className="text-[10px] font-bold uppercase tracking-wide text-gray-300">Today</span>
+              </span>
+            )}
           </div>
 
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-sm font-semibold text-white uppercase tracking-wide">
-                {dayOfWeek}
-              </span>
-              <span className="text-xs text-gray-500">{formatDate(date)}</span>
-              {isToday && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-0.5">
-                  <div className="h-1 w-1 rounded-full bg-white animate-pulse" />
-                  <span className="text-[10px] font-bold uppercase tracking-wide text-gray-300">Today</span>
-                </span>
-              )}
+          <p className="text-sm font-medium text-white truncate">{workoutType}</p>
+
+          <div className="flex items-center gap-3 mt-1.5 text-gray-400">
+            <div className="flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              <span className="text-xs">{duration} min</span>
             </div>
-
-            <p className="text-sm font-medium text-white truncate">{workoutType}</p>
-
-            <div className="flex items-center gap-3 mt-1.5 text-gray-400">
-              <div className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                <span className="text-xs">{duration} min</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Zap className="h-3 w-3" />
-                <span className="text-xs">{totalExercises} exercises</span>
-              </div>
+            <div className="flex items-center gap-1">
+              <Zap className="h-3 w-3" />
+              <span className="text-xs">{totalExercises} exercises</span>
             </div>
           </div>
         </div>

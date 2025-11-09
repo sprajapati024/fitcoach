@@ -166,7 +166,7 @@ export function CompactWeekView({ workouts, weeks, startDate, logs = [] }: Compa
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -20 }}
           transition={{ duration: 0.2 }}
-          className="space-y-3"
+          className="space-y-4"
         >
           {currentWeek.days.map((day, index) => (
             <CompactWeekDayCard
