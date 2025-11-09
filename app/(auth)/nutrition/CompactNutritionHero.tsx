@@ -105,17 +105,13 @@ export function CompactNutritionHero({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.2 }}
-      className={`relative overflow-hidden rounded-lg border p-4 ${
-        isOverGoal
-          ? 'border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-red-500/10'
-          : 'border-cyan-500/30 bg-gradient-to-br from-cyan-500/10 to-indigo-500/10'
-      }`}
+      className="relative overflow-hidden rounded-lg border border-gray-700 bg-gradient-to-br from-gray-900/50 to-gray-800/50 p-4"
     >
       <div className="space-y-3">
         {/* Badge */}
-        <div className="inline-flex items-center gap-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2.5 py-1">
-          <div className="h-1.5 w-1.5 rounded-full bg-cyan-500 animate-pulse" />
-          <span className="text-[10px] font-bold uppercase tracking-wide text-cyan-500">
+        <div className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1">
+          <div className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+          <span className="text-[10px] font-bold uppercase tracking-wide text-gray-300">
             Today
           </span>
         </div>
@@ -134,16 +130,14 @@ export function CompactNutritionHero({
           <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
             <div
               className={`h-full transition-all duration-500 ${
-                isOverGoal
-                  ? 'bg-gradient-to-r from-orange-500 to-red-500'
-                  : 'bg-gradient-to-r from-cyan-500 to-indigo-600'
+                isOverGoal ? 'bg-red-500' : 'bg-gray-600'
               }`}
               style={{ width: `${Math.min(caloriesPercent, 100)}%` }}
             />
           </div>
 
           {isOverGoal && (
-            <p className="text-xs text-orange-400 mt-1">
+            <p className="text-xs text-red-400 mt-1">
               +{calories - targetCalories} cal over goal
             </p>
           )}
@@ -175,7 +169,7 @@ export function CompactNutritionHero({
         {/* CTA Button */}
         <button
           onClick={onLogMeal}
-          className="w-full flex items-center justify-center gap-2 h-12 rounded-lg bg-gradient-to-r from-cyan-500 to-indigo-600 font-semibold text-white shadow-lg shadow-cyan-500/20 transition active:scale-95 hover:scale-[1.02]"
+          className="w-full flex items-center justify-center gap-2 h-12 rounded-lg bg-gray-800 font-semibold text-white transition active:scale-95 hover:bg-gray-700"
         >
           <Plus className="h-4 w-4" />
           <span>Log Meal</span>

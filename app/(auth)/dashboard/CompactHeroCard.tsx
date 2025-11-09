@@ -26,12 +26,12 @@ export function CompactHeroCard({ workout, hasActivePlan }: CompactHeroCardProps
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.2 }}
-        className="relative overflow-hidden rounded-lg border border-gray-800 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 p-4"
+        className="relative overflow-hidden rounded-lg border border-gray-700 bg-gradient-to-br from-gray-900/50 to-gray-800/50 p-4"
       >
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/20">
-              <Zap className="h-5 w-5 text-purple-500" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-700/50">
+              <Zap className="h-5 w-5 text-gray-400" />
             </div>
             <div>
               <h3 className="text-lg font-bold text-white">Rest Day</h3>
@@ -41,7 +41,7 @@ export function CompactHeroCard({ workout, hasActivePlan }: CompactHeroCardProps
 
           <Link
             href="/progress"
-            className="flex h-12 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-purple-500 to-indigo-600 font-semibold text-white shadow-lg shadow-purple-500/20 transition active:scale-95 hover:scale-[1.02]"
+            className="flex h-12 items-center justify-center gap-2 rounded-lg bg-gray-800 font-semibold text-white transition active:scale-95 hover:bg-gray-700"
           >
             <TrendingUp className="h-4 w-4" />
             <span>View Progress</span>
@@ -62,13 +62,13 @@ export function CompactHeroCard({ workout, hasActivePlan }: CompactHeroCardProps
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.2 }}
-      className="relative overflow-hidden rounded-lg border border-cyan-500/30 bg-gradient-to-br from-cyan-500/10 to-indigo-500/10 p-4"
+      className="relative overflow-hidden rounded-lg border border-gray-700 bg-gradient-to-br from-gray-900/50 to-gray-800/50 p-4"
     >
       <div className="space-y-3">
         {/* Badge */}
-        <div className="inline-flex items-center gap-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2.5 py-1">
-          <div className="h-1.5 w-1.5 rounded-full bg-cyan-500 animate-pulse" />
-          <span className="text-[10px] font-bold uppercase tracking-wide text-cyan-500">Today</span>
+        <div className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1">
+          <div className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+          <span className="text-[10px] font-bold uppercase tracking-wide text-gray-300">Today</span>
         </div>
 
         {/* Title */}
@@ -89,7 +89,7 @@ export function CompactHeroCard({ workout, hasActivePlan }: CompactHeroCardProps
         {/* CTA Button - Direct to Logger */}
         <Link
           href={`/workout/${workout.id}?start=true`}
-          className="flex h-12 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-cyan-500 to-indigo-600 font-semibold text-white shadow-lg shadow-cyan-500/20 transition active:scale-95 hover:scale-[1.02]"
+          className="flex h-12 items-center justify-center gap-2 rounded-lg bg-gray-800 font-semibold text-white transition active:scale-95 hover:bg-gray-700"
         >
           <Play className="h-4 w-4" />
           <span>Start Workout</span>

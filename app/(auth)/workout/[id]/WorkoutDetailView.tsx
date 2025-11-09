@@ -170,10 +170,10 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
 
         {/* Contextual Action Button */}
         {isToday && (
-          <div className="rounded-lg border border-gray-800 bg-gradient-to-br from-cyan-500/5 to-indigo-500/5 p-1">
+          <div className="rounded-lg border border-gray-800 bg-gray-900/50 p-1">
             <PrimaryButton
               onClick={() => setIsLogging(true)}
-              className="w-full py-4 text-base font-semibold bg-gradient-to-r from-cyan-500 to-indigo-500 hover:from-cyan-600 hover:to-indigo-600"
+              className="w-full py-4 text-base font-semibold"
             >
               <Zap className="h-5 w-5 mr-2 inline" />
               Start Today's Workout
@@ -355,7 +355,7 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
                         return (
                           <div
                             key={idx}
-                            className="flex-1 bg-gradient-to-t from-cyan-500 to-indigo-500 rounded-t"
+                            className="flex-1 bg-gray-600 rounded-t"
                             style={{ height: `${height}%` }}
                             title={`${session.totalVolume} kg on ${formatDate(session.date)}`}
                           />
