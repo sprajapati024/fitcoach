@@ -339,7 +339,7 @@ export type AdaptiveWeekResponse = z.infer<typeof adaptiveWeekResponseSchema>;
 export const updateProfileSchema = z.object({
   fullName: z.string().max(80).optional(),
   sex: z.enum(["female", "male", "non_binary", "unspecified"]).optional(),
-  dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  dateOfBirth: z.union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/), z.literal("")]).optional(),
   heightCm: z.number().min(120).max(250).optional(),
   weightKg: z.number().min(30).max(300).optional(),
   unitSystem: z.enum(["metric", "imperial"]).optional(),
@@ -350,7 +350,7 @@ export const updateProfileSchema = z.object({
   scheduleWeeks: z.number().int().min(6).max(16).optional(),
   preferredDays: z.array(preferredDaySchema).min(0).max(7).optional(),
   equipment: z.array(z.string().min(1).max(40)).min(0).max(16).optional(),
-  avoidList: z.array(z.string().min(0).max(50)).max(12).optional(),
+  avoidList: z.array(z.string().max(50)).max(12).optional(),
   noHighImpact: z.boolean().optional(),
   hasPcos: z.boolean().optional(),
   coachTone: z.enum(["analyst", "flirty"]).optional(),
