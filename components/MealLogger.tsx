@@ -152,12 +152,19 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
           type: mediaRecorder.mimeType,
         });
 
+        // Validate audio was captured
+        if (audioBlob.size === 0) {
+          setError("No audio was captured. Please try again.");
+          setRecordingTime(0);
+          return;
+        }
+
         // Transcribe audio
         await transcribeAudio(audioBlob);
       };
 
-      // Start recording
-      mediaRecorder.start();
+      // Start recording with timeslice to ensure data is captured
+      mediaRecorder.start(1000); // Capture data every second
       setIsRecording(true);
       setRecordingTime(0);
       setError("");
@@ -199,8 +206,16 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
     setError("");
 
     try {
+      // Determine file extension based on MIME type
+      const mimeType = audioBlob.type;
+      const extension = mimeType.includes("webm") ? "webm" :
+                       mimeType.includes("mp4") ? "mp4" :
+                       mimeType.includes("mpeg") ? "mp3" : "webm";
+
+      console.log(`Recording MIME type: ${mimeType}, size: ${audioBlob.size} bytes`);
+
       const formData = new FormData();
-      formData.append("audio", audioBlob, "recording.webm");
+      formData.append("audio", audioBlob, `recording.${extension}`);
 
       const response = await fetch("/api/nutrition/transcribe", {
         method: "POST",
