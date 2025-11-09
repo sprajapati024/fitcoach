@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { onboardingSchema, type OnboardingInput } from "@/lib/validation";
 import { createSupabaseServerClient } from "@/lib/supabaseServerClient";
-import { users, profiles } from "@/drizzle/schema";
+import { users, profiles, coachCache } from "@/drizzle/schema";
 import { convertHeightToCm, convertWeightToKg } from "@/lib/unitConversion";
 import { eq } from "drizzle-orm";
 
@@ -192,10 +192,13 @@ export async function updateFullProfileAction(data: {
 
   const userId = userData.user.id;
 
-  // If coachTone is being updated, clear all coach cache entries for this user
-  if (data.coachTone) {
-    const { coachCache } = await import("@/drizzle/schema");
+  // Clear all coach cache entries for this user when saving settings
+  // This ensures fresh coach messages with the updated preference
+  try {
     await db.delete(coachCache).where(eq(coachCache.userId, userId));
+  } catch (error) {
+    // Cache deletion is not critical, continue with profile update
+    console.warn("Failed to clear coach cache:", error);
   }
 
   // Update profile
