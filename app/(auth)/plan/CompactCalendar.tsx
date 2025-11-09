@@ -157,7 +157,7 @@ export function CompactCalendar({ workouts, weeks, startDate, logs = [] }: Compa
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -20 }}
           transition={{ duration: 0.2 }}
-          className="grid grid-cols-7 gap-2"
+          className="grid grid-cols-7 gap-3"
         >
           {currentWeek.days.map((day, index) => (
             <CompactDayCard
