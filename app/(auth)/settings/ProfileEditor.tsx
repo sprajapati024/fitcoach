@@ -72,13 +72,37 @@ export function ProfileEditor({ profile, signOutAction }: ProfileEditorProps) {
     setSaveMessage(null);
 
     try {
+      // Parse numeric fields with NaN validation
+      const parsedHeightCm = formData.heightCm ? parseFloat(formData.heightCm) : undefined;
+      const parsedWeightKg = formData.weightKg ? parseFloat(formData.weightKg) : undefined;
+      const parsedScheduleDays = parseInt(formData.scheduleDaysPerWeek);
+      const parsedScheduleMinutes = parseInt(formData.scheduleMinutesPerSession);
+      const parsedScheduleWeeks = parseInt(formData.scheduleWeeks);
+
+      // Validate parsed numbers
+      if (parsedHeightCm !== undefined && isNaN(parsedHeightCm)) {
+        throw new Error("Invalid height value");
+      }
+      if (parsedWeightKg !== undefined && isNaN(parsedWeightKg)) {
+        throw new Error("Invalid weight value");
+      }
+      if (isNaN(parsedScheduleDays)) {
+        throw new Error("Invalid schedule days per week");
+      }
+      if (isNaN(parsedScheduleMinutes)) {
+        throw new Error("Invalid schedule minutes per session");
+      }
+      if (isNaN(parsedScheduleWeeks)) {
+        throw new Error("Invalid schedule weeks");
+      }
+
       await updateFullProfileAction({
         ...formData,
-        heightCm: formData.heightCm ? parseFloat(formData.heightCm) : undefined,
-        weightKg: formData.weightKg ? parseFloat(formData.weightKg) : undefined,
-        scheduleDaysPerWeek: parseInt(formData.scheduleDaysPerWeek),
-        scheduleMinutesPerSession: parseInt(formData.scheduleMinutesPerSession),
-        scheduleWeeks: parseInt(formData.scheduleWeeks),
+        heightCm: parsedHeightCm,
+        weightKg: parsedWeightKg,
+        scheduleDaysPerWeek: parsedScheduleDays,
+        scheduleMinutesPerSession: parsedScheduleMinutes,
+        scheduleWeeks: parsedScheduleWeeks,
         avoidList: formData.avoidList.split(",").map((s) => s.trim()).filter(Boolean),
       });
 

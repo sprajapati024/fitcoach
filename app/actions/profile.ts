@@ -225,15 +225,29 @@ export async function updateFullProfileAction(data: UpdateProfileInput) {
     return { success: true };
   } catch (error) {
     // Log detailed error for debugging
-    console.error("Profile update error:", error);
+    console.error("=== Profile Update Error ===");
+    console.error("Error object:", error);
+    console.error("Error type:", error?.constructor?.name);
     console.error("Data received:", JSON.stringify(data, null, 2));
+
+    if (error instanceof Error) {
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+    }
 
     // Provide detailed error messages for validation errors
     if (error instanceof Error) {
       if (error.name === 'ZodError') {
-        console.error("Zod validation error details:", error);
+        console.error("Zod validation error details:", JSON.stringify(error, null, 2));
         throw new Error(`Validation failed: ${error.message}`);
       }
+
+      // Check for database errors
+      if (error.message.includes('database') || error.message.includes('constraint')) {
+        console.error("Database error detected");
+        throw new Error(`Database error: ${error.message}`);
+      }
+
       throw new Error(`Failed to update profile: ${error.message}`);
     }
     throw new Error("An unexpected error occurred while updating your profile");

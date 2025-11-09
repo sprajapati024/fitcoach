@@ -8,10 +8,10 @@ interface PrimaryButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;
 }
 
-export function PrimaryButton({ loading = false, className, children, disabled, ...props }: PrimaryButtonProps) {
+export function PrimaryButton({ loading = false, className, children, disabled, type = "button", ...props }: PrimaryButtonProps) {
   return (
     <button
-      type="button"
+      type={type}
       className={cn(
         // Base styles - iOS-tuned timing
         "group relative touch-feedback inline-flex h-12 items-center justify-center gap-2 overflow-hidden rounded-md px-6",
