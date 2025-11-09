@@ -28,22 +28,14 @@ export function ExerciseManagement() {
 
   return (
     <div className="min-h-screen bg-black -mx-4 -mt-6 -mb-32">
-      {/* Header - Sticky */}
-      <motion.header
+      {/* Tabs - Sticky */}
+      <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
         className="sticky top-0 z-50 bg-black/95 backdrop-blur-sm border-b border-gray-800 md:hidden"
       >
-        <div className="flex items-center justify-between h-14 px-4">
-          <div>
-            <h1 className="text-xl font-bold text-white">Exercises</h1>
-            <p className="text-xs text-gray-500">Browse and manage library</p>
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex gap-1 px-4 pb-0">
+        <div className="flex gap-1 px-4 py-2">
           <button
             onClick={() => setActiveTab("library")}
             className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors border-b-2 ${
@@ -67,7 +59,7 @@ export function ExerciseManagement() {
             <span>Browse</span>
           </button>
         </div>
-      </motion.header>
+      </motion.div>
 
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-3 pt-4 pb-20">
