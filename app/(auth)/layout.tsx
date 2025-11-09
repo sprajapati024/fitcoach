@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { getUserProfileAction } from "@/app/actions/profile";
 import { DesktopNav } from "@/components/navigation/DesktopNav";
 import { MobileHeader } from "@/components/navigation/MobileHeader";
@@ -11,8 +11,8 @@ interface AuthLayoutProps {
 }
 
 export default async function AuthLayout({ children }: AuthLayoutProps) {
-  const session = await getSession();
-  if (!session) {
+  const user = await getCurrentUser();
+  if (!user) {
     redirect("/");
   }
 
