@@ -33,16 +33,6 @@ export function ProgressView({
     <div className="min-h-screen bg-black -mx-4 -mt-6 -mb-32">
       {/* Main Content */}
       <main className="mx-auto max-w-md px-3 pt-6 pb-20 space-y-3">
-        {/* Page Title */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="mb-4"
-        >
-          <h1 className="text-2xl font-bold text-white">Progress</h1>
-          <p className="text-sm text-gray-400 mt-1">Your training momentum</p>
-        </motion.div>
           {/* Hero Card */}
           <CompactProgressHero
             totalCompleted={totalCompleted}
