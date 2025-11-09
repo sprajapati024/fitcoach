@@ -58,6 +58,7 @@ export async function GET(request: Request) {
           success: true,
           coach: cached.payload as CoachResponse,
           cached: true,
+          tone: userCoachTone,
         });
       }
     }
@@ -149,6 +150,7 @@ export async function GET(request: Request) {
       success: true,
       coach: payload,
       cached: false,
+      tone: userCoachTone,
     });
   } catch (error) {
     console.error("[Coach Today] error", error);
