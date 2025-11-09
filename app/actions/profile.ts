@@ -192,6 +192,12 @@ export async function updateFullProfileAction(data: {
 
   const userId = userData.user.id;
 
+  // If coachTone is being updated, clear all coach cache entries for this user
+  if (data.coachTone) {
+    const { coachCache } = await import("@/drizzle/schema");
+    await db.delete(coachCache).where(eq(coachCache.userId, userId));
+  }
+
   // Update profile
   await db
     .update(profiles)
