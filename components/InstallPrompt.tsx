@@ -9,6 +9,9 @@ export default function InstallPrompt() {
 
   useEffect(() => {
     const handler = (e: any) => {
+      // Prevent the default browser install prompt
+      // Note: This will trigger a console warning in Chrome, which is expected behavior
+      // The warning reminds developers to call prompt() - which we do in handleInstall
       e.preventDefault();
       setDeferredPrompt(e);
       setShow(true);

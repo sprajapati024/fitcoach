@@ -331,3 +331,33 @@ export const adaptiveWeekResponseSchema = z.object({
 });
 
 export type AdaptiveWeekResponse = z.infer<typeof adaptiveWeekResponseSchema>;
+
+/**
+ * Schema for updating user profile from settings page
+ * All fields are optional to allow partial updates
+ */
+export const updateProfileSchema = z.object({
+  fullName: z.string().max(80).optional(),
+  sex: z.enum(["female", "male", "non_binary", "unspecified"]).optional(),
+  dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  heightCm: z.number().min(120).max(250).optional(),
+  weightKg: z.number().min(30).max(300).optional(),
+  unitSystem: z.enum(["metric", "imperial"]).optional(),
+  goalBias: z.enum(["strength", "balanced", "hypertrophy", "fat_loss"]).optional(),
+  experienceLevel: z.enum(["beginner", "intermediate"]).optional(),
+  scheduleDaysPerWeek: z.number().int().min(3).max(6).optional(),
+  scheduleMinutesPerSession: z.number().int().min(40).max(90).optional(),
+  scheduleWeeks: z.number().int().min(6).max(16).optional(),
+  preferredDays: z.array(preferredDaySchema).min(0).max(7).optional(),
+  equipment: z.array(z.string().min(1).max(40)).min(0).max(16).optional(),
+  avoidList: z.array(z.string().min(0).max(50)).max(12).optional(),
+  noHighImpact: z.boolean().optional(),
+  hasPcos: z.boolean().optional(),
+  coachTone: z.enum(["analyst", "flirty"]).optional(),
+  coachTodayEnabled: z.boolean().optional(),
+  coachDebriefEnabled: z.boolean().optional(),
+  coachWeeklyEnabled: z.boolean().optional(),
+  timezone: z.string().optional(),
+});
+
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, Dumbbell, MessageSquare } from "lucide-react";
-import type { profiles } from "@/drizzle/schema";
+import type { profiles, PreferredDay } from "@/drizzle/schema";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { CollapsibleCard } from "@/components/CollapsibleCard";
 import { updateFullProfileAction } from "@/app/actions/profile";
@@ -27,7 +27,7 @@ const EQUIPMENT_OPTIONS = [
   "Bodyweight Only",
 ];
 
-const DAY_OPTIONS = [
+const DAY_OPTIONS: Array<{ value: PreferredDay; label: string }> = [
   { value: "mon", label: "Monday" },
   { value: "tue", label: "Tuesday" },
   { value: "wed", label: "Wednesday" },
@@ -51,7 +51,7 @@ export function ProfileEditor({ profile, signOutAction }: ProfileEditorProps) {
     scheduleDaysPerWeek: profile?.scheduleDaysPerWeek?.toString() || "3",
     scheduleMinutesPerSession: profile?.scheduleMinutesPerSession?.toString() || "60",
     scheduleWeeks: profile?.scheduleWeeks?.toString() || "8",
-    preferredDays: (profile?.preferredDays as string[]) || [],
+    preferredDays: (profile?.preferredDays as PreferredDay[]) || [],
     equipment: (profile?.equipment as string[]) || [],
     avoidList: profile?.avoidList?.join(", ") || "",
     noHighImpact: profile?.noHighImpact || false,
@@ -104,7 +104,7 @@ export function ProfileEditor({ profile, signOutAction }: ProfileEditorProps) {
     }));
   };
 
-  const togglePreferredDay = (day: string) => {
+  const togglePreferredDay = (day: PreferredDay) => {
     setFormData((prev) => ({
       ...prev,
       preferredDays: prev.preferredDays.includes(day)
