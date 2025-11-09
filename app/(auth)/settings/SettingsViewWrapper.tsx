@@ -36,26 +36,8 @@ export function SettingsViewWrapper({
       </motion.header>
 
       {/* Main Content */}
-      <main className="mx-auto max-w-md px-3 pt-4 pb-20 space-y-3">
-        <SettingsView profile={profile} userPlans={userPlans} />
-
-        {/* Account Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.4 }}
-          className="rounded-lg border border-gray-800 bg-gray-900 p-4"
-        >
-          <h2 className="mb-4 text-base font-semibold text-white">Account</h2>
-          <form action={signOutAction}>
-            <button
-              type="submit"
-              className="inline-flex h-11 items-center justify-center rounded-full border border-gray-700 bg-gray-800 px-5 text-sm font-medium uppercase tracking-wide text-white transition-all hover:bg-gray-700 active:scale-95"
-            >
-              Sign out
-            </button>
-          </form>
-        </motion.div>
+      <main className="mx-auto max-w-md px-3 pt-4 pb-20">
+        <SettingsView profile={profile} userPlans={userPlans} signOutAction={signOutAction} />
 
         {/* Spacer for bottom navigation */}
         <div className="h-20" />
