@@ -311,7 +311,7 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
       <div className="mb-8">
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-800">
           <motion.div
-            className="h-full bg-gradient-to-r from-cyan-500 to-indigo-600 shadow-[0_0_10px_rgba(6,182,212,0.5)]"
+            className="h-full bg-white"
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.4, ease: 'easeInOut' }}
@@ -379,7 +379,7 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
                 type="button"
                 onClick={handleSubmit}
                 disabled={isPending}
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500 to-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition hover:scale-105 hover:shadow-cyan-500/30 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-full bg-gray-800 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:scale-105 hover:bg-gray-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isPending ? (
                   <>
@@ -397,7 +397,7 @@ export function OnboardingForm({ initialProfile }: OnboardingFormProps) {
               <button
                 type="button"
                 onClick={handleNext}
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500 to-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition hover:scale-105 hover:shadow-cyan-500/30 active:scale-95"
+                className="inline-flex items-center gap-2 rounded-full bg-gray-800 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:scale-105 hover:bg-gray-700 active:scale-95"
               >
                 <span>Next</span>
                 <ArrowRight className="h-4 w-4" />

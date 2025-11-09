@@ -17,14 +17,14 @@ export function PrimaryButton({ loading = false, className, children, disabled, 
         "group relative touch-feedback inline-flex h-12 items-center justify-center gap-2 overflow-hidden rounded-md px-6",
         "text-base font-semibold transition-all duration-150",
 
-        // Neural gradient background (cyan → indigo)
-        "bg-gradient-to-r from-cyan-500 to-indigo-600 text-gray-950",
+        // Neutral background
+        "bg-gray-800 text-white",
 
-        // Neural shimmer shadow
-        "shadow-[0_0_15px_rgba(79,70,229,0.15)]",
+        // Subtle shadow
+        "shadow-lg",
 
-        // Hover state - scale + stronger glow
-        "hover:scale-105 hover:shadow-[0_0_25px_rgba(79,70,229,0.25)]",
+        // Hover state - scale + lighter background
+        "hover:scale-105 hover:bg-gray-700",
 
         // Active state - scale down for tactile feedback
         "active:scale-[0.97]",

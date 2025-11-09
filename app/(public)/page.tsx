@@ -84,7 +84,7 @@ export default function Home() {
               type="button"
               onClick={handleSignIn}
               disabled={isLoading || !supabase}
-              className="group relative inline-flex h-14 items-center justify-center gap-3 overflow-hidden rounded-md bg-gradient-to-r from-cyan-500 to-indigo-600 px-10 text-base font-semibold text-black shadow-[0_0_20px_rgba(79,70,229,0.2)] transition-all duration-200 hover:scale-105 hover:shadow-[0_0_30px_rgba(79,70,229,0.3)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+              className="group relative inline-flex h-14 items-center justify-center gap-3 overflow-hidden rounded-md bg-gray-800 px-10 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:scale-105 hover:bg-gray-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
             >
               {/* Neural Shimmer Effect */}
               <div

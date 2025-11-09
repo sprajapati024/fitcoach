@@ -27,32 +27,14 @@ export function CompactProgressHero({
 }: CompactProgressHeroProps) {
   const compliancePercent = windowCompliance ?? 0;
 
-  // Color coding based on compliance
+  // Color coding based on compliance - only for progress bar
   const isHighCompliance = compliancePercent >= 80;
   const isMediumCompliance = compliancePercent >= 50 && compliancePercent < 80;
-  const isLowCompliance = compliancePercent < 50 && compliancePercent > 0;
 
-  const getBorderColor = () => {
-    if (isHighCompliance) return 'border-cyan-500/30';
-    if (isMediumCompliance) return 'border-orange-500/30';
-    return 'border-red-500/30';
-  };
-
-  const getBgGradient = () => {
-    if (isHighCompliance) return 'bg-gradient-to-br from-cyan-500/10 to-indigo-500/10';
-    if (isMediumCompliance) return 'bg-gradient-to-br from-orange-500/10 to-yellow-500/10';
-    return 'bg-gradient-to-br from-red-500/10 to-pink-500/10';
-  };
-
-  const getProgressGradient = () => {
-    if (isHighCompliance) return 'bg-gradient-to-r from-cyan-500 to-indigo-600';
-    if (isMediumCompliance) return 'bg-gradient-to-r from-orange-500 to-yellow-500';
-    return 'bg-gradient-to-r from-red-500 to-pink-500';
-  };
-
-  const getButtonGradient = () => {
-    if (isHighCompliance) return 'bg-gradient-to-r from-cyan-500 to-indigo-600 shadow-cyan-500/20';
-    return 'bg-gradient-to-r from-purple-500 to-indigo-600 shadow-purple-500/20';
+  const getProgressColor = () => {
+    if (isHighCompliance) return 'bg-emerald-500';
+    if (isMediumCompliance) return 'bg-yellow-500';
+    return 'bg-red-500';
   };
 
   if (totalCompleted === 0 && !hasActivePlan) {
@@ -69,7 +51,7 @@ export function CompactProgressHero({
         </p>
         <Link
           href="/dashboard"
-          className="mt-3 inline-block text-sm text-cyan-400 hover:text-cyan-300 transition"
+          className="mt-3 inline-block text-sm text-gray-300 hover:text-white transition"
         >
           Go to Dashboard →
         </Link>
@@ -82,13 +64,13 @@ export function CompactProgressHero({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.2 }}
-      className={`relative overflow-hidden rounded-lg border p-4 ${getBorderColor()} ${getBgGradient()}`}
+      className="relative overflow-hidden rounded-lg border border-gray-700 bg-gradient-to-br from-gray-900/50 to-gray-800/50 p-4"
     >
       <div className="space-y-3">
         {/* Badge */}
-        <div className="inline-flex items-center gap-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2.5 py-1">
-          <div className="h-1.5 w-1.5 rounded-full bg-cyan-500 animate-pulse" />
-          <span className="text-[10px] font-bold uppercase tracking-wide text-cyan-500">
+        <div className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1">
+          <div className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+          <span className="text-[10px] font-bold uppercase tracking-wide text-gray-300">
             7-Day Snapshot
           </span>
         </div>
@@ -105,7 +87,7 @@ export function CompactProgressHero({
           {/* Progress Bar */}
           <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
             <div
-              className={`h-full transition-all duration-500 ${getProgressGradient()}`}
+              className={`h-full transition-all duration-500 ${getProgressColor()}`}
               style={{ width: `${Math.min(compliancePercent, 100)}%` }}
             />
           </div>
@@ -139,7 +121,7 @@ export function CompactProgressHero({
         {/* CTA Button */}
         <Link
           href="/dashboard"
-          className={`w-full flex items-center justify-center gap-2 h-12 rounded-lg ${getButtonGradient()} font-semibold text-white shadow-lg transition active:scale-95 hover:scale-[1.02]`}
+          className="w-full flex items-center justify-center gap-2 h-12 rounded-lg bg-gray-800 font-semibold text-white transition active:scale-95 hover:bg-gray-700"
         >
           <TrendingUp className="h-4 w-4" />
           <span>Keep Going</span>

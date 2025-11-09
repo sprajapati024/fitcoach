@@ -110,14 +110,14 @@ export function BottomNav() {
                 className={cn(
                   "touch-feedback flex flex-1 flex-col items-center gap-1 rounded-full px-3 py-2 text-xs font-medium transition-all duration-150",
                   active
-                    ? "text-cyan-500"
+                    ? "text-white"
                     : "text-text-muted hover:text-text-secondary active:bg-surface-2"
                 )}
               >
                 <Icon
                   className={cn(
                     "h-6 w-6 transition-all",
-                    active ? "text-cyan-500" : "text-text-secondary"
+                    active ? "text-white" : "text-text-secondary"
                   )}
                   aria-hidden
                 />

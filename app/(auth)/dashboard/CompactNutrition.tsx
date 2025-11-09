@@ -60,7 +60,7 @@ export function CompactNutrition({ nutrition }: CompactNutritionProps) {
         <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400">Macros Today</h3>
         <Link
           href="/nutrition"
-          className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/20 text-indigo-500 transition active:scale-95 hover:bg-indigo-500/30"
+          className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-700/50 text-white transition active:scale-95 hover:bg-gray-700"
         >
           <Plus className="h-3.5 w-3.5" />
         </Link>
