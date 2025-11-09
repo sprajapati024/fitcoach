@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { onboardingSchema, type OnboardingInput } from "@/lib/validation";
+import { onboardingSchema, type OnboardingInput, updateProfileSchema, type UpdateProfileInput } from "@/lib/validation";
 import { createSupabaseServerClient } from "@/lib/supabaseServerClient";
 import { users, profiles, coachCache } from "@/drizzle/schema";
 import { convertHeightToCm, convertWeightToKg } from "@/lib/unitConversion";
@@ -160,81 +160,77 @@ export async function getUserProfileAction() {
 /**
  * Update full user profile from settings page
  */
-export async function updateFullProfileAction(data: {
-  fullName?: string;
-  sex?: string;
-  dateOfBirth?: string;
-  heightCm?: number;
-  weightKg?: number;
-  unitSystem?: string;
-  goalBias?: string;
-  experienceLevel?: string;
-  scheduleDaysPerWeek?: number;
-  scheduleMinutesPerSession?: number;
-  scheduleWeeks?: number;
-  preferredDays?: string[];
-  equipment?: string[];
-  avoidList?: string[];
-  noHighImpact?: boolean;
-  hasPcos?: boolean;
-  coachTone?: string;
-  coachTodayEnabled?: boolean;
-  coachDebriefEnabled?: boolean;
-  coachWeeklyEnabled?: boolean;
-  timezone?: string;
-}) {
-  const supabase = await createSupabaseServerClient();
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-
-  if (userError || !userData.user) {
-    throw new Error("Unable to resolve authenticated user");
-  }
-
-  const userId = userData.user.id;
-
-  // Clear all coach cache entries for this user when saving settings
-  // This ensures fresh coach messages with the updated preference
+export async function updateFullProfileAction(data: UpdateProfileInput) {
   try {
-    await db.delete(coachCache).where(eq(coachCache.userId, userId));
-  } catch (error) {
-    // Cache deletion is not critical, continue with profile update
-    console.warn("Failed to clear coach cache:", error);
-  }
+    // Validate input data
+    const validatedData = updateProfileSchema.parse(data);
 
-  // Update profile
-  await db
-    .update(profiles)
-    .set({
-      fullName: data.fullName,
-      sex: data.sex as any,
-      dateOfBirth: data.dateOfBirth,
-      heightCm: data.heightCm?.toString(),
-      weightKg: data.weightKg?.toString(),
-      unitSystem: data.unitSystem as any,
-      goalBias: data.goalBias as any,
-      experienceLevel: data.experienceLevel as any,
-      scheduleDaysPerWeek: data.scheduleDaysPerWeek,
-      scheduleMinutesPerSession: data.scheduleMinutesPerSession,
-      scheduleWeeks: data.scheduleWeeks,
-      preferredDays: data.preferredDays as any,
-      equipment: data.equipment as any,
-      avoidList: data.avoidList as any,
-      noHighImpact: data.noHighImpact,
-      hasPcos: data.hasPcos,
-      coachTone: data.coachTone as any,
-      coachTodayEnabled: data.coachTodayEnabled,
-      coachDebriefEnabled: data.coachDebriefEnabled,
-      coachWeeklyEnabled: data.coachWeeklyEnabled,
-      timezone: data.timezone,
+    const supabase = await createSupabaseServerClient();
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+
+    if (userError || !userData.user) {
+      throw new Error("Unable to resolve authenticated user");
+    }
+
+    const userId = userData.user.id;
+
+    // Clear all coach cache entries for this user when saving settings
+    // This ensures fresh coach messages with the updated preference
+    try {
+      await db.delete(coachCache).where(eq(coachCache.userId, userId));
+    } catch (error) {
+      // Cache deletion is not critical, continue with profile update
+      console.warn("Failed to clear coach cache:", error);
+    }
+
+    // Build update object with only provided fields
+    const updateData: any = {
       updatedAt: new Date(),
-    })
-    .where(eq(profiles.userId, userId));
+    };
 
-  // Revalidate relevant pages
-  revalidatePath("/settings");
-  revalidatePath("/dashboard");
-  revalidatePath("/plan");
-  revalidatePath("/nutrition");
+    if (validatedData.fullName !== undefined) updateData.fullName = validatedData.fullName;
+    if (validatedData.sex !== undefined) updateData.sex = validatedData.sex;
+    if (validatedData.dateOfBirth !== undefined) updateData.dateOfBirth = validatedData.dateOfBirth;
+    if (validatedData.heightCm !== undefined) updateData.heightCm = validatedData.heightCm.toString();
+    if (validatedData.weightKg !== undefined) updateData.weightKg = validatedData.weightKg.toString();
+    if (validatedData.unitSystem !== undefined) updateData.unitSystem = validatedData.unitSystem;
+    if (validatedData.goalBias !== undefined) updateData.goalBias = validatedData.goalBias;
+    if (validatedData.experienceLevel !== undefined) updateData.experienceLevel = validatedData.experienceLevel;
+    if (validatedData.scheduleDaysPerWeek !== undefined) updateData.scheduleDaysPerWeek = validatedData.scheduleDaysPerWeek;
+    if (validatedData.scheduleMinutesPerSession !== undefined) updateData.scheduleMinutesPerSession = validatedData.scheduleMinutesPerSession;
+    if (validatedData.scheduleWeeks !== undefined) updateData.scheduleWeeks = validatedData.scheduleWeeks;
+    if (validatedData.preferredDays !== undefined) updateData.preferredDays = validatedData.preferredDays;
+    if (validatedData.equipment !== undefined) updateData.equipment = validatedData.equipment;
+    if (validatedData.avoidList !== undefined) updateData.avoidList = validatedData.avoidList;
+    if (validatedData.noHighImpact !== undefined) updateData.noHighImpact = validatedData.noHighImpact;
+    if (validatedData.hasPcos !== undefined) updateData.hasPcos = validatedData.hasPcos;
+    if (validatedData.coachTone !== undefined) updateData.coachTone = validatedData.coachTone;
+    if (validatedData.coachTodayEnabled !== undefined) updateData.coachTodayEnabled = validatedData.coachTodayEnabled;
+    if (validatedData.coachDebriefEnabled !== undefined) updateData.coachDebriefEnabled = validatedData.coachDebriefEnabled;
+    if (validatedData.coachWeeklyEnabled !== undefined) updateData.coachWeeklyEnabled = validatedData.coachWeeklyEnabled;
+    if (validatedData.timezone !== undefined) updateData.timezone = validatedData.timezone;
 
-  return { success: true };
+    // Update profile
+    await db
+      .update(profiles)
+      .set(updateData)
+      .where(eq(profiles.userId, userId));
+
+    // Revalidate relevant pages
+    revalidatePath("/settings");
+    revalidatePath("/dashboard");
+    revalidatePath("/plan");
+    revalidatePath("/nutrition");
+
+    return { success: true };
+  } catch (error) {
+    // Provide detailed error messages for validation errors
+    if (error instanceof Error) {
+      if (error.name === 'ZodError') {
+        throw new Error(`Validation failed: ${error.message}`);
+      }
+      throw new Error(`Failed to update profile: ${error.message}`);
+    }
+    throw new Error("An unexpected error occurred while updating your profile");
+  }
 }
