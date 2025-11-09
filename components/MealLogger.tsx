@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { X, Sparkles, Loader2, Mic, Square } from "lucide-react";
+import { X, Sparkles, Loader2, Mic, Square, Coffee, Sun, Moon, Apple } from "lucide-react";
 import { PrimaryButton } from "@/components/PrimaryButton";
 
 interface MealLoggerProps {
@@ -253,20 +253,31 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
           {/* Meal Type */}
           <div>
             <label className="block text-sm font-medium mb-3">Meal Type</label>
-            <div className="grid grid-cols-4 gap-2">
-              {(["breakfast", "lunch", "dinner", "snack"] as MealType[]).map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setMealType(type)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    mealType === type
-                      ? "bg-gradient-to-r from-cyan-500 to-indigo-600 text-gray-950"
-                      : "bg-surface-1 hover:bg-surface-2"
-                  }`}
-                >
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
-                </button>
-              ))}
+            <div className="grid grid-cols-2 gap-3">
+              {(["breakfast", "lunch", "dinner", "snack"] as MealType[]).map((type) => {
+                const icons = {
+                  breakfast: Coffee,
+                  lunch: Sun,
+                  dinner: Moon,
+                  snack: Apple,
+                };
+                const Icon = icons[type];
+
+                return (
+                  <button
+                    key={type}
+                    onClick={() => setMealType(type)}
+                    className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-colors ${
+                      mealType === type
+                        ? "bg-gradient-to-r from-cyan-500 to-indigo-600 text-gray-950"
+                        : "bg-surface-1 hover:bg-surface-2"
+                    }`}
+                  >
+                    <Icon className="h-5 w-5" />
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
