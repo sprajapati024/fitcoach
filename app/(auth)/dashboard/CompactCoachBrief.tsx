@@ -17,6 +17,7 @@ interface CoachApiResponse {
   cached?: boolean;
   fallback?: string;
   error?: string;
+  tone?: 'analyst' | 'flirty';
 }
 
 export function CompactCoachBrief({ userId, hasActivePlan }: CompactCoachBriefProps) {
@@ -24,6 +25,7 @@ export function CompactCoachBrief({ userId, hasActivePlan }: CompactCoachBriefPr
   const [data, setData] = useState<CoachResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [tone, setTone] = useState<'analyst' | 'flirty'>('analyst');
 
   const fetchBrief = useCallback(async (forceRefresh = false) => {
     if (forceRefresh) {
@@ -51,6 +53,9 @@ export function CompactCoachBrief({ userId, hasActivePlan }: CompactCoachBriefPr
 
       if (payload.coach) {
         setData(payload.coach);
+      }
+      if (payload.tone) {
+        setTone(payload.tone);
       }
     } catch {
       setData(null);
@@ -157,15 +162,35 @@ export function CompactCoachBrief({ userId, hasActivePlan }: CompactCoachBriefPr
         <div className="space-y-3">
           {/* Badge and Refresh Button Row */}
           <div className="flex items-center justify-between">
-            <motion.div
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.2 }}
-              className="inline-flex items-center gap-1.5 rounded-md border border-emerald-400/20 bg-emerald-400/5 px-2 py-0.5"
-            >
-              <div className="h-1 w-1 rounded-full bg-emerald-400" />
-              <span className="text-[9px] font-semibold uppercase tracking-wider text-emerald-400/90">Coach</span>
-            </motion.div>
+            <div className="flex items-center gap-2">
+              <motion.div
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.2 }}
+                className="inline-flex items-center gap-1.5 rounded-md border border-emerald-400/20 bg-emerald-400/5 px-2 py-0.5"
+              >
+                <div className="h-1 w-1 rounded-full bg-emerald-400" />
+                <span className="text-[9px] font-semibold uppercase tracking-wider text-emerald-400/90">Coach</span>
+              </motion.div>
+
+              {/* Tone Indicator Badge */}
+              <motion.div
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.25 }}
+                className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 ${
+                  tone === 'flirty'
+                    ? 'border-pink-400/20 bg-pink-400/5'
+                    : 'border-orange-400/20 bg-orange-400/5'
+                }`}
+              >
+                <span className={`text-[9px] font-semibold uppercase tracking-wider ${
+                  tone === 'flirty' ? 'text-pink-400/90' : 'text-orange-400/90'
+                }`}>
+                  {tone === 'flirty' ? '💕 Flirty' : '🎯 Analyst'}
+                </span>
+              </motion.div>
+            </div>
 
             {/* Refresh Button */}
             <button
