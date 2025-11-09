@@ -53,18 +53,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Log audio file details for debugging
+    console.log(`Transcribing audio: ${audioFile.name}, type: ${audioFile.type}, size: ${audioFile.size} bytes`);
+
     // Call OpenAI Whisper API for transcription
     const transcription = await openai.audio.transcriptions.create({
       file: audioFile,
       model: "whisper-1",
       language: "en", // Can be changed to support multiple languages
       response_format: "json",
-      prompt: "This is a description of food and meals eaten by the user.", // Context hint for better accuracy
+      // Removed prompt to avoid confusion - let Whisper transcribe naturally
     });
 
     // Calculate approximate duration (rough estimate based on file size)
     // More accurate duration would require parsing the audio file
     const estimatedDuration = audioFile.size / 16000; // Rough estimate in seconds
+
+    console.log(`Transcription successful: "${transcription.text.substring(0, 100)}..."`);
 
     return NextResponse.json({
       transcript: transcription.text,
