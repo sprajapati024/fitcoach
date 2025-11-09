@@ -16,15 +16,15 @@ interface CompactDayCardProps {
   delay?: number;
 }
 
-function getWorkoutEmoji(focus: string): string {
+function getWorkoutLabel(focus: string): string {
   const lower = focus.toLowerCase();
-  if (lower.includes('push') || lower.includes('chest') || lower.includes('shoulder')) return '🫸';
-  if (lower.includes('pull') || lower.includes('back')) return '🫷';
-  if (lower.includes('leg') || lower.includes('squat')) return '🦵';
-  if (lower.includes('cardio') || lower.includes('run')) return '🏃';
-  if (lower.includes('upper')) return '💪';
-  if (lower.includes('full') || lower.includes('total')) return '🏋️';
-  return '💪';
+  if (lower.includes('push') || lower.includes('chest') || lower.includes('shoulder')) return 'PUSH';
+  if (lower.includes('pull') || lower.includes('back')) return 'PULL';
+  if (lower.includes('leg') || lower.includes('squat')) return 'LEGS';
+  if (lower.includes('cardio') || lower.includes('run')) return 'CARDIO';
+  if (lower.includes('upper')) return 'UPPER';
+  if (lower.includes('full') || lower.includes('total')) return 'FULL';
+  return 'WORKOUT';
 }
 
 export function CompactDayCard({
@@ -72,8 +72,8 @@ export function CompactDayCard({
       {/* Workout indicator */}
       {hasWorkout ? (
         <>
-          <div className="text-xl mt-0.5">
-            {getWorkoutEmoji(workout.focus)}
+          <div className={`text-[9px] font-bold mt-0.5 tracking-tight ${isToday ? 'text-white' : 'text-gray-400'}`}>
+            {getWorkoutLabel(workout.focus)}
           </div>
 
           {/* Status dot */}
@@ -81,14 +81,16 @@ export function CompactDayCard({
             <div className="absolute bottom-1 right-1">
               <div
                 className={`h-1.5 w-1.5 rounded-full ${
-                  status === 'completed' ? 'bg-green-500' : 'bg-yellow-500'
+                  status === 'completed' ? 'bg-emerald-500' : 'bg-yellow-500'
                 }`}
               />
             </div>
           )}
         </>
       ) : (
-        <div className="text-lg mt-0.5 opacity-30">😴</div>
+        <div className={`text-[9px] font-bold mt-0.5 tracking-tight ${isToday ? 'text-white' : 'text-gray-500'}`}>
+          REST
+        </div>
       )}
     </motion.div>
   );
