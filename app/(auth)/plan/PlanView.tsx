@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { activatePlanAction, deletePlanAction } from '@/app/actions/plan';
 import PlanGenerationProgress from '@/components/PlanGenerationProgress';
-import { CompactCalendar } from './CompactCalendar';
+import { CompactWeekView } from './CompactWeekView';
 import { CompactPlanCard } from './CompactPlanCard';
 import type { plans, workouts, workoutLogs as workoutLogsTable } from '@/drizzle/schema';
 import {
@@ -451,14 +451,13 @@ export function PlanView({ activePlan, userPlans, workouts, workoutLogs }: PlanV
           <p className="text-sm text-gray-400">{activePlan.summary}</p>
         </motion.div>
 
-        {/* Calendar */}
+        {/* Week View */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
-          className="rounded-lg border border-gray-800 bg-gray-900 p-3"
         >
-          <CompactCalendar
+          <CompactWeekView
             workouts={workouts}
             weeks={activePlan.durationWeeks}
             startDate={activePlan.startDate || new Date().toISOString().split('T')[0]}
