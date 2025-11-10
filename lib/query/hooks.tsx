@@ -188,6 +188,11 @@ export function useLogWorkout() {
         userId: data.userId,
         planId: data.planId,
       });
+
+      // Trigger sync to push dirty records to server
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('fitcoach:sync-requested'));
+      }
     },
   });
 }
@@ -247,6 +252,11 @@ export function useLogMeal() {
         userId: data.userId,
         date: data.date,
       });
+
+      // Trigger sync to push dirty records to server
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('fitcoach:sync-requested'));
+      }
     },
   });
 }
