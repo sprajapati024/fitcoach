@@ -32,6 +32,10 @@ import {
 import { queryKeys, invalidateWorkoutQueries, invalidateNutritionQueries } from './client';
 import { useSyncStore } from '@/lib/store/sync';
 import type { LocalWorkoutLog, LocalWorkoutLogSet, LocalMeal } from '@/lib/db/schema.local';
+import { getCachedResponse, setCachedResponse } from '@/lib/ai/cache';
+import { generateFallbackBrief, generateErrorFallback } from '@/lib/ai/fallbacks';
+import { enqueuePrompt } from '@/lib/sync/ai-queue';
+import type { CoachResponse } from '@/lib/validation';
 
 // ============================================================================
 // Profile Hooks
@@ -273,10 +277,11 @@ export function useCoachCache(context: string, cacheKey: string) {
 }
 
 /**
- * Get today's coach brief (with API fallback)
+ * Get today's coach brief (with offline-first caching and fallbacks)
  */
 export function useTodayCoachBrief() {
   const supabase = useSupabase();
+  const isOnline = useSyncStore((state) => state.isOnline);
 
   return useQuery({
     queryKey: queryKeys.coachToday('current'),
@@ -287,16 +292,61 @@ export function useTodayCoachBrief() {
       } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Try to fetch from API (which will check cache internally)
-      const response = await fetch(`/api/coach/today?u=${encodeURIComponent(user.id)}`, {
-        cache: 'no-store',
-      });
+      const today = new Date().toISOString().split('T')[0];
+      const cacheKey = `${today}-coach-brief`;
 
-      if (!response.ok) {
-        return null;
+      // Step 1: Try IndexedDB cache first (works offline)
+      const cached = await getCachedResponse<CoachResponse>(
+        user.id,
+        'today',
+        cacheKey,
+        60 // 60 minute TTL
+      );
+
+      if (cached) {
+        return {
+          success: true,
+          coach: cached,
+          cached: true,
+          source: 'indexeddb',
+        };
       }
 
-      return response.json();
+      // Step 2: If online, fetch from API
+      if (isOnline) {
+        try {
+          const response = await fetch(`/api/coach/today?u=${encodeURIComponent(user.id)}`, {
+            cache: 'no-store',
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+
+            // Cache the response in IndexedDB for offline access
+            if (data.coach) {
+              await setCachedResponse(user.id, null, 'today', cacheKey, data.coach, today);
+            }
+
+            return data;
+          }
+        } catch (error) {
+          console.warn('[CoachBrief] API fetch failed:', error);
+          // Fall through to offline fallback
+        }
+      }
+
+      // Step 3: Generate offline fallback
+      const fallbackResponse = isOnline
+        ? generateErrorFallback('API unavailable', false)
+        : generateErrorFallback('Offline mode', true);
+
+      return {
+        success: true,
+        coach: fallbackResponse,
+        cached: false,
+        fallback: true,
+        source: 'offline-fallback',
+      };
     },
     enabled: !!supabase,
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -305,11 +355,12 @@ export function useTodayCoachBrief() {
 }
 
 /**
- * Force refresh today's coach brief
+ * Force refresh today's coach brief (with offline queuing)
  */
 export function useRefreshCoachBrief() {
   const queryClient = useQueryClient();
   const supabase = useSupabase();
+  const isOnline = useSyncStore((state) => state.isOnline);
 
   return useMutation({
     mutationFn: async () => {
@@ -319,6 +370,26 @@ export function useRefreshCoachBrief() {
       } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // If offline, queue the request for later
+      if (!isOnline) {
+        const today = new Date().toISOString().split('T')[0];
+        enqueuePrompt(
+          user.id,
+          'coach-today-refresh',
+          'System: You are a fitness coach providing daily guidance.',
+          `Generate today's brief for ${today}`,
+          '/api/coach/today?refresh=true'
+        );
+
+        // Return a queued response
+        return {
+          success: true,
+          queued: true,
+          coach: generateErrorFallback('Queued for sync', true),
+        };
+      }
+
+      // If online, fetch fresh data
       const response = await fetch(
         `/api/coach/today?u=${encodeURIComponent(user.id)}&refresh=true`,
         {
@@ -330,7 +401,16 @@ export function useRefreshCoachBrief() {
         throw new Error('Failed to refresh');
       }
 
-      return response.json();
+      const data = await response.json();
+
+      // Update IndexedDB cache
+      if (data.coach) {
+        const today = new Date().toISOString().split('T')[0];
+        const cacheKey = `${today}-coach-brief`;
+        await setCachedResponse(user.id, null, 'today', cacheKey, data.coach, today);
+      }
+
+      return data;
     },
     onSuccess: (data) => {
       // Update the query data with the refreshed coach brief
