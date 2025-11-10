@@ -368,7 +368,8 @@ export async function getMealsByDate(userId: string, date: string): Promise<Loca
     if (isOnline()) {
       const response = await fetch(`/api/nutrition/meals?userId=${userId}&date=${date}`);
       if (response.ok) {
-        const serverMeals = await response.json();
+        const data = await response.json();
+        const serverMeals = data.meals || [];
         const locals = serverMeals.map(mapServerMealToLocal);
         await localDB.meals.bulkPut(locals);
         return locals;
