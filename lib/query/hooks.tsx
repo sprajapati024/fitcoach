@@ -203,7 +203,7 @@ export function useMealsByDate(date: string) {
   const supabase = useSupabase();
 
   return useQuery({
-    queryKey: queryKeys.meals('current', date),
+    queryKey: ['meals', date], // Simplified to match invalidation
     queryFn: async () => {
       if (!supabase) throw new Error('Supabase client not initialized');
       const {

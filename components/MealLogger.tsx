@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { X, Sparkles, Loader2, Mic, Square, Coffee, Sun, Moon, Apple } from "lucide-react";
 import { PrimaryButton } from "@/components/PrimaryButton";
+import { useLogMeal } from "@/lib/query/hooks";
 
 interface MealLoggerProps {
   onClose: () => void;
@@ -22,8 +23,10 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
   const [fiber, setFiber] = useState("");
   const [notes, setNotes] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
-  const [logging, setLogging] = useState(false);
   const [error, setError] = useState("");
+
+  // Use React Query mutation for logging meals
+  const logMealMutation = useLogMeal();
 
   // Voice recording state
   const [isRecording, setIsRecording] = useState(false);
@@ -86,39 +89,30 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
       return;
     }
 
-    setLogging(true);
     setError("");
 
     try {
-      const response = await fetch("/api/nutrition/meals", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mealDate: today,
-          mealTime: now,
-          mealType,
-          description: description.trim(),
-          calories: calories ? parseInt(calories) : undefined,
-          proteinGrams: protein ? parseFloat(protein) : undefined,
-          carbsGrams: carbs ? parseFloat(carbs) : undefined,
-          fatGrams: fat ? parseFloat(fat) : undefined,
-          fiberGrams: fiber ? parseFloat(fiber) : undefined,
-          notes: notes.trim() || undefined,
-          source: wasVoiceInput ? "voice" : "manual",
-        }),
+      await logMealMutation.mutateAsync({
+        userId: "", // Will be filled by the hook
+        mealDate: today,
+        mealTime: new Date(now).getTime(),
+        mealType,
+        description: description.trim(),
+        photoUrl: null,
+        calories: calories ? parseInt(calories) : null,
+        proteinGrams: protein ? protein : null,
+        carbsGrams: carbs ? carbs : null,
+        fatGrams: fat ? fat : null,
+        fiberGrams: fiber ? fiber : null,
+        notes: notes.trim() || null,
+        source: wasVoiceInput ? "voice" : "manual",
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to log meal");
-      }
 
       onMealLogged();
       onClose();
     } catch (err) {
       console.error("Error logging meal:", err);
       setError("Failed to log meal. Please try again.");
-    } finally {
-      setLogging(false);
     }
   };
 
@@ -493,10 +487,10 @@ export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerPro
             </button>
             <PrimaryButton
               onClick={handleSubmit}
-              disabled={logging || !description.trim()}
+              disabled={logMealMutation.isPending || !description.trim()}
               className="flex-1"
             >
-              {logging ? (
+              {logMealMutation.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Logging...
