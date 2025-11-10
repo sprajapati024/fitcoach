@@ -6,6 +6,8 @@ import { SupabaseProvider } from "@/components/providers/SupabaseProvider";
 import { ToastProvider } from "@/components/Toast";
 import { KeyboardViewportProvider } from "@/components/providers/KeyboardViewportProvider";
 import InstallPrompt from "@/components/InstallPrompt";
+import { QueryProvider } from "@/lib/query/client";
+import { SyncInitializer } from "@/components/providers/SyncInitializer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,11 +49,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <KeyboardViewportProvider>
-          <SupabaseProvider>
-            <ToastProvider>{children}</ToastProvider>
-          </SupabaseProvider>
-        </KeyboardViewportProvider>
+        <QueryProvider>
+          <KeyboardViewportProvider>
+            <SupabaseProvider>
+              <SyncInitializer />
+              <ToastProvider>{children}</ToastProvider>
+            </SupabaseProvider>
+          </KeyboardViewportProvider>
+        </QueryProvider>
         <InstallPrompt />
       </body>
     </html>

@@ -7,6 +7,7 @@ import { PrimaryButton } from "@/components/PrimaryButton";
 import { WorkoutEditor } from "@/components/WorkoutEditor";
 import type { workouts, WorkoutPayload } from "@/drizzle/schema";
 import { Edit2, TrendingUp, Award, Calendar, Clock, BarChart3, Zap } from "lucide-react";
+import { useWorkoutStats } from "@/lib/query/hooks";
 
 type Workout = typeof workouts.$inferSelect;
 
@@ -59,8 +60,9 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
   const searchParams = useSearchParams();
   const [isLogging, setIsLogging] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [stats, setStats] = useState<WorkoutStats | null>(null);
-  const [loadingStats, setLoadingStats] = useState(true);
+
+  // Use React Query hook for workout stats
+  const { data: stats, isLoading: loadingStats } = useWorkoutStats(workout.id);
 
   const workoutPayload = workout.payload as WorkoutPayload;
   const today = new Date().toISOString().split("T")[0];
@@ -74,24 +76,6 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
       setIsLogging(true);
     }
   }, [searchParams, isPast]);
-
-  // Fetch workout stats
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await fetch(`/api/workouts/${workout.id}/stats`);
-        if (response.ok) {
-          const data = await response.json();
-          setStats(data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch workout stats:', error);
-      } finally {
-        setLoadingStats(false);
-      }
-    };
-    fetchStats();
-  }, [workout.id]);
 
   const handleLoggerComplete = (result: LoggerResult) => {
     void result;
@@ -258,7 +242,7 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
             Recent Sessions
           </h2>
           <div className="space-y-3">
-            {stats.sessions.map((session) => (
+            {stats.sessions.map((session: SessionSummary) => (
               <div
                 key={session.logId}
                 className="bg-gray-900 border border-gray-800 rounded-lg p-4 hover:bg-gray-800 transition"
@@ -301,7 +285,7 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
             Personal Records
           </h2>
           <div className="space-y-3">
-            {Object.entries(stats.exerciseStats).map(([exerciseId, exerciseData]) => (
+            {Object.entries(stats.exerciseStats as Record<string, ExerciseStats>).map(([exerciseId, exerciseData]) => (
               <div
                 key={exerciseId}
                 className="bg-gray-900 border border-gray-800 rounded-lg p-4"
@@ -347,9 +331,9 @@ export function WorkoutDetailView({ workout }: WorkoutDetailViewProps) {
                       Volume Trend
                     </div>
                     <div className="flex items-end gap-1 h-12">
-                      {exerciseData.sessions.slice(0, 5).reverse().map((session, idx) => {
+                      {exerciseData.sessions.slice(0, 5).reverse().map((session: ExerciseStats['sessions'][number], idx: number) => {
                         const maxVolume = Math.max(
-                          ...exerciseData.sessions.map((s) => s.totalVolume)
+                          ...exerciseData.sessions.map((s: ExerciseStats['sessions'][number]) => s.totalVolume)
                         );
                         const height = (session.totalVolume / maxVolume) * 100;
                         return (

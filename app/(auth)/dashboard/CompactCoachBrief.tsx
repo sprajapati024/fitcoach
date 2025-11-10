@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState } from 'react';
 import { ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import type { CoachResponse } from '@/lib/validation';
+import { useTodayCoachBrief, useRefreshCoachBrief } from '@/lib/query/hooks';
 
 interface CompactCoachBriefProps {
   userId: string;
@@ -22,56 +23,19 @@ interface CoachApiResponse {
 
 export function CompactCoachBrief({ userId, hasActivePlan }: CompactCoachBriefProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [data, setData] = useState<CoachResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [tone, setTone] = useState<'analyst' | 'flirty'>('analyst');
 
-  const fetchBrief = useCallback(async (forceRefresh = false) => {
-    if (forceRefresh) {
-      setIsRefreshing(true);
-    } else {
-      setIsLoading(true);
-    }
+  // Use React Query hooks
+  const { data: response, isLoading } = useTodayCoachBrief();
+  const refreshMutation = useRefreshCoachBrief();
 
-    try {
-      const url = forceRefresh
-        ? `/api/coach/today?u=${encodeURIComponent(userId)}&refresh=true`
-        : `/api/coach/today?u=${encodeURIComponent(userId)}`;
+  // Extract data from response
+  const data = (response as CoachApiResponse)?.coach || null;
+  const tone = (response as CoachApiResponse)?.tone || 'analyst';
+  const isRefreshing = refreshMutation.isPending;
 
-      const response = await fetch(url, {
-        method: 'GET',
-        cache: 'no-store',
-      });
-
-      if (!response.ok) {
-        setData(null);
-        return;
-      }
-
-      const payload = (await response.json()) as CoachApiResponse;
-
-      if (payload.coach) {
-        setData(payload.coach);
-      }
-      if (payload.tone) {
-        setTone(payload.tone);
-      }
-    } catch {
-      setData(null);
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  }, [userId]);
-
-  useEffect(() => {
-    void fetchBrief();
-  }, [fetchBrief]);
-
-  const handleRefresh = useCallback(() => {
-    void fetchBrief(true);
-  }, [fetchBrief]);
+  const handleRefresh = () => {
+    refreshMutation.mutate();
+  };
 
   // Special onboarding message when no plan exists
   if (!hasActivePlan && !isLoading) {
@@ -111,7 +75,7 @@ export function CompactCoachBrief({ userId, hasActivePlan }: CompactCoachBriefPr
               </motion.h3>
 
               <p className="text-sm text-gray-300/90 leading-relaxed">
-                Welcome! I'm here to guide you on your fitness journey. Let's create your personalized workout plan together.
+                Welcome! I&apos;m here to guide you on your fitness journey. Let&apos;s create your personalized workout plan together.
               </p>
 
               {/* CTA */}
@@ -126,7 +90,7 @@ export function CompactCoachBrief({ userId, hasActivePlan }: CompactCoachBriefPr
     );
   }
 
-  const coachMessage = data?.headline || 'Focus on form and progressive overload. Let\'s get stronger!';
+  const coachMessage = data?.headline || 'Focus on form and progressive overload. Let&apos;s get stronger!';
 
   if (isLoading) {
     return (
