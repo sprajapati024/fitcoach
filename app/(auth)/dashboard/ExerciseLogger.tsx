@@ -8,6 +8,7 @@ import type { workouts, WorkoutPayload } from '@/drizzle/schema';
 import { enqueueLog } from '@/lib/offlineQueue';
 import type { WorkoutLogRequest } from '@/lib/validation';
 import { Pencil, Play, Pause, ChevronDown, ChevronUp, RotateCcw, Copy } from 'lucide-react';
+import { useWorkoutHistory } from '@/lib/query/hooks';
 
 type Workout = typeof workouts.$inferSelect;
 
@@ -81,8 +82,11 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
   const [workoutStartTime] = useState(Date.now());
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [showWorkoutEditor, setShowWorkoutEditor] = useState(false);
-  const [historicalData, setHistoricalData] = useState<Record<string, Array<{ set: number; weight: number; reps: number; rpe?: number }>> | null>(null);
-  const [lastSessionDate, setLastSessionDate] = useState<string | null>(null);
+
+  // Use React Query hook for workout history
+  const { data: historyData } = useWorkoutHistory(workout.id);
+  const historicalData = historyData?.hasHistory ? historyData.exercises : null;
+  const lastSessionDate = historyData?.lastSession?.date || null;
 
   const workoutPayload = useMemo(() => workout.payload as WorkoutPayload, [workout.payload]);
 
@@ -117,25 +121,6 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
       }
     }
   }, []);
-
-  // Fetch historical data on mount
-  useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        const response = await fetch(`/api/workouts/${workout.id}/history`);
-        if (response.ok) {
-          const data = await response.json();
-          if (data.hasHistory) {
-            setHistoricalData(data.exercises);
-            setLastSessionDate(data.lastSession.date);
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch workout history:', error);
-      }
-    };
-    fetchHistory();
-  }, [workout.id]);
 
   // Track elapsed time
   useEffect(() => {
@@ -684,7 +669,7 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
                               Last session ({lastSessionDate}):
                             </p>
                             <div className="flex flex-wrap gap-2">
-                              {exerciseHistory.map((set, idx) => (
+                              {exerciseHistory.map((set: { set: number; weight: number; reps: number; rpe?: number }, idx: number) => (
                                 <span key={idx} className="text-gray-400">
                                   {set.weight}kg × {set.reps}
                                   {idx < exerciseHistory.length - 1 ? ' •' : ''}

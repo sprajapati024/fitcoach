@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, ChevronUp, Trash2, Coffee, Utensils, Moon, Cookie } from 'lucide-react';
+import { useMealsByDate, useDeleteMeal } from '@/lib/query/hooks';
+import { useState } from 'react';
 
 interface CompactMealsListProps {
   date: string;
-  refreshTrigger: number;
+  refreshTrigger?: number; // Optional, no longer needed with React Query auto-refetch
   onMealDeleted: () => void;
 }
 
@@ -18,7 +19,7 @@ interface Meal {
   proteinGrams: number | null;
   carbsGrams: number | null;
   fatGrams: number | null;
-  mealTime: string;
+  mealTime: number | string; // Can be timestamp or ISO string
   notes: string | null;
 }
 
@@ -37,51 +38,27 @@ const mealColors = {
 };
 
 export function CompactMealsList({ date, refreshTrigger, onMealDeleted }: CompactMealsListProps) {
-  const [meals, setMeals] = useState<Meal[]>([]);
-  const [loading, setLoading] = useState(true);
   const [expandedMeal, setExpandedMeal] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchMeals();
-  }, [date, refreshTrigger]);
+  // Use React Query hooks
+  const { data: mealsData, isLoading: loading } = useMealsByDate(date);
+  const deleteMutation = useDeleteMeal();
 
-  const fetchMeals = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/nutrition/meals?date=${date}`);
-      if (response.ok) {
-        const data = await response.json();
-        setMeals(data.meals || []);
-      }
-    } catch (error) {
-      console.error('Error fetching meals:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const meals = mealsData || [];
 
   const handleDelete = async (mealId: string) => {
     if (!confirm('Delete this meal?')) return;
 
-    setDeleting(mealId);
     try {
-      const response = await fetch(`/api/nutrition/meals/${mealId}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        onMealDeleted();
-      }
+      await deleteMutation.mutateAsync(mealId);
+      onMealDeleted();
     } catch (error) {
       console.error('Error deleting meal:', error);
-    } finally {
-      setDeleting(null);
     }
   };
 
-  const formatTime = (isoString: string) => {
-    const date = new Date(isoString);
+  const formatTime = (time: number | string) => {
+    const date = typeof time === 'number' ? new Date(time) : new Date(time);
     return date.toLocaleTimeString('en-US', {
       hour: 'numeric',
       minute: '2-digit',
@@ -217,10 +194,10 @@ export function CompactMealsList({ date, refreshTrigger, onMealDeleted }: Compac
                       {/* Delete Button */}
                       <button
                         onClick={() => handleDelete(meal.id)}
-                        disabled={deleting === meal.id}
+                        disabled={deleteMutation.isPending}
                         className="w-full flex items-center justify-center gap-2 h-9 rounded-lg bg-red-500/20 border border-red-500/30 text-red-400 text-sm font-medium transition active:scale-95 disabled:opacity-50"
                       >
-                        {deleting === meal.id ? (
+                        {deleteMutation.isPending ? (
                           <span>Deleting...</span>
                         ) : (
                           <>

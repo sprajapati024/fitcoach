@@ -1,8 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Flame, Mic, Plus } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Plus } from 'lucide-react';
+import { useNutritionSummary, useNutritionGoals } from '@/lib/query/hooks';
 
 interface CompactNutritionHeroProps {
   date: string;
@@ -31,46 +31,11 @@ export function CompactNutritionHero({
   refreshTrigger,
   onLogMeal,
 }: CompactNutritionHeroProps) {
-  const [summary, setSummary] = useState<NutritionData | null>(null);
-  const [goals, setGoals] = useState<NutritionGoals | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Use React Query hooks
+  const { data: summary, isLoading: summaryLoading } = useNutritionSummary(date);
+  const { data: goals, isLoading: goalsLoading } = useNutritionGoals();
 
-  useEffect(() => {
-    fetchData();
-  }, [date, refreshTrigger]);
-
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-
-      const [summaryRes, goalsRes] = await Promise.all([
-        fetch(`/api/nutrition/summary?date=${date}`),
-        fetch('/api/nutrition/goals'),
-      ]);
-
-      if (summaryRes.ok) {
-        const summaryData = await summaryRes.json();
-        setSummary(
-          summaryData.summary || {
-            totalCalories: 0,
-            totalProtein: 0,
-            totalCarbs: 0,
-            totalFat: 0,
-            totalWaterMl: 0,
-          }
-        );
-      }
-
-      if (goalsRes.ok) {
-        const goalsData = await goalsRes.json();
-        setGoals(goalsData.goals);
-      }
-    } catch (error) {
-      console.error('Error fetching nutrition data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const loading = summaryLoading || goalsLoading;
 
   if (loading) {
     return (
