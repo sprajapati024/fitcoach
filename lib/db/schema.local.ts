@@ -281,6 +281,12 @@ export class FitCoachLocalDB extends Dexie {
       coachCache:
         'id, userId, [userId+context], [userId+context+cacheKey], targetDate, expiresAt',
     });
+
+    // Version 2: Add _syncedAt index to profiles table
+    this.version(2).stores({
+      // Profile: indexed by userId (primary key), now includes _syncedAt
+      profiles: 'userId, updatedAt, _isDirty, _syncedAt',
+    });
   }
 }
 
