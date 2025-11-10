@@ -58,6 +58,19 @@ export default withPWA({
       },
     },
     {
+      urlPattern: ({ url }: { url: URL }) => url.pathname.startsWith("/api/sync/"),
+      handler: "NetworkOnly",
+      method: "POST",
+      options: {
+        backgroundSync: {
+          name: "fitcoach-sync-queue",
+          options: {
+            maxRetentionTime: 24 * 60, // minutes
+          },
+        },
+      },
+    },
+    {
       urlPattern: ({ request }: { request: Request }) => request.destination === "image",
       handler: "CacheFirst",
       options: {
