@@ -270,6 +270,9 @@ export async function triggerSync(): Promise<SyncResult> {
   }
 }
 
+// Periodic sync interval reference
+let periodicSyncInterval: NodeJS.Timeout | null = null;
+
 /**
  * Initialize sync listeners (call this on app start)
  */
@@ -291,7 +294,47 @@ export function initializeSyncEngine(): void {
     }
   });
 
-  console.log('[SyncEngine] Initialized');
+  // Set up periodic background sync (every 5 minutes)
+  startPeriodicSync();
+
+  console.log('[SyncEngine] Initialized with periodic sync');
+}
+
+/**
+ * Start periodic background sync
+ */
+function startPeriodicSync(): void {
+  if (typeof window === 'undefined') return;
+
+  // Clear any existing interval
+  if (periodicSyncInterval) {
+    clearInterval(periodicSyncInterval);
+  }
+
+  // Sync every 5 minutes if there are dirty records
+  periodicSyncInterval = setInterval(() => {
+    const store = useSyncStore.getState();
+
+    // Only sync if:
+    // 1. We're online
+    // 2. There are dirty records
+    // 3. No sync already in progress
+    if (store.isOnline && store.dirtyCount > 0 && !store.syncInProgress) {
+      console.log('[SyncEngine] Periodic sync triggered');
+      void triggerSync();
+    }
+  }, 5 * 60 * 1000); // 5 minutes
+}
+
+/**
+ * Stop periodic background sync (useful for cleanup)
+ */
+export function stopPeriodicSync(): void {
+  if (periodicSyncInterval) {
+    clearInterval(periodicSyncInterval);
+    periodicSyncInterval = null;
+    console.log('[SyncEngine] Periodic sync stopped');
+  }
 }
 
 /**
