@@ -27,6 +27,7 @@ import {
   getProfile,
   getMealsByDate,
   saveMeal,
+  deleteMeal,
   getCoachCache,
 } from '@/lib/db/local';
 import { queryKeys, invalidateWorkoutQueries, invalidateNutritionQueries } from './client';
@@ -571,11 +572,12 @@ export function useNutritionGoals() {
 }
 
 /**
- * Delete a meal with optimistic updates
+ * Delete a meal with offline-first support
  */
 export function useDeleteMeal() {
   const queryClient = useQueryClient();
   const supabase = useSupabase();
+  const { updateDirtyCount } = useSyncStore();
 
   return useMutation({
     mutationFn: async (mealId: string) => {
@@ -585,13 +587,11 @@ export function useDeleteMeal() {
       } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      const response = await fetch(`/api/nutrition/meals/${mealId}`, {
-        method: 'DELETE',
-      });
+      // Soft delete in IndexedDB (marked as dirty)
+      await deleteMeal(mealId);
 
-      if (!response.ok) {
-        throw new Error('Failed to delete meal');
-      }
+      // Update dirty count in sync store
+      await updateDirtyCount();
 
       return { mealId, userId: user.id };
     },
@@ -599,6 +599,11 @@ export function useDeleteMeal() {
       // Invalidate nutrition queries to refetch
       await queryClient.invalidateQueries({ queryKey: ['meals'] });
       await queryClient.invalidateQueries({ queryKey: ['nutritionSummary'] });
+
+      // Trigger sync to push deletion to server
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('fitcoach:sync-requested'));
+      }
     },
   });
 }

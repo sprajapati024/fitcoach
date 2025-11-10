@@ -99,6 +99,14 @@ export async function POST(request: Request) {
           continue;
         }
 
+        // Check if this is a deletion
+        if (meal._deletedAt) {
+          // Delete from server
+          await db.delete(meals).where(eq(meals.id, meal.id));
+          synced.meals.push(meal.id);
+          continue;
+        }
+
         // Insert or update meal
         const existingMeal = await db.query.meals.findFirst({
           where: eq(meals.id, meal.id),

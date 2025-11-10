@@ -222,6 +222,7 @@ export interface LocalMeal {
   // Sync metadata
   _isDirty: boolean;
   _syncedAt: number | null;
+  _deletedAt?: number | null; // Soft delete timestamp
   _tempId?: string;
 }
 

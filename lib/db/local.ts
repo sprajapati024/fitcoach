@@ -361,7 +361,10 @@ export async function getMealsByDate(userId: string, date: string): Promise<Loca
   if (!isIndexedDBSupported()) return [];
 
   try {
-    const cached = await localDB.meals.where({ userId, mealDate: date }).toArray();
+    const cached = await localDB.meals
+      .where({ userId, mealDate: date })
+      .and((meal) => !meal._deletedAt) // Filter out soft-deleted meals
+      .toArray();
 
     if (cached.length > 0) return cached;
 
@@ -380,6 +383,31 @@ export async function getMealsByDate(userId: string, date: string): Promise<Loca
   } catch (error) {
     console.error('[localData] getMealsByDate error:', error);
     return [];
+  }
+}
+
+/**
+ * Soft delete a meal (marks as deleted, will be synced to server)
+ */
+export async function deleteMeal(mealId: string): Promise<void> {
+  if (!isIndexedDBSupported()) {
+    throw new Error('IndexedDB not supported');
+  }
+
+  try {
+    const meal = await localDB.meals.get(mealId);
+    if (!meal) {
+      throw new Error('Meal not found');
+    }
+
+    // Mark as deleted and dirty for sync
+    await localDB.meals.update(mealId, {
+      _deletedAt: Date.now(),
+      _isDirty: true,
+    });
+  } catch (error) {
+    console.error('[localData] deleteMeal error:', error);
+    throw error;
   }
 }
 
@@ -445,6 +473,18 @@ export async function getDirtyMeals(): Promise<LocalMeal[]> {
   return localDB.meals.where('_isDirty').equals(1).toArray();
 }
 
+/**
+ * Get deleted meals that need to be synced
+ */
+export async function getDeletedMeals(): Promise<LocalMeal[]> {
+  if (!isIndexedDBSupported()) return [];
+  return localDB.meals
+    .where('_isDirty')
+    .equals(1)
+    .and((meal) => meal._deletedAt !== null && meal._deletedAt !== undefined)
+    .toArray();
+}
+
 export async function getDirtyProfiles(): Promise<LocalProfile[]> {
   if (!isIndexedDBSupported()) return [];
   return localDB.profiles.where('_isDirty').equals(1).toArray();
@@ -457,6 +497,16 @@ export async function markAsSynced(
   if (!isIndexedDBSupported()) return;
 
   try {
+    // For meals, check if it was deleted - if so, remove from IndexedDB
+    if (table === 'meals') {
+      const meal = await localDB.meals.get(id);
+      if (meal?._deletedAt) {
+        // Remove from IndexedDB after successful server deletion
+        await localDB.meals.delete(id);
+        return;
+      }
+    }
+
     const updateData = {
       _isDirty: false,
       _syncedAt: Date.now(),
