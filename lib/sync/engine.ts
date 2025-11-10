@@ -188,20 +188,26 @@ async function pullServerUpdates(): Promise<{
   const errors: string[] = [];
 
   try {
-    // Get user ID from profile (needed for pull endpoint)
-    const profile = await getProfile('current');
-    if (!profile) {
-      // Can't pull without user context
+    // Get user ID for pull endpoint
+    // Note: We need to get user from somewhere - let's use the first profile in DB
+    const profiles = await getDirtyProfiles();
+    if (profiles.length === 0) {
+      // Try to get any profile to know the userId
+      // For now, skip pull if we don't have user context
+      console.log('[SyncEngine] No user context for pull, skipping');
       return { pulled, errors };
     }
+
+    const userId = profiles[0].userId;
+    const lastSyncAt = profiles[0]._syncedAt || 0;
 
     // Fetch updates from server
     const response = await fetch('/api/sync/pull', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        userId: profile.userId,
-        lastSyncAt: profile._syncedAt || 0,
+        userId,
+        lastSyncAt,
       }),
     });
 
@@ -210,15 +216,50 @@ async function pullServerUpdates(): Promise<{
       throw new Error(errorData.error || `Pull failed: ${response.status}`);
     }
 
-    const data: PullResponse = await response.json();
+    const data = await response.json();
 
-    // Process pulled data (simplified - actual implementation would use saveProfile, savePlan, etc.)
-    if (data.profiles) pulled.profiles = data.profiles.length;
-    if (data.plans) pulled.plans = data.plans.length;
-    if (data.workouts) pulled.workouts = data.workouts.length;
+    // Save pulled data to IndexedDB
+    if (data.data?.profiles) {
+      for (const profile of data.data.profiles) {
+        try {
+          // Import localDB to save profiles
+          const { localDB } = await import('@/lib/db/schema.local');
+          await localDB.profiles.put(profile);
+          pulled.profiles++;
+        } catch (err) {
+          console.error('[SyncEngine] Failed to save profile:', err);
+          errors.push(`Profile sync failed: ${err instanceof Error ? err.message : 'unknown'}`);
+        }
+      }
+    }
 
-    // Note: Full implementation would save these to IndexedDB using lib/db/local.ts functions
-    // For now, this is a placeholder to demonstrate the flow
+    if (data.data?.plans) {
+      for (const plan of data.data.plans) {
+        try {
+          const { localDB } = await import('@/lib/db/schema.local');
+          await localDB.plans.put(plan);
+          pulled.plans++;
+        } catch (err) {
+          console.error('[SyncEngine] Failed to save plan:', err);
+          errors.push(`Plan sync failed: ${err instanceof Error ? err.message : 'unknown'}`);
+        }
+      }
+    }
+
+    if (data.data?.workouts) {
+      for (const workout of data.data.workouts) {
+        try {
+          const { localDB } = await import('@/lib/db/schema.local');
+          await localDB.workouts.put(workout);
+          pulled.workouts++;
+        } catch (err) {
+          console.error('[SyncEngine] Failed to save workout:', err);
+          errors.push(`Workout sync failed: ${err instanceof Error ? err.message : 'unknown'}`);
+        }
+      }
+    }
+
+    console.log(`[SyncEngine] Pull complete: ${pulled.profiles} profiles, ${pulled.plans} plans, ${pulled.workouts} workouts`);
   } catch (error) {
     console.error('[SyncEngine] Pull error:', error);
     errors.push(error instanceof Error ? error.message : 'Pull failed');
