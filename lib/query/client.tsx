@@ -210,11 +210,13 @@ export async function invalidateNutritionQueries(
   ];
 
   if (date) {
+    // Invalidate meals list (matches ['meals', date] in useMealsByDate)
     invalidations.push(
-      queryClient.invalidateQueries({ queryKey: queryKeys.meals(userId, date) })
+      queryClient.invalidateQueries({ queryKey: ['meals', date] })
     );
+    // Invalidate nutrition summary (matches ['nutritionSummary', date] in useNutritionSummary)
     invalidations.push(
-      queryClient.invalidateQueries({ queryKey: queryKeys.dailyNutrition(userId, date) })
+      queryClient.invalidateQueries({ queryKey: ['nutritionSummary', date] })
     );
   }
 
