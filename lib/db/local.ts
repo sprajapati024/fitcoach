@@ -412,6 +412,65 @@ export async function deleteMeal(mealId: string): Promise<void> {
 }
 
 // ============================================================================
+// Water Log Operations
+// ============================================================================
+
+export async function saveWaterLog(
+  logData: Omit<LocalWaterLog, 'id' | 'loggedAt' | '_isDirty' | '_syncedAt'>
+): Promise<string> {
+  if (!isIndexedDBSupported()) {
+    throw new Error('IndexedDB not supported');
+  }
+
+  try {
+    const logId = uuidv4();
+    const log: LocalWaterLog = {
+      ...logData,
+      id: logId,
+      loggedAt: Date.now(),
+      _isDirty: true,
+      _syncedAt: null,
+      _tempId: logId,
+    };
+
+    await localDB.waterLogs.add(log);
+    return logId;
+  } catch (error) {
+    console.error('[localData] saveWaterLog error:', error);
+    throw error;
+  }
+}
+
+export async function getWaterLogsByDate(userId: string, date: string): Promise<LocalWaterLog[]> {
+  if (!isIndexedDBSupported()) return [];
+
+  try {
+    const cached = await localDB.waterLogs
+      .where({ userId, logDate: date })
+      .and((log) => !log._deletedAt) // Filter out soft-deleted logs
+      .toArray();
+
+    if (cached.length > 0) return cached;
+
+    if (isOnline()) {
+      const response = await fetch(`/api/nutrition/water?userId=${userId}&date=${date}`);
+      if (response.ok) {
+        const data = await response.json();
+        const serverLogs = data.logs || [];
+        const locals = serverLogs.map(mapServerWaterLogToLocal);
+        await localDB.waterLogs.bulkPut(locals);
+        return locals;
+      }
+    }
+
+    return [];
+  } catch (error) {
+    console.error('[localData] getWaterLogsByDate error:', error);
+    return [];
+  }
+}
+
+// ============================================================================
 // Coach Cache Operations
 // ============================================================================
 
@@ -641,6 +700,18 @@ function mapServerMealToLocal(server: any): LocalMeal {
     notes: server.notes as string | null,
     source: server.source as string,
     createdAt: new Date(server.createdAt as string).getTime(),
+    _isDirty: false,
+    _syncedAt: Date.now(),
+  };
+}
+
+function mapServerWaterLogToLocal(server: any): LocalWaterLog {
+  return {
+    id: server.id as string,
+    userId: server.userId as string,
+    logDate: server.logDate as string,
+    amountMl: server.amountMl as number,
+    loggedAt: new Date(server.loggedAt as string).getTime(),
     _isDirty: false,
     _syncedAt: Date.now(),
   };

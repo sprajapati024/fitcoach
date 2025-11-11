@@ -28,11 +28,12 @@ import {
   getMealsByDate,
   saveMeal,
   deleteMeal,
+  saveWaterLog,
   getCoachCache,
 } from '@/lib/db/local';
 import { queryKeys, invalidateWorkoutQueries, invalidateNutritionQueries } from './client';
 import { useSyncStore } from '@/lib/store/sync';
-import type { LocalWorkoutLog, LocalWorkoutLogSet, LocalMeal } from '@/lib/db/schema.local';
+import type { LocalWorkoutLog, LocalWorkoutLogSet, LocalMeal, LocalWaterLog } from '@/lib/db/schema.local';
 import { getCachedResponse, setCachedResponse } from '@/lib/ai/cache';
 import { generateFallbackBrief, generateErrorFallback } from '@/lib/ai/fallbacks';
 import { enqueuePrompt } from '@/lib/sync/ai-queue';
@@ -601,6 +602,42 @@ export function useDeleteMeal() {
       await queryClient.invalidateQueries({ queryKey: ['nutritionSummary'] });
 
       // Trigger sync to push deletion to server
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('fitcoach:sync-requested'));
+      }
+    },
+  });
+}
+
+/**
+ * Log water with offline-first support
+ */
+export function useLogWater() {
+  const queryClient = useQueryClient();
+  const supabase = useSupabase();
+  const { updateDirtyCount } = useSyncStore();
+
+  return useMutation({
+    mutationFn: async (input: Omit<LocalWaterLog, 'id' | 'loggedAt' | '_isDirty' | '_syncedAt'>) => {
+      if (!supabase) throw new Error('Supabase client not initialized');
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // Save water log to IndexedDB (marked as dirty)
+      const logId = await saveWaterLog(input);
+
+      // Update dirty count in sync store
+      await updateDirtyCount();
+
+      return { logId, userId: user.id, date: input.logDate };
+    },
+    onSuccess: async (data) => {
+      // Invalidate nutrition queries
+      await queryClient.invalidateQueries({ queryKey: ['nutritionSummary'] });
+
+      // Trigger sync to push water log to server
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('fitcoach:sync-requested'));
       }

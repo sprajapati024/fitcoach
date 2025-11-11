@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { X, Droplet, Loader2 } from "lucide-react";
 import { PrimaryButton } from "@/components/PrimaryButton";
+import { useLogWater } from "@/lib/query/hooks";
 
 interface WaterLoggerProps {
   onClose: () => void;
@@ -14,36 +15,26 @@ const QUICK_AMOUNTS = [250, 500, 750, 1000];
 
 export function WaterLogger({ onClose, onWaterLogged, initialDate }: WaterLoggerProps) {
   const [customAmount, setCustomAmount] = useState("");
-  const [logging, setLogging] = useState(false);
   const [error, setError] = useState("");
 
+  const logWaterMutation = useLogWater();
   const today = initialDate || new Date().toISOString().split("T")[0];
 
   const handleLogWater = async (amountMl: number) => {
-    setLogging(true);
     setError("");
 
     try {
-      const response = await fetch("/api/nutrition/water", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          logDate: today,
-          amountMl,
-        }),
+      await logWaterMutation.mutateAsync({
+        userId: "", // Will be filled by the hook
+        logDate: today,
+        amountMl,
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to log water");
-      }
 
       onWaterLogged();
       onClose();
     } catch (err) {
       console.error("Error logging water:", err);
       setError("Failed to log water. Please try again.");
-    } finally {
-      setLogging(false);
     }
   };
 
@@ -81,7 +72,7 @@ export function WaterLogger({ onClose, onWaterLogged, initialDate }: WaterLogger
                 <button
                   key={amount}
                   onClick={() => handleLogWater(amount)}
-                  disabled={logging}
+                  disabled={logWaterMutation.isPending}
                   className="flex flex-col items-center justify-center p-4 bg-surface-1 border border-border hover:border-cyan-400 rounded-lg transition-all disabled:opacity-50 group"
                 >
                   <Droplet className="h-8 w-8 text-cyan-400 mb-2 group-hover:scale-110 transition-transform" />
@@ -109,10 +100,10 @@ export function WaterLogger({ onClose, onWaterLogged, initialDate }: WaterLogger
               />
               <PrimaryButton
                 onClick={handleCustomSubmit}
-                disabled={logging || !customAmount}
+                disabled={logWaterMutation.isPending || !customAmount}
                 className="px-6"
               >
-                {logging ? (
+                {logWaterMutation.isPending ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   "Log"
