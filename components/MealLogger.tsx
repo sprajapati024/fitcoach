@@ -23,6 +23,9 @@ interface MealLoggerProps {
 type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 
 export function MealLogger({ onClose, onMealLogged, initialDate, initialData }: MealLoggerProps) {
+  // Detect if we're in edit mode (data was pre-filled from AI analysis)
+  const isEditMode = !!(initialData?.description && initialData?.calories);
+
   const [mealType, setMealType] = useState<MealType>("breakfast");
   const [description, setDescription] = useState(initialData?.description || "");
   const [calories, setCalories] = useState(initialData?.calories?.toString() || "");
@@ -258,7 +261,7 @@ export function MealLogger({ onClose, onMealLogged, initialDate, initialData }: 
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div className="bg-gray-900 border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-gray-900 border-b border-border p-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Log Meal</h2>
+          <h2 className="text-xl font-semibold">{isEditMode ? "Edit Meal" : "Log Meal"}</h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-surface-1 rounded-lg transition-colors"
@@ -304,8 +307,8 @@ export function MealLogger({ onClose, onMealLogged, initialDate, initialData }: 
             <div className="flex items-center justify-between mb-2">
               <label className="block text-sm font-medium">What did you eat?</label>
 
-              {/* Voice Recording Button */}
-              {!isRecording && !isTranscribing && (
+              {/* Voice Recording Button - only show in manual entry mode */}
+              {!isEditMode && !isRecording && !isTranscribing && (
                 <button
                   onClick={startRecording}
                   className="flex items-center gap-2 px-3 py-1.5 bg-surface-1 hover:bg-surface-2 border border-border rounded-lg text-sm transition-colors"
@@ -373,30 +376,33 @@ export function MealLogger({ onClose, onMealLogged, initialDate, initialData }: 
             />
             <div className="flex items-center justify-between mt-2">
               <span className="text-xs text-neutral-500">{description.length}/1000</span>
-              <button
-                onClick={handleAnalyze}
-                disabled={analyzing || !description.trim() || isRecording || isTranscribing}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-indigo-600 text-gray-950 rounded-lg font-medium disabled:opacity-50 hover:opacity-90 transition-opacity"
-              >
-                {analyzing ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Analyzing...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4" />
-                    AI Analyze
-                  </>
-                )}
-              </button>
+              {/* AI Analyze button - only show in manual entry mode */}
+              {!isEditMode && (
+                <button
+                  onClick={handleAnalyze}
+                  disabled={analyzing || !description.trim() || isRecording || isTranscribing}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-indigo-600 text-gray-950 rounded-lg font-medium disabled:opacity-50 hover:opacity-90 transition-opacity"
+                >
+                  {analyzing ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4" />
+                      AI Analyze
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           </div>
 
           {/* Nutrition Info */}
           <div>
             <label className="block text-sm font-medium mb-3">
-              Nutrition Info (Optional - Auto-filled by AI)
+              {isEditMode ? "Nutrition Info" : "Nutrition Info (Optional - Auto-filled by AI)"}
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <div>
@@ -502,10 +508,10 @@ export function MealLogger({ onClose, onMealLogged, initialDate, initialData }: 
               {logMealMutation.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Logging...
+                  {isEditMode ? "Saving..." : "Logging..."}
                 </>
               ) : (
-                "Log Meal"
+                isEditMode ? "Save Changes" : "Log Meal"
               )}
             </PrimaryButton>
           </div>
