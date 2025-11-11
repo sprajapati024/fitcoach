@@ -1,35 +1,15 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Plus } from 'lucide-react';
 import { useNutritionSummary, useNutritionGoals } from '@/lib/query/hooks';
 
 interface CompactNutritionHeroProps {
   date: string;
-  refreshTrigger: number;
-  onLogMeal: () => void;
-}
-
-interface NutritionData {
-  totalCalories: number;
-  totalProtein: number;
-  totalCarbs: number;
-  totalFat: number;
-  totalWaterMl: number;
-}
-
-interface NutritionGoals {
-  targetCalories?: number;
-  targetProteinGrams?: number;
-  targetCarbsGrams?: number;
-  targetFatGrams?: number;
-  targetWaterLiters?: number;
+  refreshTrigger?: number;
 }
 
 export function CompactNutritionHero({
   date,
-  refreshTrigger,
-  onLogMeal,
 }: CompactNutritionHeroProps) {
   // Use React Query hooks
   const { data: summary, isLoading: summaryLoading } = useNutritionSummary(date);
@@ -53,7 +33,6 @@ export function CompactNutritionHero({
   const calories = parseInt(summary?.totalCalories?.toString() || '0');
   const protein = parseFloat(summary?.totalProtein?.toString() || '0');
   const carbs = parseFloat(summary?.totalCarbs?.toString() || '0');
-  const fat = parseFloat(summary?.totalFat?.toString() || '0');
   const waterMl = parseInt(summary?.totalWaterMl?.toString() || '0');
   const waterL = (waterMl / 1000).toFixed(1);
 
@@ -130,15 +109,6 @@ export function CompactNutritionHero({
             <span className="text-xs text-gray-600">/ {targetWater}L</span>
           </div>
         </div>
-
-        {/* CTA Button */}
-        <button
-          onClick={onLogMeal}
-          className="w-full flex items-center justify-center gap-2 h-12 rounded-lg bg-gray-800 font-semibold text-white transition active:scale-95 hover:bg-gray-700"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Log Meal</span>
-        </button>
       </div>
     </motion.div>
   );
