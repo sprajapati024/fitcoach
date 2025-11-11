@@ -9,19 +9,28 @@ interface MealLoggerProps {
   onClose: () => void;
   onMealLogged: () => void;
   initialDate?: string;
+  initialData?: {
+    description?: string;
+    calories?: number;
+    protein?: number;
+    carbs?: number;
+    fat?: number;
+    fiber?: number;
+    notes?: string;
+  };
 }
 
 type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 
-export function MealLogger({ onClose, onMealLogged, initialDate }: MealLoggerProps) {
+export function MealLogger({ onClose, onMealLogged, initialDate, initialData }: MealLoggerProps) {
   const [mealType, setMealType] = useState<MealType>("breakfast");
-  const [description, setDescription] = useState("");
-  const [calories, setCalories] = useState("");
-  const [protein, setProtein] = useState("");
-  const [carbs, setCarbs] = useState("");
-  const [fat, setFat] = useState("");
-  const [fiber, setFiber] = useState("");
-  const [notes, setNotes] = useState("");
+  const [description, setDescription] = useState(initialData?.description || "");
+  const [calories, setCalories] = useState(initialData?.calories?.toString() || "");
+  const [protein, setProtein] = useState(initialData?.protein?.toFixed(1) || "");
+  const [carbs, setCarbs] = useState(initialData?.carbs?.toFixed(1) || "");
+  const [fat, setFat] = useState(initialData?.fat?.toFixed(1) || "");
+  const [fiber, setFiber] = useState(initialData?.fiber?.toFixed(1) || "");
+  const [notes, setNotes] = useState(initialData?.notes || "");
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState("");
 
