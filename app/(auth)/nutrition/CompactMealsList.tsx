@@ -95,7 +95,7 @@ export function CompactMealsList({ date, refreshTrigger, onMealDeleted }: Compac
   return (
     <div className="space-y-2">
       <AnimatePresence>
-        {meals.map((meal: Meal, index) => {
+        {meals.map((meal: Meal, index: number) => {
           const Icon = mealIcons[meal.mealType];
           const isExpanded = expandedMeal === meal.id;
 
