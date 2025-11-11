@@ -21,6 +21,7 @@ import {
   type LocalWorkoutLog,
   type LocalWorkoutLogSet,
   type LocalMeal,
+  type LocalWaterLog,
   type LocalProfile,
   type LocalPlan,
   type LocalCoachCache,
