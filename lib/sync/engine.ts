@@ -113,20 +113,20 @@ async function pushDirtyRecords(): Promise<{
 
   try {
     // Gather all dirty records
-    const [dirtyLogs, dirtyMeals, dirtyProfiles] = await Promise.all([
+    // NOTE: Nutrition (meals/water) now uses direct API calls, not offline-first sync
+    const [dirtyLogs, dirtyProfiles] = await Promise.all([
       getDirtyLogs(),
-      getDirtyMeals(),
       getDirtyProfiles(),
     ]);
 
     // Skip if nothing to push
-    if (dirtyLogs.length === 0 && dirtyMeals.length === 0 && dirtyProfiles.length === 0) {
+    if (dirtyLogs.length === 0 && dirtyProfiles.length === 0) {
       return { pushed, errors };
     }
 
     const payload: PushPayload = {
       workoutLogs: dirtyLogs,
-      meals: dirtyMeals,
+      meals: [], // Nutrition no longer uses offline-first
       profiles: dirtyProfiles,
     };
 
@@ -152,7 +152,7 @@ async function pushDirtyRecords(): Promise<{
         pushed.workoutLogs++;
       }
 
-      // Mark meals as synced
+      // Mark meals as synced (no longer used - nutrition uses direct API calls)
       for (const mealId of data.synced.meals || []) {
         await markAsSynced('meals', mealId);
         pushed.meals++;

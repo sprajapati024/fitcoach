@@ -1,9 +1,10 @@
 /**
- * React Query Hooks for Offline-First Data Access
+ * React Query Hooks for Data Access
  *
  * These hooks provide a declarative API for accessing data with:
  * - Automatic caching via React Query
- * - Offline-first reads from IndexedDB
+ * - Offline-first reads from IndexedDB (workouts only)
+ * - Direct API calls for nutrition (meals/water)
  * - Optimistic updates for mutations
  * - Background refetching when online
  *
@@ -25,10 +26,6 @@ import {
   saveWorkoutLogSets,
   getActivePlan,
   getProfile,
-  getMealsByDate,
-  saveMeal,
-  deleteMeal,
-  saveWaterLog,
   getCoachCache,
   fixEmptyUserIdMeals,
 } from '@/lib/db/local';
@@ -218,7 +215,14 @@ export function useMealsByDate(date: string) {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
-      return getMealsByDate(user.id, date);
+
+      // Fetch directly from API instead of IndexedDB
+      const response = await fetch(`/api/nutrition/meals?date=${encodeURIComponent(date)}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch meals');
+      }
+      const data = await response.json();
+      return data.meals || [];
     },
     enabled: !!supabase,
     staleTime: 1 * 60 * 1000, // 1 minute (meals change frequently)
@@ -226,12 +230,11 @@ export function useMealsByDate(date: string) {
 }
 
 /**
- * Log a meal with optimistic updates
+ * Log a meal with direct API call
  */
 export function useLogMeal() {
   const queryClient = useQueryClient();
   const supabase = useSupabase();
-  const { updateDirtyCount } = useSyncStore();
 
   return useMutation({
     mutationFn: async (input: Omit<LocalMeal, 'id' | 'createdAt' | '_isDirty' | '_syncedAt'>) => {
@@ -241,19 +244,21 @@ export function useLogMeal() {
       } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Inject actual userId into the meal data
-      const mealData = {
-        ...input,
-        userId: user.id,
-      };
+      // Post directly to API
+      const response = await fetch('/api/nutrition/meals', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(input),
+      });
 
-      // Save meal to IndexedDB (marked as dirty)
-      const mealId = await saveMeal(mealData);
+      if (!response.ok) {
+        throw new Error('Failed to log meal');
+      }
 
-      // Update dirty count in sync store
-      await updateDirtyCount();
-
-      return { mealId, userId: user.id, date: input.mealDate };
+      const data = await response.json();
+      return { meal: data.meal, userId: user.id, date: input.mealDate };
     },
     onSuccess: async (data) => {
       // Invalidate and refetch nutrition queries to immediately update UI
@@ -273,11 +278,6 @@ export function useLogMeal() {
         queryKey: ['nutritionSummary', data.date],
         exact: true
       });
-
-      // Trigger sync to push dirty records to server
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('fitcoach:sync-requested'));
-      }
     },
   });
 }
@@ -592,12 +592,11 @@ export function useNutritionGoals() {
 }
 
 /**
- * Delete a meal with offline-first support
+ * Delete a meal with direct API call
  */
 export function useDeleteMeal() {
   const queryClient = useQueryClient();
   const supabase = useSupabase();
-  const { updateDirtyCount } = useSyncStore();
 
   return useMutation({
     mutationFn: async (mealId: string) => {
@@ -607,11 +606,14 @@ export function useDeleteMeal() {
       } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Soft delete in IndexedDB (marked as dirty)
-      await deleteMeal(mealId);
+      // Delete directly via API
+      const response = await fetch(`/api/nutrition/meals?id=${encodeURIComponent(mealId)}`, {
+        method: 'DELETE',
+      });
 
-      // Update dirty count in sync store
-      await updateDirtyCount();
+      if (!response.ok) {
+        throw new Error('Failed to delete meal');
+      }
 
       return { mealId, userId: user.id };
     },
@@ -622,22 +624,16 @@ export function useDeleteMeal() {
 
       // Force refetch all meals queries to update UI immediately
       await queryClient.refetchQueries({ queryKey: ['meals'] });
-
-      // Trigger sync to push deletion to server
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('fitcoach:sync-requested'));
-      }
     },
   });
 }
 
 /**
- * Log water with offline-first support
+ * Log water with direct API call
  */
 export function useLogWater() {
   const queryClient = useQueryClient();
   const supabase = useSupabase();
-  const { updateDirtyCount } = useSyncStore();
 
   return useMutation({
     mutationFn: async (input: Omit<LocalWaterLog, 'id' | 'loggedAt' | '_isDirty' | '_syncedAt'>) => {
@@ -647,13 +643,21 @@ export function useLogWater() {
       } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Save water log to IndexedDB (marked as dirty)
-      const logId = await saveWaterLog(input);
+      // Post directly to API
+      const response = await fetch('/api/nutrition/water', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(input),
+      });
 
-      // Update dirty count in sync store
-      await updateDirtyCount();
+      if (!response.ok) {
+        throw new Error('Failed to log water');
+      }
 
-      return { logId, userId: user.id, date: input.logDate };
+      const data = await response.json();
+      return { log: data.log, userId: user.id, date: input.logDate };
     },
     onSuccess: async (data) => {
       // Invalidate and refetch nutrition queries
@@ -661,11 +665,6 @@ export function useLogWater() {
 
       // Force refetch nutrition summary to update UI immediately
       await queryClient.refetchQueries({ queryKey: ['nutritionSummary', data.date] });
-
-      // Trigger sync to push water log to server
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('fitcoach:sync-requested'));
-      }
     },
   });
 }
