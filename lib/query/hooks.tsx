@@ -1,9 +1,10 @@
 /**
- * React Query Hooks for Offline-First Data Access
+ * React Query Hooks for Data Access
  *
  * These hooks provide a declarative API for accessing data with:
  * - Automatic caching via React Query
- * - Offline-first reads from IndexedDB
+ * - Offline-first reads from IndexedDB (workouts only)
+ * - Direct API calls for nutrition (meals/water)
  * - Optimistic updates for mutations
  * - Background refetching when online
  *
