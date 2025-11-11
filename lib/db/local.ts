@@ -596,3 +596,45 @@ function mapServerMealToLocal(server: any): LocalMeal {
   };
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
+
+// ============================================================================
+// Data Migration Utilities
+// ============================================================================
+
+/**
+ * Fix meals that were saved with empty userId
+ * This migrates old records to use the provided userId
+ */
+export async function fixEmptyUserIdMeals(userId: string): Promise<number> {
+  if (!isIndexedDBSupported()) {
+    throw new Error('IndexedDB not supported');
+  }
+
+  try {
+    // Find all meals with empty userId
+    const brokenMeals = await localDB.meals
+      .where('userId')
+      .equals('')
+      .toArray();
+
+    console.log(`[Migration] Found ${brokenMeals.length} meals with empty userId`);
+
+    if (brokenMeals.length === 0) {
+      return 0;
+    }
+
+    // Update each meal with the correct userId
+    for (const meal of brokenMeals) {
+      await localDB.meals.update(meal.id, {
+        userId: userId,
+        _isDirty: true, // Mark as dirty so it syncs to server
+      });
+    }
+
+    console.log(`[Migration] Fixed ${brokenMeals.length} meals with userId: ${userId}`);
+    return brokenMeals.length;
+  } catch (error) {
+    console.error('[Migration] fixEmptyUserIdMeals error:', error);
+    throw error;
+  }
+}

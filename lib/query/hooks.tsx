@@ -28,6 +28,7 @@ import {
   getMealsByDate,
   saveMeal,
   getCoachCache,
+  fixEmptyUserIdMeals,
 } from '@/lib/db/local';
 import { queryKeys, invalidateWorkoutQueries, invalidateNutritionQueries } from './client';
 import { useSyncStore } from '@/lib/store/sync';
@@ -252,6 +253,16 @@ export function useLogMeal() {
       await invalidateNutritionQueries(queryClient, {
         userId: data.userId,
         date: data.date,
+      });
+
+      // Force refetch to immediately update UI
+      await queryClient.refetchQueries({
+        queryKey: ['meals', data.date],
+        exact: true
+      });
+      await queryClient.refetchQueries({
+        queryKey: ['nutritionSummary', data.date],
+        exact: true
       });
     },
   });
@@ -595,6 +606,44 @@ export function useDeleteMeal() {
       // Invalidate nutrition queries to refetch
       await queryClient.invalidateQueries({ queryKey: ['meals'] });
       await queryClient.invalidateQueries({ queryKey: ['nutritionSummary'] });
+    },
+  });
+}
+
+// ============================================================================
+// Data Migration Hooks
+// ============================================================================
+
+/**
+ * Hook to fix meals that were saved with empty userId
+ * This is a one-time migration for existing data
+ */
+export function useMigrateMeals() {
+  const queryClient = useQueryClient();
+  const supabase = useSupabase();
+
+  return useMutation({
+    mutationFn: async () => {
+      if (!supabase) throw new Error('Supabase client not initialized');
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // Fix all meals with empty userId
+      const fixedCount = await fixEmptyUserIdMeals(user.id);
+      return { fixedCount, userId: user.id };
+    },
+    onSuccess: async (data) => {
+      console.log(`[Migration] Successfully migrated ${data.fixedCount} meals`);
+
+      // Invalidate all meal queries to force refetch with corrected data
+      await queryClient.invalidateQueries({ queryKey: ['meals'] });
+      await queryClient.invalidateQueries({ queryKey: ['nutritionSummary'] });
+
+      // Force refetch to update UI
+      await queryClient.refetchQueries({ queryKey: ['meals'] });
+      await queryClient.refetchQueries({ queryKey: ['nutritionSummary'] });
     },
   });
 }
