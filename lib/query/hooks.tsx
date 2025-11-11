@@ -249,10 +249,16 @@ export function useLogMeal() {
       return { mealId, userId: user.id, date: input.mealDate };
     },
     onSuccess: async (data) => {
-      // Invalidate nutrition queries
+      // Invalidate and refetch nutrition queries to immediately update UI
       await invalidateNutritionQueries(queryClient, {
         userId: data.userId,
         date: data.date,
+      });
+
+      // Force refetch meals for this date
+      await queryClient.refetchQueries({
+        queryKey: ['meals', data.date],
+        exact: true
       });
 
       // Trigger sync to push dirty records to server
@@ -597,9 +603,12 @@ export function useDeleteMeal() {
       return { mealId, userId: user.id };
     },
     onSuccess: async (data) => {
-      // Invalidate nutrition queries to refetch
+      // Invalidate and refetch nutrition queries
       await queryClient.invalidateQueries({ queryKey: ['meals'] });
       await queryClient.invalidateQueries({ queryKey: ['nutritionSummary'] });
+
+      // Force refetch all meals queries to update UI immediately
+      await queryClient.refetchQueries({ queryKey: ['meals'] });
 
       // Trigger sync to push deletion to server
       if (typeof window !== 'undefined') {
@@ -634,8 +643,11 @@ export function useLogWater() {
       return { logId, userId: user.id, date: input.logDate };
     },
     onSuccess: async (data) => {
-      // Invalidate nutrition queries
+      // Invalidate and refetch nutrition queries
       await queryClient.invalidateQueries({ queryKey: ['nutritionSummary'] });
+
+      // Force refetch nutrition summary to update UI immediately
+      await queryClient.refetchQueries({ queryKey: ['nutritionSummary', data.date] });
 
       // Trigger sync to push water log to server
       if (typeof window !== 'undefined') {
