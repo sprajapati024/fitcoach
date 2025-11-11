@@ -302,8 +302,13 @@ export class FitCoachLocalDB extends Dexie {
 
     // Version 2: Add _syncedAt index to profiles table
     this.version(2).stores({
-      // Profile: indexed by userId (primary key), now includes _syncedAt
       profiles: 'userId, updatedAt, _isDirty, _syncedAt',
+    });
+
+    // Version 3: Add _syncedAt index to meals and waterLogs tables
+    this.version(3).stores({
+      meals: 'id, userId, [userId+mealDate], mealDate, _isDirty, _syncedAt, _tempId',
+      waterLogs: 'id, userId, [userId+logDate], logDate, _isDirty, _syncedAt, _tempId',
     });
   }
 }
