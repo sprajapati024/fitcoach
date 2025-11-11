@@ -7,6 +7,7 @@ import { WaterLogger } from "@/components/WaterLogger";
 import { GoalsModal } from "@/components/GoalsModal";
 import { CompactNutritionHero } from "./CompactNutritionHero";
 import { CompactMealsList } from "./CompactMealsList";
+import { QuickMealInput } from "./components/QuickMealInput";
 import { motion } from "framer-motion";
 
 export function NutritionView() {
@@ -18,6 +19,15 @@ export function NutritionView() {
     new Date().toISOString().split("T")[0],
   );
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [initialMealData, setInitialMealData] = useState<{
+    description?: string;
+    calories?: number;
+    protein?: number;
+    carbs?: number;
+    fat?: number;
+    fiber?: number;
+    notes?: string;
+  } | undefined>(undefined);
 
   const handleMealLogged = () => {
     setRefreshTrigger((prev) => prev + 1);
@@ -33,6 +43,19 @@ export function NutritionView() {
 
   const handleGoalsSet = () => {
     setRefreshTrigger((prev) => prev + 1);
+  };
+
+  const handleQuickMealAnalyzed = (data: {
+    description: string;
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+    fiber?: number;
+    notes?: string;
+  }) => {
+    setInitialMealData(data);
+    setShowMealLogger(true);
   };
 
   const formatDate = (dateString: string) => {
@@ -111,6 +134,20 @@ export function NutritionView() {
           onLogMeal={() => setShowMealLogger(true)}
         />
 
+        {/* Quick Meal Input */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+        >
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">
+            Quick Entry
+          </h2>
+          <QuickMealInput
+            onAnalyzed={handleQuickMealAnalyzed}
+          />
+        </motion.div>
+
         {/* Quick Actions */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -158,9 +195,13 @@ export function NutritionView() {
       {/* Modals */}
       {showMealLogger && (
         <MealLogger
-          onClose={() => setShowMealLogger(false)}
+          onClose={() => {
+            setShowMealLogger(false);
+            setInitialMealData(undefined);
+          }}
           onMealLogged={handleMealLogged}
           initialDate={selectedDate}
+          initialData={initialMealData}
         />
       )}
 
