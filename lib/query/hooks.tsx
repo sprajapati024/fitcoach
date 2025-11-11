@@ -244,17 +244,34 @@ export function useLogMeal() {
       } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // Transform LocalMeal format to API format
+      const apiPayload = {
+        mealDate: input.mealDate,
+        mealTime: typeof input.mealTime === 'number' ? new Date(input.mealTime).toISOString() : input.mealTime,
+        mealType: input.mealType,
+        description: input.description || '',
+        photoUrl: input.photoUrl || undefined,
+        calories: input.calories || undefined,
+        proteinGrams: input.proteinGrams ? parseFloat(input.proteinGrams) : undefined,
+        carbsGrams: input.carbsGrams ? parseFloat(input.carbsGrams) : undefined,
+        fatGrams: input.fatGrams ? parseFloat(input.fatGrams) : undefined,
+        fiberGrams: input.fiberGrams ? parseFloat(input.fiberGrams) : undefined,
+        notes: input.notes || undefined,
+        source: input.source || 'manual',
+      };
+
       // Post directly to API
       const response = await fetch('/api/nutrition/meals', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(input),
+        body: JSON.stringify(apiPayload),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to log meal');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to log meal');
       }
 
       const data = await response.json();
