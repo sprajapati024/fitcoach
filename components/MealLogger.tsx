@@ -17,6 +17,7 @@ interface MealLoggerProps {
     fat?: number;
     fiber?: number;
     notes?: string;
+    mealType?: MealType;
   };
 }
 
@@ -26,7 +27,7 @@ export function MealLogger({ onClose, onMealLogged, initialDate, initialData }: 
   // Detect if we're in edit mode (data was pre-filled from AI analysis)
   const isEditMode = !!(initialData?.description && initialData?.calories);
 
-  const [mealType, setMealType] = useState<MealType>("breakfast");
+  const [mealType, setMealType] = useState<MealType>(initialData?.mealType || "breakfast");
   const [description, setDescription] = useState(initialData?.description || "");
   const [calories, setCalories] = useState(initialData?.calories?.toString() || "");
   const [protein, setProtein] = useState(initialData?.protein?.toFixed(1) || "");
@@ -36,6 +37,8 @@ export function MealLogger({ onClose, onMealLogged, initialDate, initialData }: 
   const [notes, setNotes] = useState(initialData?.notes || "");
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState("");
+
+  console.log('[MealLogger] isEditMode:', isEditMode, 'initialData:', initialData);
 
   // Use React Query mutation for logging meals
   const logMealMutation = useLogMeal();

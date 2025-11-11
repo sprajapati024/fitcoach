@@ -13,6 +13,7 @@ interface QuickMealInputProps {
     fat: number;
     fiber?: number;
     notes?: string;
+    mealType?: MealType;
   }) => void;
   onMealLogged: () => void;
   date: string;
@@ -393,22 +394,6 @@ export function QuickMealInput({ onAnalyzed, onMealLogged, date }: QuickMealInpu
             </button>
           </div>
         </div>
-      )}
-
-      {/* Manual Entry Link */}
-      {!analyzedMeal && (
-        <button
-          onClick={() => onAnalyzed({
-            description: "",
-            calories: 0,
-            protein: 0,
-            carbs: 0,
-            fat: 0
-          })}
-          className="text-xs text-gray-400 hover:text-gray-300 transition-colors"
-        >
-          Or log manually →
-        </button>
       )}
 
       {/* Error Message */}

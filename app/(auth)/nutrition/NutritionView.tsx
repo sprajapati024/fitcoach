@@ -27,6 +27,7 @@ export function NutritionView() {
     fat?: number;
     fiber?: number;
     notes?: string;
+    mealType?: "breakfast" | "lunch" | "dinner" | "snack";
   } | undefined>(undefined);
 
   const handleMealLogged = () => {
@@ -53,7 +54,9 @@ export function NutritionView() {
     fat: number;
     fiber?: number;
     notes?: string;
+    mealType?: "breakfast" | "lunch" | "dinner" | "snack";
   }) => {
+    console.log('[NutritionView] handleQuickMealAnalyzed called with:', data);
     setInitialMealData(data);
     setShowMealLogger(true);
   };
