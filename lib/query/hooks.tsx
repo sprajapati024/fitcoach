@@ -233,8 +233,14 @@ export function useLogMeal() {
       } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // Inject actual userId into the meal data
+      const mealData = {
+        ...input,
+        userId: user.id,
+      };
+
       // Save meal to IndexedDB (marked as dirty)
-      const mealId = await saveMeal(input);
+      const mealId = await saveMeal(mealData);
 
       // Update dirty count in sync store
       await updateDirtyCount();
