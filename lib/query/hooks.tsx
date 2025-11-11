@@ -30,6 +30,7 @@ import {
   deleteMeal,
   saveWaterLog,
   getCoachCache,
+  fixEmptyUserIdMeals,
 } from '@/lib/db/local';
 import { queryKeys, invalidateWorkoutQueries, invalidateNutritionQueries } from './client';
 import { useSyncStore } from '@/lib/store/sync';
@@ -264,6 +265,12 @@ export function useLogMeal() {
       // Force refetch meals for this date
       await queryClient.refetchQueries({
         queryKey: ['meals', data.date],
+        exact: true
+      });
+
+      // Force refetch nutrition summary to update cards
+      await queryClient.refetchQueries({
+        queryKey: ['nutritionSummary', data.date],
         exact: true
       });
 
@@ -659,6 +666,44 @@ export function useLogWater() {
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('fitcoach:sync-requested'));
       }
+    },
+  });
+}
+
+// ============================================================================
+// Data Migration Hooks
+// ============================================================================
+
+/**
+ * Hook to fix meals that were saved with empty userId
+ * This is a one-time migration for existing data
+ */
+export function useMigrateMeals() {
+  const queryClient = useQueryClient();
+  const supabase = useSupabase();
+
+  return useMutation({
+    mutationFn: async () => {
+      if (!supabase) throw new Error('Supabase client not initialized');
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // Fix all meals with empty userId
+      const fixedCount = await fixEmptyUserIdMeals(user.id);
+      return { fixedCount, userId: user.id };
+    },
+    onSuccess: async (data) => {
+      console.log(`[Migration] Successfully migrated ${data.fixedCount} meals`);
+
+      // Invalidate all meal queries to force refetch with corrected data
+      await queryClient.invalidateQueries({ queryKey: ['meals'] });
+      await queryClient.invalidateQueries({ queryKey: ['nutritionSummary'] });
+
+      // Force refetch to update UI
+      await queryClient.refetchQueries({ queryKey: ['meals'] });
+      await queryClient.refetchQueries({ queryKey: ['nutritionSummary'] });
     },
   });
 }
