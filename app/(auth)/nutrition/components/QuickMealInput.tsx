@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Mic, Square, Loader2, Sparkles } from "lucide-react";
+import { Mic, Square, Loader2, Sparkles, Check, Edit3, Coffee, Sun, Moon, Apple } from "lucide-react";
+import { useLogMeal } from "@/lib/query/hooks";
 
 interface QuickMealInputProps {
   onAnalyzed: (data: {
@@ -13,12 +14,28 @@ interface QuickMealInputProps {
     fiber?: number;
     notes?: string;
   }) => void;
+  onMealLogged: () => void;
+  date: string;
 }
 
-export function QuickMealInput({ onAnalyzed }: QuickMealInputProps) {
+type MealType = "breakfast" | "lunch" | "dinner" | "snack";
+
+interface AnalyzedMeal {
+  description: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber?: number;
+  notes?: string;
+  mealType: MealType;
+}
+
+export function QuickMealInput({ onAnalyzed, onMealLogged, date }: QuickMealInputProps) {
   const [input, setInput] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState("");
+  const [analyzedMeal, setAnalyzedMeal] = useState<AnalyzedMeal | null>(null);
 
   // Voice recording state
   const [isRecording, setIsRecording] = useState(false);
@@ -27,6 +44,18 @@ export function QuickMealInput({ onAnalyzed }: QuickMealInputProps) {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Meal logging mutation
+  const logMealMutation = useLogMeal();
+
+  // Auto-detect meal type based on time of day
+  const detectMealType = (): MealType => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 11) return "breakfast";
+    if (hour >= 11 && hour < 16) return "lunch";
+    if (hour >= 16 && hour < 22) return "dinner";
+    return "snack";
+  };
 
   const handleAnalyze = async () => {
     if (!input.trim()) {
@@ -50,8 +79,8 @@ export function QuickMealInput({ onAnalyzed }: QuickMealInputProps) {
 
       const data = await response.json();
 
-      // Pass analyzed data to parent
-      onAnalyzed({
+      // Store analyzed data to show preview card
+      setAnalyzedMeal({
         description: input.trim(),
         calories: data.estimatedNutrition.calories,
         protein: data.estimatedNutrition.proteinGrams,
@@ -59,9 +88,10 @@ export function QuickMealInput({ onAnalyzed }: QuickMealInputProps) {
         fat: data.estimatedNutrition.fatGrams,
         fiber: data.estimatedNutrition.fiberGrams,
         notes: data.suggestion || undefined,
+        mealType: detectMealType(),
       });
 
-      // Clear input after successful analysis
+      // Clear input
       setInput("");
     } catch (err) {
       console.error("Error analyzing meal:", err);
@@ -69,6 +99,47 @@ export function QuickMealInput({ onAnalyzed }: QuickMealInputProps) {
     } finally {
       setIsAnalyzing(false);
     }
+  };
+
+  const handleLogMeal = async () => {
+    if (!analyzedMeal) return;
+
+    try {
+      await logMealMutation.mutateAsync({
+        userId: "", // Will be filled by the hook
+        mealDate: date,
+        mealTime: new Date().getTime(),
+        mealType: analyzedMeal.mealType,
+        description: analyzedMeal.description,
+        photoUrl: null,
+        calories: analyzedMeal.calories,
+        proteinGrams: analyzedMeal.protein.toString(),
+        carbsGrams: analyzedMeal.carbs.toString(),
+        fatGrams: analyzedMeal.fat.toString(),
+        fiberGrams: analyzedMeal.fiber?.toString() || null,
+        notes: analyzedMeal.notes || null,
+        source: "ai",
+      });
+
+      // Clear the preview card
+      setAnalyzedMeal(null);
+
+      // Notify parent to refresh
+      onMealLogged();
+    } catch (err) {
+      console.error("Error logging meal:", err);
+      setError("Failed to log meal. Please try again.");
+    }
+  };
+
+  const handleEditDetails = () => {
+    if (!analyzedMeal) return;
+
+    // Pass to parent to open modal
+    onAnalyzed(analyzedMeal);
+
+    // Clear the preview card
+    setAnalyzedMeal(null);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -236,11 +307,11 @@ export function QuickMealInput({ onAnalyzed }: QuickMealInputProps) {
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder="What did you eat? (e.g., 2 eggs and toast for breakfast)"
-          disabled={isAnalyzing || isRecording || isTranscribing}
+          disabled={isAnalyzing || isRecording || isTranscribing || !!analyzedMeal}
           className="w-full px-4 py-3 pr-24 bg-gray-900 border border-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 text-white placeholder-gray-500 disabled:opacity-50"
         />
         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
-          {!isRecording && !isTranscribing && !isAnalyzing && (
+          {!isRecording && !isTranscribing && !isAnalyzing && !analyzedMeal && (
             <button
               onClick={startRecording}
               className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
@@ -249,7 +320,7 @@ export function QuickMealInput({ onAnalyzed }: QuickMealInputProps) {
               <Mic className="h-4 w-4 text-gray-400" />
             </button>
           )}
-          {!isRecording && !isTranscribing && (
+          {!isRecording && !isTranscribing && !analyzedMeal && (
             <button
               onClick={handleAnalyze}
               disabled={isAnalyzing || !input.trim()}
@@ -266,19 +337,79 @@ export function QuickMealInput({ onAnalyzed }: QuickMealInputProps) {
         </div>
       </div>
 
+      {/* Preview Card */}
+      {analyzedMeal && (
+        <div className="p-4 bg-gradient-to-br from-cyan-500/10 to-indigo-500/10 border border-cyan-500/30 rounded-lg space-y-3">
+          {/* Meal Type Badge */}
+          <div className="flex items-center gap-2">
+            {analyzedMeal.mealType === "breakfast" && <Coffee className="h-4 w-4 text-cyan-400" />}
+            {analyzedMeal.mealType === "lunch" && <Sun className="h-4 w-4 text-cyan-400" />}
+            {analyzedMeal.mealType === "dinner" && <Moon className="h-4 w-4 text-cyan-400" />}
+            {analyzedMeal.mealType === "snack" && <Apple className="h-4 w-4 text-cyan-400" />}
+            <span className="text-sm font-semibold text-cyan-400 capitalize">
+              {analyzedMeal.mealType}
+            </span>
+          </div>
+
+          {/* Description */}
+          <p className="text-white font-medium">{analyzedMeal.description}</p>
+
+          {/* Nutrition Info */}
+          <div className="flex items-center gap-3 text-sm text-gray-300">
+            <span className="font-semibold">{analyzedMeal.calories} cal</span>
+            <span>•</span>
+            <span>{analyzedMeal.protein.toFixed(0)}g protein</span>
+            <span>•</span>
+            <span>{analyzedMeal.carbs.toFixed(0)}g carbs</span>
+            <span>•</span>
+            <span>{analyzedMeal.fat.toFixed(0)}g fat</span>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-2 pt-2">
+            <button
+              onClick={handleLogMeal}
+              disabled={logMealMutation.isPending}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white rounded-lg font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {logMealMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Logging...
+                </>
+              ) : (
+                <>
+                  <Check className="h-4 w-4" />
+                  Log {analyzedMeal.mealType.charAt(0).toUpperCase() + analyzedMeal.mealType.slice(1)}
+                </>
+              )}
+            </button>
+            <button
+              onClick={handleEditDetails}
+              className="px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg font-medium transition-colors flex items-center gap-2"
+            >
+              <Edit3 className="h-4 w-4" />
+              Edit
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Manual Entry Link */}
-      <button
-        onClick={() => onAnalyzed({
-          description: "",
-          calories: 0,
-          protein: 0,
-          carbs: 0,
-          fat: 0
-        })}
-        className="text-xs text-gray-400 hover:text-gray-300 transition-colors"
-      >
-        Or log manually →
-      </button>
+      {!analyzedMeal && (
+        <button
+          onClick={() => onAnalyzed({
+            description: "",
+            calories: 0,
+            protein: 0,
+            carbs: 0,
+            fat: 0
+          })}
+          className="text-xs text-gray-400 hover:text-gray-300 transition-colors"
+        >
+          Or log manually →
+        </button>
+      )}
 
       {/* Error Message */}
       {error && (
