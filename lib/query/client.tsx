@@ -155,8 +155,8 @@ export const queryKeys = {
   },
   workoutLogSets: (logId: string) => ['workoutLogSets', logId] as const,
 
-  // Meals
-  meals: (userId: string, date: string) => ['meals', userId, date] as const,
+  // Meals (simplified key structure to match hook usage)
+  meals: (date: string) => ['meals', date] as const,
 
   // Coach
   coachToday: (userId: string, refresh?: boolean) =>
@@ -210,11 +210,11 @@ export async function invalidateNutritionQueries(
   ];
 
   if (date) {
-    // Invalidate meals list (matches ['meals', date] in useMealsByDate)
+    // Invalidate meals list using proper key
     invalidations.push(
-      queryClient.invalidateQueries({ queryKey: ['meals', date] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.meals(date) })
     );
-    // Invalidate nutrition summary (matches ['nutritionSummary', date] in useNutritionSummary)
+    // Invalidate nutrition summary
     invalidations.push(
       queryClient.invalidateQueries({ queryKey: ['nutritionSummary', date] })
     );

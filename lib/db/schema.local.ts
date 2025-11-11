@@ -222,6 +222,20 @@ export interface LocalMeal {
   // Sync metadata
   _isDirty: boolean;
   _syncedAt: number | null;
+  _deletedAt?: number | null; // Soft delete timestamp
+  _tempId?: string;
+}
+
+export interface LocalWaterLog {
+  id: string; // Primary key
+  userId: string;
+  logDate: string;
+  amountMl: number;
+  loggedAt: number;
+  // Sync metadata
+  _isDirty: boolean;
+  _syncedAt: number | null;
+  _deletedAt?: number | null; // Soft delete timestamp
   _tempId?: string;
 }
 
@@ -251,6 +265,7 @@ export class FitCoachLocalDB extends Dexie {
   workoutLogs!: Table<LocalWorkoutLog, string>; // Key: id
   workoutLogSets!: Table<LocalWorkoutLogSet, string>; // Key: id
   meals!: Table<LocalMeal, string>; // Key: id
+  waterLogs!: Table<LocalWaterLog, string>; // Key: id
   coachCache!: Table<LocalCoachCache, string>; // Key: id
 
   constructor() {
@@ -277,6 +292,9 @@ export class FitCoachLocalDB extends Dexie {
       // Meals: indexed by user and date
       meals: 'id, userId, [userId+mealDate], mealDate, _isDirty, _tempId',
 
+      // Water Logs: indexed by user and date
+      waterLogs: 'id, userId, [userId+logDate], logDate, _isDirty, _tempId',
+
       // Coach Cache: indexed by user, context, and cache key
       coachCache:
         'id, userId, [userId+context], [userId+context+cacheKey], targetDate, expiresAt',
@@ -284,8 +302,13 @@ export class FitCoachLocalDB extends Dexie {
 
     // Version 2: Add _syncedAt index to profiles table
     this.version(2).stores({
-      // Profile: indexed by userId (primary key), now includes _syncedAt
       profiles: 'userId, updatedAt, _isDirty, _syncedAt',
+    });
+
+    // Version 3: Add _syncedAt index to meals and waterLogs tables
+    this.version(3).stores({
+      meals: 'id, userId, [userId+mealDate], mealDate, _isDirty, _syncedAt, _tempId',
+      waterLogs: 'id, userId, [userId+logDate], logDate, _isDirty, _syncedAt, _tempId',
     });
   }
 }
