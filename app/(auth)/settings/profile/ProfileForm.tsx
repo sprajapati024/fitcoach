@@ -148,7 +148,7 @@ export function ProfileForm({ profile, signOutAction }: ProfileFormProps) {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => setFormData({ ...formData, unitSystem: "metric" })}
+                  onClick={() => setFormData({ ...formData, unitSystem: "metric" as any })}
                   className={`min-h-[44px] rounded-xl border px-4 py-3 text-sm font-medium transition-all active:scale-98 ${
                     formData.unitSystem === "metric"
                       ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"
@@ -159,7 +159,7 @@ export function ProfileForm({ profile, signOutAction }: ProfileFormProps) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setFormData({ ...formData, unitSystem: "imperial" })}
+                  onClick={() => setFormData({ ...formData, unitSystem: "imperial" as any })}
                   className={`min-h-[44px] rounded-xl border px-4 py-3 text-sm font-medium transition-all active:scale-98 ${
                     formData.unitSystem === "imperial"
                       ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"

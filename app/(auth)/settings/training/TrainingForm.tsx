@@ -161,7 +161,7 @@ export function TrainingForm({ profile }: TrainingFormProps) {
                   <button
                     key={goal.value}
                     type="button"
-                    onClick={() => setFormData({ ...formData, goalBias: goal.value })}
+                    onClick={() => setFormData({ ...formData, goalBias: goal.value as any })}
                     className={`min-h-[44px] rounded-xl border px-4 py-3 text-sm font-medium transition-all active:scale-98 ${
                       formData.goalBias === goal.value
                         ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"
@@ -179,7 +179,7 @@ export function TrainingForm({ profile }: TrainingFormProps) {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => setFormData({ ...formData, experienceLevel: "beginner" })}
+                  onClick={() => setFormData({ ...formData, experienceLevel: "beginner" as any })}
                   className={`min-h-[44px] rounded-xl border px-4 py-3 text-sm font-medium transition-all active:scale-98 ${
                     formData.experienceLevel === "beginner"
                       ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"
@@ -190,7 +190,7 @@ export function TrainingForm({ profile }: TrainingFormProps) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setFormData({ ...formData, experienceLevel: "intermediate" })}
+                  onClick={() => setFormData({ ...formData, experienceLevel: "intermediate" as any })}
                   className={`min-h-[44px] rounded-xl border px-4 py-3 text-sm font-medium transition-all active:scale-98 ${
                     formData.experienceLevel === "intermediate"
                       ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"

@@ -102,7 +102,7 @@ export function CoachForm({ profile }: CoachFormProps) {
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={() => setFormData({ ...formData, coachTone: "analyst" })}
+                onClick={() => setFormData({ ...formData, coachTone: "analyst" as any })}
                 className={`min-h-[44px] rounded-xl border px-4 py-3 text-sm font-medium transition-all active:scale-98 ${
                   formData.coachTone === "analyst"
                     ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"
@@ -116,7 +116,7 @@ export function CoachForm({ profile }: CoachFormProps) {
               </button>
               <button
                 type="button"
-                onClick={() => setFormData({ ...formData, coachTone: "flirty" })}
+                onClick={() => setFormData({ ...formData, coachTone: "flirty" as any })}
                 className={`min-h-[44px] rounded-xl border px-4 py-3 text-sm font-medium transition-all active:scale-98 ${
                   formData.coachTone === "flirty"
                     ? "border-cyan-500 bg-cyan-500/10 text-cyan-500"
