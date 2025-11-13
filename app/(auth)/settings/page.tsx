@@ -7,13 +7,7 @@ export default async function SettingsMenuPage() {
   const activePlansCount = userPlans.filter(p => p.status === "active").length;
 
   return (
-    <div className="space-y-3 pb-24 px-4">
-      {/* Header */}
-      <div className="py-4">
-        <h1 className="text-2xl font-bold text-white">Settings</h1>
-        <p className="text-sm text-gray-400 mt-1">Manage your account and preferences</p>
-      </div>
-
+    <div className="space-y-4 pb-24">
       {/* Profile & Account Card */}
       <Link href="/settings/profile">
         <div className="rounded-xl border border-gray-800 bg-gray-900 p-4 active:bg-gray-800 transition-colors">

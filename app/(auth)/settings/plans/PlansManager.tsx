@@ -32,19 +32,18 @@ export function PlansManager({ userPlans }: PlansManagerProps) {
 
   return (
     <div className="pb-24">
-      {/* Sticky Header with Back Button */}
-      <div className="sticky top-0 z-10 bg-black/95 backdrop-blur-sm border-b border-gray-900 px-4 py-3 -mx-4 mb-6">
+      {/* Back Button */}
+      <div className="mb-6">
         <button
           onClick={() => router.back()}
           className="flex items-center gap-2 text-gray-400 active:text-gray-300 transition-colors min-h-[44px]"
         >
           <ChevronLeft className="h-5 w-5" />
-          <span className="text-sm font-medium">Settings</span>
+          <span className="text-sm font-medium">Back</span>
         </button>
-        <h1 className="text-lg font-semibold text-white mt-1">My Plans</h1>
       </div>
 
-      <div className="px-4">
+      <div>
         {userPlans.length === 0 ? (
           <div className="rounded-xl border border-gray-800 bg-gray-900 p-8 text-center">
             <p className="text-sm text-gray-400 mb-4">No workout plans yet.</p>
