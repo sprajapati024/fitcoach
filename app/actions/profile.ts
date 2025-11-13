@@ -253,3 +253,15 @@ export async function updateFullProfileAction(data: UpdateProfileInput) {
     throw new Error("An unexpected error occurred while updating your profile");
   }
 }
+
+// Simplified action for updating basic profile information only
+export async function updateProfileBasicInfoAction(data: {
+  fullName?: string;
+  sex?: string;
+  dateOfBirth?: string;
+  heightCm?: number;
+  weightKg?: number;
+  unitSystem?: string;
+}) {
+  return updateFullProfileAction(data as UpdateProfileInput);
+}
