@@ -118,22 +118,21 @@ export function TrainingForm({ profile }: TrainingFormProps) {
 
   return (
     <div className="pb-24">
-      {/* Sticky Header with Back Button */}
-      <div className="sticky top-0 z-10 bg-black/95 backdrop-blur-sm border-b border-gray-900 px-4 py-3 -mx-4 mb-6">
+      {/* Back Button */}
+      <div className="mb-6">
         <button
           onClick={() => router.back()}
           className="flex items-center gap-2 text-gray-400 active:text-gray-300 transition-colors min-h-[44px]"
         >
           <ChevronLeft className="h-5 w-5" />
-          <span className="text-sm font-medium">Settings</span>
+          <span className="text-sm font-medium">Back</span>
         </button>
-        <h1 className="text-lg font-semibold text-white mt-1">Training Setup</h1>
       </div>
 
       {/* Success/Error Message */}
       {saveMessage && (
         <div
-          className={`mx-4 mb-6 rounded-xl border p-4 text-sm ${
+          className={`mb-6 rounded-xl border p-4 text-sm ${
             saveMessage.type === "success"
               ? "border-green-500/40 bg-green-500/10 text-green-400"
               : "border-red-500/40 bg-red-500/10 text-red-400"
@@ -143,7 +142,7 @@ export function TrainingForm({ profile }: TrainingFormProps) {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6 px-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Goals & Experience */}
         <div>
           <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Goals & Experience</h2>

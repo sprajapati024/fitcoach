@@ -13,6 +13,11 @@ interface MobileHeaderProps {
 const PAGE_NAMES: Record<string, string> = {
   "/dashboard": "", // Empty string means show greeting
   "/settings": "Settings",
+  "/settings/profile": "Profile & Account",
+  "/settings/training": "Training Setup",
+  "/settings/coach": "AI Coach",
+  "/settings/plans": "My Plans",
+  "/settings/app": "App Settings",
   "/plan": "Plan",
   "/progress": "Progress",
   "/exercises": "Exercises",
