@@ -114,7 +114,7 @@ export function ProfileForm({ profile, signOutAction }: ProfileFormProps) {
                 <label className="mb-2 block text-sm font-medium text-gray-300">Sex</label>
                 <select
                   value={formData.sex}
-                  onChange={(e) => setFormData({ ...formData, sex: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, sex: e.target.value as any })}
                   className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-3.5 text-base text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 appearance-none"
                 >
                   <option value="unspecified">Prefer not to say</option>
