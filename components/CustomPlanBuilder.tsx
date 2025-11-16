@@ -59,8 +59,27 @@ const getDefaultPreferredDays = (daysPerWeek: number): PreferredDay[] => {
   return patterns[daysPerWeek] || patterns[3];
 };
 
+// Helper function to scale block durations based on session length
+const scaleBlockDurations = (
+  blocks: Block[],
+  targetMinutes: number
+): Block[] => {
+  const currentTotal = blocks.reduce((sum, b) => sum + b.durationMinutes, 0);
+  if (currentTotal === targetMinutes) return blocks;
+
+  const scaleFactor = targetMinutes / currentTotal;
+
+  return blocks.map((block) => ({
+    ...block,
+    durationMinutes: Math.round(block.durationMinutes * scaleFactor),
+  }));
+};
+
 // Helper function to generate default workout pattern for a day
-const generateDefaultPattern = (dayIndex: number): WorkoutPattern => {
+const generateDefaultPattern = (
+  dayIndex: number,
+  minutesPerSession: number = 60
+): WorkoutPattern => {
   const focusOptions = [
     "Upper Body",
     "Lower Body",
@@ -71,8 +90,8 @@ const generateDefaultPattern = (dayIndex: number): WorkoutPattern => {
   ];
   const focus = focusOptions[dayIndex % focusOptions.length];
 
-  // Default block structure based on focus
-  const blocks: Block[] =
+  // Default block structure based on focus (base is 60 minutes)
+  let blocks: Block[] =
     focus === "Conditioning"
       ? [
           {
@@ -115,6 +134,9 @@ const generateDefaultPattern = (dayIndex: number): WorkoutPattern => {
           },
         ];
 
+  // Scale to match target session duration
+  blocks = scaleBlockDurations(blocks, minutesPerSession);
+
   return {
     dayIndex,
     focus,
@@ -123,10 +145,33 @@ const generateDefaultPattern = (dayIndex: number): WorkoutPattern => {
 };
 
 // Helper function to generate patterns for given number of days
-const generateDefaultPatterns = (daysPerWeek: number): WorkoutPattern[] => {
+const generateDefaultPatterns = (
+  daysPerWeek: number,
+  minutesPerSession: number = 60
+): WorkoutPattern[] => {
   return Array.from({ length: daysPerWeek }, (_, i) =>
-    generateDefaultPattern(i)
+    generateDefaultPattern(i, minutesPerSession)
   );
+};
+
+// Helper function to get exercise defaults based on block type
+const getExerciseDefaults = (
+  blockType: Block["type"]
+): { sets: number; reps: string; tempo: string } => {
+  switch (blockType) {
+    case "warmup":
+      return { sets: 2, reps: "10", tempo: "2-0-2-0" };
+    case "strength":
+      return { sets: 4, reps: "6-8", tempo: "3-1-2-0" };
+    case "accessory":
+      return { sets: 3, reps: "10-12", tempo: "2-0-2-0" };
+    case "conditioning":
+      return { sets: 3, reps: "30 sec", tempo: "continuous" };
+    case "recovery":
+      return { sets: 1, reps: "60 sec", tempo: "hold" };
+    default:
+      return { sets: 3, reps: "10-12", tempo: "2-0-2-0" };
+  }
 };
 
 export function CustomPlanBuilder({
@@ -138,6 +183,7 @@ export function CustomPlanBuilder({
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   // Step 1: Plan Parameters - default to 3 days (most conservative)
   const [planTitle, setPlanTitle] = useState("");
@@ -155,7 +201,7 @@ export function CustomPlanBuilder({
   // Step 2: Workout Templates - dynamically generated based on daysPerWeek
   const [microcycle, setMicrocycle] = useState<Microcycle>({
     daysPerWeek: 3,
-    pattern: generateDefaultPatterns(3),
+    pattern: generateDefaultPatterns(3, 60),
   });
 
   const [selectedPatternIndex, setSelectedPatternIndex] = useState(0);
@@ -233,20 +279,26 @@ export function CustomPlanBuilder({
         return;
       }
 
-      // Update microcycle patterns based on daysPerWeek
+      // Update microcycle patterns based on daysPerWeek and scale durations
       setMicrocycle((prev) => {
         const currentPatternCount = prev.pattern.length;
         let newPattern = [...prev.pattern];
 
         if (currentPatternCount < daysPerWeek) {
-          // Add more patterns
+          // Add more patterns with correct duration scaling
           for (let i = currentPatternCount; i < daysPerWeek; i++) {
-            newPattern.push(generateDefaultPattern(i));
+            newPattern.push(generateDefaultPattern(i, minutesPerSession));
           }
         } else if (currentPatternCount > daysPerWeek) {
           // Trim patterns
           newPattern = newPattern.slice(0, daysPerWeek);
         }
+
+        // Scale all existing pattern block durations to match session length
+        newPattern = newPattern.map((pattern) => ({
+          ...pattern,
+          blocks: scaleBlockDurations(pattern.blocks, minutesPerSession),
+        }));
 
         return {
           ...prev,
@@ -291,13 +343,18 @@ export function CustomPlanBuilder({
   const handleSelectExercise = (userExercise: UserExercise) => {
     if (selectedBlockIndex === null) return;
 
+    // Get block type to determine appropriate defaults
+    const blockType =
+      microcycle.pattern[selectedPatternIndex].blocks[selectedBlockIndex].type;
+    const defaults = getExerciseDefaults(blockType);
+
     const newExercise: Exercise = {
       id: userExercise.exerciseId,
       name: userExercise.name,
       equipment: userExercise.equipment[0] || "bodyweight",
-      sets: 3,
-      reps: "10-12",
-      tempo: "2-0-2-0",
+      sets: defaults.sets,
+      reps: defaults.reps,
+      tempo: defaults.tempo,
       cues: [],
     };
 
@@ -355,6 +412,7 @@ export function CustomPlanBuilder({
 
   const handleCreatePlan = async () => {
     setError(null);
+    setSuccess(null);
 
     // Final validation before submission
     if (microcycle.pattern.length !== daysPerWeek) {
@@ -395,13 +453,21 @@ export function CustomPlanBuilder({
         throw new Error(data.error || "Failed to create plan");
       }
 
+      // Show success message briefly before redirecting
+      setSuccess(
+        `Plan "${planTitle}" created successfully with ${data.workoutsCount} workouts!`
+      );
+
       if (onSuccess) {
         onSuccess(data.plan.id);
       }
 
-      onClose();
-      router.push("/plan");
-      router.refresh();
+      // Wait a moment for user to see success message
+      setTimeout(() => {
+        onClose();
+        router.push("/plan");
+        router.refresh();
+      }, 1500);
     } catch (error) {
       console.error("Error creating plan:", error);
       setError(
@@ -434,6 +500,16 @@ export function CustomPlanBuilder({
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-6">
+            {/* Success Display */}
+            {success && (
+              <div className="mb-6 p-4 bg-green-900/20 border border-green-500/50 rounded-lg">
+                <p className="text-green-400 text-sm flex items-center gap-2">
+                  <Check className="h-4 w-4" />
+                  {success}
+                </p>
+              </div>
+            )}
+
             {/* Error Display */}
             {error && (
               <div className="mb-6 p-4 bg-red-900/20 border border-red-500/50 rounded-lg">

@@ -154,11 +154,24 @@ export function generateWorkouts(
         blocks,
       };
 
-      // Calculate total duration
-      const durationMinutes = blocks.reduce((sum, block) => {
-        const blockDuration = block.exercises.reduce((total, ex) => total + ex.sets * 3, 0); // ~3 min per set
-        return sum + blockDuration;
-      }, 0);
+      // Calculate total duration from template block durations (if available) or estimate
+      let durationMinutes = 0;
+      if (templateDay.blocks.some((b) => b.durationMinutes > 0)) {
+        // Use actual block durations from template
+        durationMinutes = templateDay.blocks.reduce(
+          (sum, block) => sum + (block.durationMinutes || 0),
+          0
+        );
+      } else {
+        // Fallback: estimate based on sets (~3 min per set)
+        durationMinutes = blocks.reduce((sum, block) => {
+          const blockDuration = block.exercises.reduce(
+            (total, ex) => total + ex.sets * 3,
+            0
+          );
+          return sum + blockDuration;
+        }, 0);
+      }
 
       const workout: WorkoutInsert = {
         id: workoutId,
@@ -173,7 +186,7 @@ export function generateWorkouts(
         focus: templateDay.focus,
         kind: "strength",
         isDeload: isDeloadWeek,
-        durationMinutes: Math.min(durationMinutes, 90),
+        durationMinutes: Math.min(durationMinutes, 120), // Allow up to 120 min for custom plans
         payload,
       };
 
@@ -439,10 +452,24 @@ export function generateWeekWorkouts(
       blocks,
     };
 
-    const durationMinutes = blocks.reduce((sum, block) => {
-      const blockDuration = block.exercises.reduce((total, ex) => total + ex.sets * 3, 0);
-      return sum + blockDuration;
-    }, 0);
+    // Calculate total duration from template block durations (if available) or estimate
+    let durationMinutes = 0;
+    if (templateDay.blocks.some((b) => b.durationMinutes > 0)) {
+      // Use actual block durations from template
+      durationMinutes = templateDay.blocks.reduce(
+        (sum, block) => sum + (block.durationMinutes || 0),
+        0
+      );
+    } else {
+      // Fallback: estimate based on sets (~3 min per set)
+      durationMinutes = blocks.reduce((sum, block) => {
+        const blockDuration = block.exercises.reduce(
+          (total, ex) => total + ex.sets * 3,
+          0
+        );
+        return sum + blockDuration;
+      }, 0);
+    }
 
     const workout: WorkoutInsert = {
       id: workoutId,
@@ -457,7 +484,7 @@ export function generateWeekWorkouts(
       focus: templateDay.focus,
       kind: "strength",
       isDeload: isDeloadWeek,
-      durationMinutes: Math.min(durationMinutes, 90),
+      durationMinutes: Math.min(durationMinutes, 120), // Allow up to 120 min for custom plans
       payload,
     };
 
