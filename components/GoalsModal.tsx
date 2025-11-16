@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { X, Sparkles } from "lucide-react";
 import { PrimaryButton } from "./PrimaryButton";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface GoalsModalProps {
   onClose: () => void;
@@ -18,6 +19,7 @@ interface NutritionGoals {
 }
 
 export function GoalsModal({ onClose, onGoalsSet }: GoalsModalProps) {
+  const queryClient = useQueryClient();
   const [calories, setCalories] = useState("");
   const [protein, setProtein] = useState("");
   const [carbs, setCarbs] = useState("");
@@ -75,6 +77,9 @@ export function GoalsModal({ onClose, onGoalsSet }: GoalsModalProps) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to save goals");
       }
+
+      // Invalidate the nutrition goals cache so all components refetch
+      await queryClient.invalidateQueries({ queryKey: ['nutritionGoals', 'current'] });
 
       onGoalsSet();
       onClose();

@@ -207,6 +207,8 @@ export async function invalidateNutritionQueries(
 ): Promise<void> {
   const invalidations: Promise<void>[] = [
     queryClient.invalidateQueries({ queryKey: queryKeys.nutritionGoals(userId) }),
+    // Also invalidate the 'current' key used by useNutritionGoals hook
+    queryClient.invalidateQueries({ queryKey: ['nutritionGoals', 'current'] }),
   ];
 
   if (date) {
