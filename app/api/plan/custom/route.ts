@@ -81,6 +81,64 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validate pattern count matches daysPerWeek
+    if (microcycle.pattern.length !== daysPerWeek) {
+      return NextResponse.json(
+        {
+          error: `Pattern count (${microcycle.pattern.length}) must match days per week (${daysPerWeek})`,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Validate preferredDays count matches daysPerWeek
+    if (!preferredDays || preferredDays.length !== daysPerWeek) {
+      return NextResponse.json(
+        {
+          error: `Preferred days count (${preferredDays?.length || 0}) must match days per week (${daysPerWeek})`,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Validate each pattern has blocks with exercises
+    for (let i = 0; i < microcycle.pattern.length; i++) {
+      const pattern = microcycle.pattern[i];
+      if (!pattern.blocks || !Array.isArray(pattern.blocks)) {
+        return NextResponse.json(
+          { error: `Day ${i + 1} must have blocks defined` },
+          { status: 400 }
+        );
+      }
+
+      for (let j = 0; j < pattern.blocks.length; j++) {
+        const block = pattern.blocks[j];
+        if (
+          !block.exercises ||
+          !Array.isArray(block.exercises) ||
+          block.exercises.length === 0
+        ) {
+          return NextResponse.json(
+            {
+              error: `Day ${i + 1} - ${block.title || `Block ${j + 1}`} must have at least one exercise`,
+            },
+            { status: 400 }
+          );
+        }
+      }
+    }
+
+    // Validate start date is not in the past (if provided)
+    if (startDate) {
+      const today = new Date().toISOString().split("T")[0];
+      if (startDate < today) {
+        return NextResponse.json(
+          { error: "Start date cannot be in the past" },
+          { status: 400 }
+        );
+      }
+    }
+
     // Get user profile for timezone and other settings
     const [userProfile] = await db
       .select()

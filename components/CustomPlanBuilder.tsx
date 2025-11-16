@@ -48,111 +48,33 @@ interface CustomPlanBuilderProps {
   onSuccess?: (planId: string) => void;
 }
 
-export function CustomPlanBuilder({
-  isOpen,
-  onClose,
-  onSuccess,
-}: CustomPlanBuilderProps) {
-  const router = useRouter();
-  const [step, setStep] = useState(1);
-  const [saving, setSaving] = useState(false);
+// Helper function to get default preferred days based on days per week
+const getDefaultPreferredDays = (daysPerWeek: number): PreferredDay[] => {
+  const patterns: Record<number, PreferredDay[]> = {
+    3: ["mon", "wed", "fri"],
+    4: ["mon", "tue", "thu", "fri"],
+    5: ["mon", "tue", "wed", "thu", "fri"],
+    6: ["mon", "tue", "wed", "thu", "fri", "sat"],
+  };
+  return patterns[daysPerWeek] || patterns[3];
+};
 
-  // Step 1: Plan Parameters
-  const [planTitle, setPlanTitle] = useState("");
-  const [planSummary, setPlanSummary] = useState("");
-  const [durationWeeks, setDurationWeeks] = useState(8);
-  const [daysPerWeek, setDaysPerWeek] = useState(4);
-  const [minutesPerSession, setMinutesPerSession] = useState(60);
-  const [startDate, setStartDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
-  const [preferredDays, setPreferredDays] = useState<PreferredDay[]>([
-    "mon",
-    "wed",
-    "fri",
-    "sat",
-  ]);
+// Helper function to generate default workout pattern for a day
+const generateDefaultPattern = (dayIndex: number): WorkoutPattern => {
+  const focusOptions = [
+    "Upper Body",
+    "Lower Body",
+    "Full Body",
+    "Push",
+    "Pull",
+    "Conditioning",
+  ];
+  const focus = focusOptions[dayIndex % focusOptions.length];
 
-  // Step 2: Workout Templates
-  const [microcycle, setMicrocycle] = useState<Microcycle>({
-    daysPerWeek: 4,
-    pattern: [
-      {
-        dayIndex: 0,
-        focus: "Upper Body",
-        blocks: [
-          {
-            type: "warmup",
-            title: "Warmup",
-            durationMinutes: 10,
-            exercises: [],
-          },
-          {
-            type: "strength",
-            title: "Main Work",
-            durationMinutes: 35,
-            exercises: [],
-          },
-          {
-            type: "accessory",
-            title: "Accessories",
-            durationMinutes: 15,
-            exercises: [],
-          },
-        ],
-      },
-      {
-        dayIndex: 1,
-        focus: "Lower Body",
-        blocks: [
-          {
-            type: "warmup",
-            title: "Warmup",
-            durationMinutes: 10,
-            exercises: [],
-          },
-          {
-            type: "strength",
-            title: "Main Work",
-            durationMinutes: 35,
-            exercises: [],
-          },
-          {
-            type: "accessory",
-            title: "Accessories",
-            durationMinutes: 15,
-            exercises: [],
-          },
-        ],
-      },
-      {
-        dayIndex: 2,
-        focus: "Full Body",
-        blocks: [
-          {
-            type: "warmup",
-            title: "Warmup",
-            durationMinutes: 10,
-            exercises: [],
-          },
-          {
-            type: "strength",
-            title: "Main Work",
-            durationMinutes: 35,
-            exercises: [],
-          },
-          {
-            type: "conditioning",
-            title: "Conditioning",
-            durationMinutes: 15,
-            exercises: [],
-          },
-        ],
-      },
-      {
-        dayIndex: 3,
-        focus: "Conditioning",
-        blocks: [
+  // Default block structure based on focus
+  const blocks: Block[] =
+    focus === "Conditioning"
+      ? [
           {
             type: "warmup",
             title: "Warmup",
@@ -171,9 +93,69 @@ export function CustomPlanBuilder({
             durationMinutes: 10,
             exercises: [],
           },
-        ],
-      },
-    ],
+        ]
+      : [
+          {
+            type: "warmup",
+            title: "Warmup",
+            durationMinutes: 10,
+            exercises: [],
+          },
+          {
+            type: "strength",
+            title: "Main Work",
+            durationMinutes: 35,
+            exercises: [],
+          },
+          {
+            type: "accessory",
+            title: "Accessories",
+            durationMinutes: 15,
+            exercises: [],
+          },
+        ];
+
+  return {
+    dayIndex,
+    focus,
+    blocks,
+  };
+};
+
+// Helper function to generate patterns for given number of days
+const generateDefaultPatterns = (daysPerWeek: number): WorkoutPattern[] => {
+  return Array.from({ length: daysPerWeek }, (_, i) =>
+    generateDefaultPattern(i)
+  );
+};
+
+export function CustomPlanBuilder({
+  isOpen,
+  onClose,
+  onSuccess,
+}: CustomPlanBuilderProps) {
+  const router = useRouter();
+  const [step, setStep] = useState(1);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Step 1: Plan Parameters - default to 3 days (most conservative)
+  const [planTitle, setPlanTitle] = useState("");
+  const [planSummary, setPlanSummary] = useState("");
+  const [durationWeeks, setDurationWeeks] = useState(8);
+  const [daysPerWeek, setDaysPerWeek] = useState(3);
+  const [minutesPerSession, setMinutesPerSession] = useState(60);
+  const [startDate, setStartDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  const [preferredDays, setPreferredDays] = useState<PreferredDay[]>(
+    getDefaultPreferredDays(3)
+  );
+
+  // Step 2: Workout Templates - dynamically generated based on daysPerWeek
+  const [microcycle, setMicrocycle] = useState<Microcycle>({
+    daysPerWeek: 3,
+    pattern: generateDefaultPatterns(3),
   });
 
   const [selectedPatternIndex, setSelectedPatternIndex] = useState(0);
@@ -183,21 +165,116 @@ export function CustomPlanBuilder({
   const [showExercisePicker, setShowExercisePicker] = useState(false);
 
   const dayNames = ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6"];
+  const allDays: { key: PreferredDay; label: string }[] = [
+    { key: "mon", label: "Mon" },
+    { key: "tue", label: "Tue" },
+    { key: "wed", label: "Wed" },
+    { key: "thu", label: "Thu" },
+    { key: "fri", label: "Fri" },
+    { key: "sat", label: "Sat" },
+    { key: "sun", label: "Sun" },
+  ];
+
+  // Handle daysPerWeek change - sync preferredDays and patterns
+  const handleDaysPerWeekChange = (newDaysPerWeek: number) => {
+    setDaysPerWeek(newDaysPerWeek);
+    setPreferredDays(getDefaultPreferredDays(newDaysPerWeek));
+    setError(null);
+  };
+
+  // Toggle preferred day selection
+  const handleTogglePreferredDay = (day: PreferredDay) => {
+    setPreferredDays((prev) => {
+      if (prev.includes(day)) {
+        // Don't allow deselecting if it would go below daysPerWeek
+        if (prev.length <= daysPerWeek) {
+          setError(
+            `You must select exactly ${daysPerWeek} training days to match your days per week setting`
+          );
+          return prev;
+        }
+        return prev.filter((d) => d !== day);
+      } else {
+        // Don't allow selecting more than daysPerWeek
+        if (prev.length >= daysPerWeek) {
+          setError(
+            `You can only select ${daysPerWeek} training days. Deselect another day first.`
+          );
+          return prev;
+        }
+        setError(null);
+        return [...prev, day];
+      }
+    });
+  };
 
   const handleNextStep = () => {
+    setError(null);
+
     if (step === 1) {
       // Validate step 1
       if (!planTitle.trim()) {
-        alert("Please enter a plan title");
+        setError("Please enter a plan title");
         return;
       }
-      // Update microcycle days per week based on selection
-      setMicrocycle((prev) => ({
-        ...prev,
-        daysPerWeek: daysPerWeek,
-        pattern: prev.pattern.slice(0, daysPerWeek),
-      }));
+
+      // Validate preferred days match daysPerWeek
+      if (preferredDays.length !== daysPerWeek) {
+        setError(
+          `Please select exactly ${daysPerWeek} training days to match your days per week setting`
+        );
+        return;
+      }
+
+      // Validate start date is not in the past
+      const today = new Date().toISOString().split("T")[0];
+      if (startDate < today) {
+        setError("Start date cannot be in the past");
+        return;
+      }
+
+      // Update microcycle patterns based on daysPerWeek
+      setMicrocycle((prev) => {
+        const currentPatternCount = prev.pattern.length;
+        let newPattern = [...prev.pattern];
+
+        if (currentPatternCount < daysPerWeek) {
+          // Add more patterns
+          for (let i = currentPatternCount; i < daysPerWeek; i++) {
+            newPattern.push(generateDefaultPattern(i));
+          }
+        } else if (currentPatternCount > daysPerWeek) {
+          // Trim patterns
+          newPattern = newPattern.slice(0, daysPerWeek);
+        }
+
+        return {
+          ...prev,
+          daysPerWeek: daysPerWeek,
+          pattern: newPattern,
+        };
+      });
     }
+
+    if (step === 2) {
+      // Validate step 2 - ensure all blocks have at least one exercise
+      const emptyBlocks: string[] = [];
+      microcycle.pattern.forEach((pattern, pIndex) => {
+        pattern.blocks.forEach((block, bIndex) => {
+          if (block.exercises.length === 0) {
+            emptyBlocks.push(`${dayNames[pIndex]} - ${block.title}`);
+          }
+        });
+      });
+
+      if (emptyBlocks.length > 0) {
+        setError(
+          `Please add at least one exercise to each block. Empty blocks: ${emptyBlocks.slice(0, 3).join(", ")}${emptyBlocks.length > 3 ? ` and ${emptyBlocks.length - 3} more` : ""}`
+        );
+        return;
+      }
+    }
+
     setStep(step + 1);
   };
 
@@ -277,6 +354,23 @@ export function CustomPlanBuilder({
   };
 
   const handleCreatePlan = async () => {
+    setError(null);
+
+    // Final validation before submission
+    if (microcycle.pattern.length !== daysPerWeek) {
+      setError(
+        `Pattern count (${microcycle.pattern.length}) does not match days per week (${daysPerWeek})`
+      );
+      return;
+    }
+
+    if (preferredDays.length !== daysPerWeek) {
+      setError(
+        `Selected training days (${preferredDays.length}) must match days per week (${daysPerWeek})`
+      );
+      return;
+    }
+
     try {
       setSaving(true);
 
@@ -310,7 +404,7 @@ export function CustomPlanBuilder({
       router.refresh();
     } catch (error) {
       console.error("Error creating plan:", error);
-      alert(
+      setError(
         error instanceof Error ? error.message : "Failed to create plan"
       );
     } finally {
@@ -340,6 +434,13 @@ export function CustomPlanBuilder({
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-6">
+            {/* Error Display */}
+            {error && (
+              <div className="mb-6 p-4 bg-red-900/20 border border-red-500/50 rounded-lg">
+                <p className="text-red-400 text-sm">{error}</p>
+              </div>
+            )}
+
             {/* Step 1: Plan Parameters */}
             {step === 1 && (
               <div className="space-y-6 max-w-2xl mx-auto">
@@ -393,7 +494,7 @@ export function CustomPlanBuilder({
                     <select
                       value={daysPerWeek}
                       onChange={(e) =>
-                        setDaysPerWeek(parseInt(e.target.value))
+                        handleDaysPerWeekChange(parseInt(e.target.value))
                       }
                       className="w-full px-4 py-3 bg-surface-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 text-neutral-200"
                     >
@@ -403,6 +504,34 @@ export function CustomPlanBuilder({
                       <option value="6">6 days</option>
                     </select>
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Preferred Training Days *
+                  </label>
+                  <p className="text-xs text-neutral-400 mb-3">
+                    Select exactly {daysPerWeek} days when you prefer to train
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {allDays.map((day) => (
+                      <button
+                        key={day.key}
+                        type="button"
+                        onClick={() => handleTogglePreferredDay(day.key)}
+                        className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                          preferredDays.includes(day.key)
+                            ? "bg-neural-500 border-neural-500 text-white"
+                            : "bg-surface-2 border-border text-neutral-400 hover:border-neutral-500"
+                        }`}
+                      >
+                        {day.label}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-neutral-500 mt-2">
+                    Selected: {preferredDays.length}/{daysPerWeek} days
+                  </p>
                 </div>
 
                 <div>
@@ -430,6 +559,7 @@ export function CustomPlanBuilder({
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
+                    min={new Date().toISOString().split("T")[0]}
                     className="w-full px-4 py-3 bg-surface-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 text-neutral-200"
                   />
                 </div>
