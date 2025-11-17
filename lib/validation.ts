@@ -177,7 +177,7 @@ export const logRequestSchema = z
     if (hasEntries && typeof data.rpeLastSet !== "number") {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Overall workout RPE is required when logging sets.",
+        message: "Overall workout RPE (5-10) is required when logging sets. Rate how hard the session felt.",
         path: ["rpeLastSet"],
       });
     }

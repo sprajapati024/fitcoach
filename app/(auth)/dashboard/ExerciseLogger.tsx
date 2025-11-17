@@ -302,14 +302,22 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
       setFeedback({ type: 'error', message: 'Enter a valid rep count.' });
       return;
     }
+    if (parsedReps > 30) {
+      setFeedback({ type: 'error', message: 'Max 30 reps per set.' });
+      return;
+    }
 
     const parsedWeight = weight.trim() === '' ? 0 : parseFloat(weight);
     if (Number.isNaN(parsedWeight) || parsedWeight < 0) {
       setFeedback({ type: 'error', message: 'Enter a valid weight.' });
       return;
     }
+    if (parsedWeight > 500) {
+      setFeedback({ type: 'error', message: 'Max weight is 500kg.' });
+      return;
+    }
 
-    const formattedNotes = notes.trim() || undefined;
+    const formattedNotes = notes.trim().slice(0, 160) || undefined;
 
     const payload: LogEntry = {
       exerciseId: exercise.id,
@@ -484,7 +492,7 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
         <div className="h-1 bg-gray-900">
           <div
             className="h-full bg-gradient-to-r from-cyan-500 to-indigo-500 transition-all duration-300"
-            style={{ width: `${(completedSets / totalSets) * 100}%` }}
+            style={{ width: `${totalSets > 0 ? (completedSets / totalSets) * 100 : 0}%` }}
           />
         </div>
       </motion.header>
@@ -663,7 +671,7 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
                     >
                       <div className="px-3 pb-3 space-y-3 border-t border-gray-800 pt-3">
                         {/* Historical data */}
-                        {exerciseHistory && exerciseHistory.length > 0 && (
+                        {exerciseHistory && exerciseHistory.length > 0 && lastSessionDate && (
                           <div className="text-xs">
                             <p className="text-gray-500 mb-1">
                               Last session ({lastSessionDate}):
@@ -740,6 +748,8 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
                                 type="number"
                                 step="2.5"
                                 inputMode="decimal"
+                                min={0}
+                                max={500}
                                 value={weight}
                                 onChange={(e) => setWeight(e.target.value)}
                                 className="w-full rounded-md border border-gray-800 bg-black px-3 py-2 text-sm text-white text-center placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
@@ -753,6 +763,8 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
                               <input
                                 type="number"
                                 inputMode="numeric"
+                                min={1}
+                                max={30}
                                 value={reps}
                                 onChange={(e) => setReps(e.target.value)}
                                 className="w-full rounded-md border border-gray-800 bg-black px-3 py-2 text-sm text-white text-center placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
@@ -763,11 +775,12 @@ export function ExerciseLogger({ workout, onComplete, onCancel }: ExerciseLogger
 
                           {/* Notes */}
                           <div className="space-y-1">
-                            <label className="block text-xs font-medium text-gray-500">Notes (optional)</label>
+                            <label className="block text-xs font-medium text-gray-500">Notes (optional, max 160 chars)</label>
                             <input
                               type="text"
                               value={notes}
-                              onChange={(e) => setNotes(e.target.value)}
+                              onChange={(e) => setNotes(e.target.value.slice(0, 160))}
+                              maxLength={160}
                               className="w-full rounded-md border border-gray-800 bg-black px-3 py-2 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
                               placeholder="Felt strong, smooth tempo"
                             />

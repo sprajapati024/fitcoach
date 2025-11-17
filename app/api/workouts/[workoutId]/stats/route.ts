@@ -116,10 +116,11 @@ export async function GET(
     // Build session summaries
     const sessions: SessionSummary[] = logs.slice(0, 5).map((log) => {
       const sets = setsByLog.get(log.id) || [];
-      const totalVolume = sets.reduce(
-        (sum, set) => sum + parseFloat(set.weightKg) * set.reps,
-        0
-      );
+      const totalVolume = sets.reduce((sum, set) => {
+        const weight = parseFloat(set.weightKg);
+        if (isNaN(weight)) return sum;
+        return sum + weight * set.reps;
+      }, 0);
       const uniqueExercises = new Set(sets.map((s) => s.exerciseId)).size;
 
       return {
@@ -172,18 +173,20 @@ export async function GET(
           const sets = sessionMap.get(log.id);
           if (!sets || sets.length === 0) return null;
 
-          const volume = sets.reduce(
-            (sum, set) => sum + parseFloat(set.weightKg) * set.reps,
-            0
-          );
-          const maxWeight = Math.max(...sets.map((s) => parseFloat(s.weightKg)));
-          const rpes = sets.filter((s) => s.rpe).map((s) => parseFloat(s.rpe!));
+          const volume = sets.reduce((sum, set) => {
+            const weight = parseFloat(set.weightKg);
+            if (isNaN(weight)) return sum;
+            return sum + weight * set.reps;
+          }, 0);
+          const weights = sets.map((s) => parseFloat(s.weightKg)).filter((w) => !isNaN(w));
+          const maxWeight = weights.length > 0 ? Math.max(...weights) : 0;
+          const rpes = sets.filter((s) => s.rpe).map((s) => parseFloat(s.rpe!)).filter((r) => !isNaN(r));
           const avgRpe = rpes.length > 0 ? rpes.reduce((a, b) => a + b, 0) / rpes.length : undefined;
 
           return {
             date: log.sessionDate,
             sets: sets.map((s) => ({
-              weight: parseFloat(s.weightKg),
+              weight: parseFloat(s.weightKg) || 0,
               reps: s.reps,
               rpe: s.rpe ? parseFloat(s.rpe) : undefined,
             })),
@@ -195,28 +198,37 @@ export async function GET(
         .filter((s) => s !== null) as ExerciseStats['sessions'];
 
       // Calculate PRs
-      const allWeights = exerciseSets.map((s) => ({
-        weight: parseFloat(s.weightKg),
-        reps: s.reps,
-        logId: s.logId,
-      }));
+      const allWeights = exerciseSets
+        .map((s) => ({
+          weight: parseFloat(s.weightKg),
+          reps: s.reps,
+          logId: s.logId,
+        }))
+        .filter((w) => !isNaN(w.weight));
       const allVolumes = Array.from(sessionMap.entries()).map(([logId, sets]) => ({
-        volume: sets.reduce((sum, s) => sum + parseFloat(s.weightKg) * s.reps, 0),
+        volume: sets.reduce((sum, s) => {
+          const weight = parseFloat(s.weightKg);
+          if (isNaN(weight)) return sum;
+          return sum + weight * s.reps;
+        }, 0),
         logId,
       }));
-      const allReps = exerciseSets.map((s) => ({
-        reps: s.reps,
-        weight: parseFloat(s.weightKg),
-        logId: s.logId,
-      }));
+      const allReps = exerciseSets
+        .map((s) => ({
+          reps: s.reps,
+          weight: parseFloat(s.weightKg) || 0,
+          logId: s.logId,
+        }));
 
-      const maxWeightEntry = allWeights.reduce((max, curr) =>
-        curr.weight > max.weight ? curr : max
-      );
-      const maxVolumeEntry = allVolumes.reduce((max, curr) =>
-        curr.volume > max.volume ? curr : max
-      );
-      const maxRepsEntry = allReps.reduce((max, curr) => (curr.reps > max.reps ? curr : max));
+      const maxWeightEntry = allWeights.length > 0
+        ? allWeights.reduce((max, curr) => (curr.weight > max.weight ? curr : max))
+        : { weight: 0, reps: 0, logId: logs[0]?.id || '' };
+      const maxVolumeEntry = allVolumes.length > 0
+        ? allVolumes.reduce((max, curr) => (curr.volume > max.volume ? curr : max))
+        : { volume: 0, logId: logs[0]?.id || '' };
+      const maxRepsEntry = allReps.length > 0
+        ? allReps.reduce((max, curr) => (curr.reps > max.reps ? curr : max))
+        : { reps: 0, weight: 0, logId: logs[0]?.id || '' };
 
       const getLogDate = (logId: string) =>
         logs.find((l) => l.id === logId)?.sessionDate || '';
