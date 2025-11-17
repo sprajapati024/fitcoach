@@ -1,5 +1,4 @@
 import { getCurrentUser } from "@/lib/auth";
-import { getTodayWorkout } from "@/app/actions/dashboard";
 import { getUserProfileAction } from "@/app/actions/profile";
 import { getTodayNutrition } from "@/app/actions/nutrition";
 import { getActivePlanAction } from "@/app/actions/plan";
@@ -13,12 +12,11 @@ export default async function DashboardPage() {
     redirect('/');
   }
 
-  const [workout, profile, nutrition, activePlan] = await Promise.all([
-    getTodayWorkout(),
+  const [profile, nutrition, activePlan] = await Promise.all([
     getUserProfileAction(),
     getTodayNutrition(),
     getActivePlanAction(),
   ]);
 
-  return <TodayView workout={workout} userId={user.id} nutrition={nutrition} hasActivePlan={!!activePlan} />;
+  return <TodayView userId={user.id} nutrition={nutrition} hasActivePlan={!!activePlan} />;
 }
