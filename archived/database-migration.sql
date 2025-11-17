@@ -107,9 +107,17 @@ COMMENT ON TABLE archive.coach_cache IS 'Archived workout-related coach cache en
 -- Move the entire substitution_events table to archive schema.
 -- This table tracks exercise substitutions made during workouts.
 
-ALTER TABLE substitution_events SET SCHEMA archive;
-
-COMMENT ON TABLE archive.substitution_events IS 'Archived exercise substitution events from workout sessions';
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'substitution_events') THEN
+        ALTER TABLE substitution_events SET SCHEMA archive;
+        COMMENT ON TABLE archive.substitution_events IS 'Archived exercise substitution events from workout sessions';
+        RAISE NOTICE 'Moved substitution_events to archive schema';
+    ELSE
+        RAISE NOTICE 'Table substitution_events does not exist, skipping';
+    END IF;
+END
+$$;
 
 -- ============================================================================
 -- STEP 4: Archive user_exercises
@@ -117,9 +125,17 @@ COMMENT ON TABLE archive.substitution_events IS 'Archived exercise substitution 
 -- Move the entire user_exercises table to archive schema.
 -- This table contains user-specific exercise definitions and customizations.
 
-ALTER TABLE user_exercises SET SCHEMA archive;
-
-COMMENT ON TABLE archive.user_exercises IS 'Archived user exercise library and custom exercise definitions';
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'user_exercises') THEN
+        ALTER TABLE user_exercises SET SCHEMA archive;
+        COMMENT ON TABLE archive.user_exercises IS 'Archived user exercise library and custom exercise definitions';
+        RAISE NOTICE 'Moved user_exercises to archive schema';
+    ELSE
+        RAISE NOTICE 'Table user_exercises does not exist, skipping';
+    END IF;
+END
+$$;
 
 -- ============================================================================
 -- STEP 5: Archive progression_targets
@@ -127,9 +143,17 @@ COMMENT ON TABLE archive.user_exercises IS 'Archived user exercise library and c
 -- Move the entire progression_targets table to archive schema.
 -- This table contains weekly progression targets for workout plans.
 
-ALTER TABLE progression_targets SET SCHEMA archive;
-
-COMMENT ON TABLE archive.progression_targets IS 'Archived weekly progression targets for workout plans';
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'progression_targets') THEN
+        ALTER TABLE progression_targets SET SCHEMA archive;
+        COMMENT ON TABLE archive.progression_targets IS 'Archived weekly progression targets for workout plans';
+        RAISE NOTICE 'Moved progression_targets to archive schema';
+    ELSE
+        RAISE NOTICE 'Table progression_targets does not exist, skipping';
+    END IF;
+END
+$$;
 
 -- ============================================================================
 -- STEP 6: Archive week_performance_summaries
@@ -137,9 +161,17 @@ COMMENT ON TABLE archive.progression_targets IS 'Archived weekly progression tar
 -- Move the entire week_performance_summaries table to archive schema.
 -- This table contains weekly performance metrics and completion statistics.
 
-ALTER TABLE week_performance_summaries SET SCHEMA archive;
-
-COMMENT ON TABLE archive.week_performance_summaries IS 'Archived weekly performance summaries and completion metrics';
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'week_performance_summaries') THEN
+        ALTER TABLE week_performance_summaries SET SCHEMA archive;
+        COMMENT ON TABLE archive.week_performance_summaries IS 'Archived weekly performance summaries and completion metrics';
+        RAISE NOTICE 'Moved week_performance_summaries to archive schema';
+    ELSE
+        RAISE NOTICE 'Table week_performance_summaries does not exist, skipping';
+    END IF;
+END
+$$;
 
 -- ============================================================================
 -- STEP 7: Archive periodization_frameworks
@@ -147,9 +179,17 @@ COMMENT ON TABLE archive.week_performance_summaries IS 'Archived weekly performa
 -- Move the entire periodization_frameworks table to archive schema.
 -- This table contains periodization strategies for workout plans.
 
-ALTER TABLE periodization_frameworks SET SCHEMA archive;
-
-COMMENT ON TABLE archive.periodization_frameworks IS 'Archived periodization frameworks defining workout plan progression strategies';
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'periodization_frameworks') THEN
+        ALTER TABLE periodization_frameworks SET SCHEMA archive;
+        COMMENT ON TABLE archive.periodization_frameworks IS 'Archived periodization frameworks defining workout plan progression strategies';
+        RAISE NOTICE 'Moved periodization_frameworks to archive schema';
+    ELSE
+        RAISE NOTICE 'Table periodization_frameworks does not exist, skipping';
+    END IF;
+END
+$$;
 
 -- ============================================================================
 -- STEP 8: Archive workout_log_sets
@@ -157,9 +197,17 @@ COMMENT ON TABLE archive.periodization_frameworks IS 'Archived periodization fra
 -- Move the entire workout_log_sets table to archive schema.
 -- This table contains individual set data (reps, weight, RPE) for logged workouts.
 
-ALTER TABLE workout_log_sets SET SCHEMA archive;
-
-COMMENT ON TABLE archive.workout_log_sets IS 'Archived individual set data from workout logs';
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'workout_log_sets') THEN
+        ALTER TABLE workout_log_sets SET SCHEMA archive;
+        COMMENT ON TABLE archive.workout_log_sets IS 'Archived individual set data from workout logs';
+        RAISE NOTICE 'Moved workout_log_sets to archive schema';
+    ELSE
+        RAISE NOTICE 'Table workout_log_sets does not exist, skipping';
+    END IF;
+END
+$$;
 
 -- ============================================================================
 -- STEP 9: Archive workout_logs
@@ -167,9 +215,17 @@ COMMENT ON TABLE archive.workout_log_sets IS 'Archived individual set data from 
 -- Move the entire workout_logs table to archive schema.
 -- This table contains workout session logs and overall session metrics.
 
-ALTER TABLE workout_logs SET SCHEMA archive;
-
-COMMENT ON TABLE archive.workout_logs IS 'Archived workout session logs and performance data';
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'workout_logs') THEN
+        ALTER TABLE workout_logs SET SCHEMA archive;
+        COMMENT ON TABLE archive.workout_logs IS 'Archived workout session logs and performance data';
+        RAISE NOTICE 'Moved workout_logs to archive schema';
+    ELSE
+        RAISE NOTICE 'Table workout_logs does not exist, skipping';
+    END IF;
+END
+$$;
 
 -- ============================================================================
 -- STEP 10: Archive workouts
@@ -177,9 +233,17 @@ COMMENT ON TABLE archive.workout_logs IS 'Archived workout session logs and perf
 -- Move the entire workouts table to archive schema.
 -- This table contains planned workout sessions with exercises and programming.
 
-ALTER TABLE workouts SET SCHEMA archive;
-
-COMMENT ON TABLE archive.workouts IS 'Archived planned workout sessions';
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'workouts') THEN
+        ALTER TABLE workouts SET SCHEMA archive;
+        COMMENT ON TABLE archive.workouts IS 'Archived planned workout sessions';
+        RAISE NOTICE 'Moved workouts to archive schema';
+    ELSE
+        RAISE NOTICE 'Table workouts does not exist, skipping';
+    END IF;
+END
+$$;
 
 -- ============================================================================
 -- STEP 11: Archive plans
@@ -188,9 +252,17 @@ COMMENT ON TABLE archive.workouts IS 'Archived planned workout sessions';
 -- This is the root table for workout plans and must be moved last
 -- to preserve foreign key relationships.
 
-ALTER TABLE plans SET SCHEMA archive;
-
-COMMENT ON TABLE archive.plans IS 'Archived workout plans (root table for all workout-related data)';
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'plans') THEN
+        ALTER TABLE plans SET SCHEMA archive;
+        COMMENT ON TABLE archive.plans IS 'Archived workout plans (root table for all workout-related data)';
+        RAISE NOTICE 'Moved plans to archive schema';
+    ELSE
+        RAISE NOTICE 'Table plans does not exist, skipping';
+    END IF;
+END
+$$;
 
 -- ============================================================================
 -- STEP 12: Update Foreign Key Reference in coach_cache
@@ -198,14 +270,22 @@ COMMENT ON TABLE archive.plans IS 'Archived workout plans (root table for all wo
 -- Now that plans is in the archive schema, update the foreign key
 -- constraint in archive.coach_cache to reference archive.plans
 
-ALTER TABLE archive.coach_cache
-    DROP CONSTRAINT IF EXISTS coach_cache_plan_id_fkey;
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'archive' AND table_name = 'coach_cache') THEN
+        ALTER TABLE archive.coach_cache DROP CONSTRAINT IF EXISTS coach_cache_plan_id_fkey;
 
-ALTER TABLE archive.coach_cache
-    ADD CONSTRAINT coach_cache_plan_id_fkey
-    FOREIGN KEY (plan_id)
-    REFERENCES archive.plans(id)
-    ON DELETE CASCADE;
+        IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'archive' AND table_name = 'plans') THEN
+            ALTER TABLE archive.coach_cache
+                ADD CONSTRAINT coach_cache_plan_id_fkey
+                FOREIGN KEY (plan_id)
+                REFERENCES archive.plans(id)
+                ON DELETE CASCADE;
+            RAISE NOTICE 'Updated foreign key constraint in archive.coach_cache';
+        END IF;
+    END IF;
+END
+$$;
 
 -- ============================================================================
 -- STEP 13: Update Enum Types
