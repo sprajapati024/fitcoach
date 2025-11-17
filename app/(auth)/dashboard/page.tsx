@@ -16,5 +16,5 @@ export default async function DashboardPage() {
     getTodayNutrition(),
   ]);
 
-  return <TodayView userId={user.id} nutrition={nutrition} hasActivePlan={false} />;
+  return <TodayView userId={user.id} nutrition={nutrition} />;
 }

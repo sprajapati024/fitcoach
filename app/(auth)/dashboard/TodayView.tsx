@@ -1,14 +1,12 @@
 'use client';
 
 import { CompactNutrition } from './CompactNutrition';
-import { QuickActions } from './QuickActions';
-import { CompactCoachBrief } from './CompactCoachBrief';
+import { WeeklyReviewBanner } from '@/components/nutrition/WeeklyReviewBanner';
 import { motion } from 'framer-motion';
 
 interface TodayViewProps {
   userId: string;
   nutrition: Awaited<ReturnType<typeof import('@/app/actions/nutrition').getTodayNutrition>>;
-  hasActivePlan: boolean;
 }
 
 function getGreeting(): string {
@@ -28,7 +26,7 @@ function getFormattedDate(): string {
   return today.toLocaleDateString('en-US', options);
 }
 
-export function TodayView({ userId, nutrition, hasActivePlan }: TodayViewProps) {
+export function TodayView({ userId, nutrition }: TodayViewProps) {
   const greeting = getGreeting();
   const date = getFormattedDate();
 
@@ -47,17 +45,17 @@ export function TodayView({ userId, nutrition, hasActivePlan }: TodayViewProps) 
           <p className="text-sm text-gray-400 mt-0.5">{date}</p>
         </motion.div>
 
+        {/* Weekly Review Banner - Shows on Monday/Tuesday */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
+          <WeeklyReviewBanner userId={userId} />
+        </motion.div>
+
         {/* Daily Macro Progress - Hero Position */}
         <CompactNutrition nutrition={nutrition} />
-
-        {/* AI Nutrition Coach Brief */}
-        <CompactCoachBrief userId={userId} hasActivePlan={hasActivePlan} />
-
-        {/* Quick Actions */}
-        <div>
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">Quick Actions</h2>
-          <QuickActions />
-        </div>
       </main>
     </div>
   );
