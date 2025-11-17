@@ -109,8 +109,8 @@ export function CoachForm({ profile }: CoachFormProps) {
                 }`}
               >
                 <div>
-                  <div className="font-semibold">Analyst</div>
-                  <div className="text-xs text-gray-500 mt-0.5">Data-driven</div>
+                  <div className="font-semibold">Results-Driven</div>
+                  <div className="text-xs text-gray-500 mt-0.5">Data-focused</div>
                 </div>
               </button>
               <button
@@ -123,8 +123,8 @@ export function CoachForm({ profile }: CoachFormProps) {
                 }`}
               >
                 <div>
-                  <div className="font-semibold">Flirty</div>
-                  <div className="text-xs text-gray-500 mt-0.5">Fun & playful</div>
+                  <div className="font-semibold">Supportive Friend</div>
+                  <div className="text-xs text-gray-500 mt-0.5">Encouraging</div>
                 </div>
               </button>
             </div>
@@ -146,8 +146,8 @@ export function CoachForm({ profile }: CoachFormProps) {
                 className="h-5 w-5 rounded border-gray-700 bg-gray-800 text-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
               />
               <div className="flex-1">
-                <span className="block text-sm font-medium text-white">Daily Briefing</span>
-                <span className="text-xs text-gray-400">Morning motivational message</span>
+                <span className="block text-sm font-medium text-white">Daily Nutrition Brief</span>
+                <span className="text-xs text-gray-400">Daily macro insights and guidance</span>
               </div>
             </label>
 
@@ -159,8 +159,8 @@ export function CoachForm({ profile }: CoachFormProps) {
                 className="h-5 w-5 rounded border-gray-700 bg-gray-800 text-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
               />
               <div className="flex-1">
-                <span className="block text-sm font-medium text-white">Post-Workout Debrief</span>
-                <span className="text-xs text-gray-400">Analysis after each workout</span>
+                <span className="block text-sm font-medium text-white">End-of-Day Summary</span>
+                <span className="text-xs text-gray-400">Daily nutrition wrap-up and progress</span>
               </div>
             </label>
 
@@ -172,8 +172,8 @@ export function CoachForm({ profile }: CoachFormProps) {
                 className="h-5 w-5 rounded border-gray-700 bg-gray-800 text-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
               />
               <div className="flex-1">
-                <span className="block text-sm font-medium text-white">Weekly Review</span>
-                <span className="text-xs text-gray-400">Progress summary every week</span>
+                <span className="block text-sm font-medium text-white">Weekly Nutrition Review</span>
+                <span className="text-xs text-gray-400">Weekly trends and macro consistency</span>
               </div>
             </label>
           </div>
@@ -191,7 +191,7 @@ export function CoachForm({ profile }: CoachFormProps) {
               id="customInstructions"
               value={formData.customInstructions}
               onChange={(e) => setFormData({ ...formData, customInstructions: e.target.value })}
-              placeholder="E.g., Focus on posterior chain, avoid overhead movements, prefer dumbbell variations, motivate me with tough love..."
+              placeholder="E.g., I'm vegan, allergic to nuts, prefer smaller frequent meals, remind me to prep on Sundays, focus on high-protein snacks..."
               className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-3.5 text-base text-white placeholder:text-gray-500 transition-all focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 min-h-[120px]"
               rows={5}
               maxLength={maxChars + 50}
@@ -202,7 +202,7 @@ export function CoachForm({ profile }: CoachFormProps) {
               </span>
             </div>
             <p className="text-xs text-gray-400">
-              Be specific about preferences, limitations, or focus areas for your AI coach
+              Share dietary restrictions, preferences, or nutrition goals for personalized coaching
             </p>
           </div>
         </div>

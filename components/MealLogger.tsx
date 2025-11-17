@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { X, Sparkles, Loader2, Mic, Square, Coffee, Sun, Moon, Apple } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { X, Sparkles, Loader2, Mic, Square, Coffee, Sun, Moon, Apple, CheckCircle, AlertTriangle } from "lucide-react";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { useLogMeal } from "@/lib/query/hooks";
+import { useToast } from "@/components/Toast";
 
 interface MealLoggerProps {
   onClose: () => void;
@@ -54,6 +55,133 @@ export function MealLogger({ onClose, onMealLogged, initialDate, initialData }: 
 
   const today = initialDate || new Date().toISOString().split("T")[0];
   const now = new Date().toISOString();
+
+  // Toast notifications
+  const toast = useToast();
+
+  // EOD Protein Check state
+  const [showEODCheck, setShowEODCheck] = useState(false);
+  const [eodCheckData, setEODCheckData] = useState<{
+    currentProtein: number;
+    targetProtein: number;
+    percentage: number;
+  } | null>(null);
+
+  // Helper: Check for whole food keywords
+  const checkWholeFoods = (desc: string): boolean => {
+    const wholeFoodKeywords = [
+      "chicken", "salmon", "tuna", "eggs", "turkey", "beef", "fish",
+      "broccoli", "spinach", "kale", "quinoa", "oats", "sweet potato",
+      "brown rice", "avocado", "nuts", "almonds", "greek yogurt", "cottage cheese",
+      "lentils", "beans", "vegetables", "fruit", "berries"
+    ];
+    const lowerDesc = desc.toLowerCase();
+    return wholeFoodKeywords.some(keyword => lowerDesc.includes(keyword));
+  };
+
+  // Helper: Calculate meal badge based on nutrition
+  const calculateMealBadge = () => {
+    const proteinVal = parseFloat(protein) || 0;
+    const carbsVal = parseFloat(carbs) || 0;
+    const fatVal = parseFloat(fat) || 0;
+    const caloriesVal = parseFloat(calories) || 0;
+
+    // Priority 1: High-quality meal (whole foods + good protein)
+    if (checkWholeFoods(description) && proteinVal >= 20) {
+      return { emoji: "🔥", message: "High-quality meal!" };
+    }
+
+    // Priority 2: Great protein
+    if (proteinVal >= 25) {
+      return { emoji: "✅", message: "Great protein!" };
+    }
+
+    // Priority 3: Balanced macros (if we have all macro data)
+    if (proteinVal > 0 && carbsVal > 0 && fatVal > 0 && caloriesVal > 0) {
+      const proteinCal = proteinVal * 4;
+      const carbsCal = carbsVal * 4;
+      const fatCal = fatVal * 9;
+      const totalMacroCal = proteinCal + carbsCal + fatCal;
+
+      if (totalMacroCal > 0) {
+        const proteinPercent = proteinCal / totalMacroCal;
+        const carbsPercent = carbsCal / totalMacroCal;
+        const fatPercent = fatCal / totalMacroCal;
+
+        // Balanced: protein 20-40%, carbs 30-50%, fat 20-35%
+        if (proteinPercent >= 0.20 && proteinPercent <= 0.40 &&
+            carbsPercent >= 0.30 && carbsPercent <= 0.50 &&
+            fatPercent >= 0.20 && fatPercent <= 0.35) {
+          return { emoji: "✅", message: "Balanced macros!" };
+        }
+      }
+    }
+
+    // Priority 4: Low protein warning
+    if (proteinVal > 0 && proteinVal < 15) {
+      return { emoji: "⚠️", message: "Low protein - consider adding more next time" };
+    }
+
+    // Default: success
+    return { emoji: "✅", message: "Meal logged successfully!" };
+  };
+
+  // Helper: Check if EOD protein check should be shown
+  const shouldShowEODCheck = (): boolean => {
+    const currentHour = new Date().getHours();
+    if (currentHour < 18) return false;
+
+    // Check localStorage to avoid showing multiple times per day
+    const lastShown = localStorage.getItem("eod-protein-check-date");
+    const todayStr = new Date().toISOString().split("T")[0];
+
+    if (lastShown === todayStr) {
+      return false; // Already shown today
+    }
+
+    return true;
+  };
+
+  // Helper: Fetch and check EOD protein status
+  const checkEODProtein = async () => {
+    try {
+      // Fetch nutrition goals
+      const goalsResponse = await fetch("/api/nutrition/goals");
+      if (!goalsResponse.ok) return;
+
+      const goalsData = await goalsResponse.json();
+      if (!goalsData.goals) return;
+
+      const targetProtein = parseFloat(goalsData.goals.targetProteinGrams || "0");
+      if (targetProtein === 0) return;
+
+      // Fetch today's nutrition summary
+      const summaryResponse = await fetch(`/api/nutrition/summary?date=${today}`);
+      if (!summaryResponse.ok) return;
+
+      const summaryData = await summaryResponse.json();
+      const currentProtein = parseFloat(summaryData.summary?.totalProtein || "0");
+
+      // Calculate percentage
+      const percentage = (currentProtein / targetProtein) * 100;
+
+      // If below 80%, show the check
+      if (percentage < 80) {
+        setEODCheckData({
+          currentProtein: Math.round(currentProtein),
+          targetProtein: Math.round(targetProtein),
+          percentage: Math.round(percentage),
+        });
+        setShowEODCheck(true);
+
+        // Mark as shown today
+        localStorage.setItem("eod-protein-check-date", new Date().toISOString().split("T")[0]);
+      }
+    } catch (err) {
+      console.error("Error checking EOD protein:", err);
+      // Silently fail - don't disrupt the user experience
+    }
+  };
 
   const handleAnalyze = async () => {
     if (!description.trim()) {
@@ -124,7 +252,23 @@ export function MealLogger({ onClose, onMealLogged, initialDate, initialData }: 
       });
 
       onMealLogged();
-      onClose();
+
+      // Part 1: Show micro-feedback badge
+      const badge = calculateMealBadge();
+      toast.success(badge.message, `${badge.emoji} Keep up the great work!`);
+
+      // Part 2: Check EOD protein (if after 6pm and not shown today)
+      if (shouldShowEODCheck()) {
+        // Small delay to let the toast show first
+        setTimeout(() => {
+          checkEODProtein();
+        }, 500);
+      }
+
+      // Close modal after a brief delay to allow toast to be visible
+      setTimeout(() => {
+        onClose();
+      }, 300);
     } catch (err) {
       console.error("Error logging meal:", err);
       setError("Failed to log meal. Please try again.");
@@ -520,6 +664,73 @@ export function MealLogger({ onClose, onMealLogged, initialDate, initialData }: 
           </div>
         </div>
       </div>
+
+      {/* EOD Protein Check Overlay */}
+      {showEODCheck && eodCheckData && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-[60]">
+          <div className="bg-gray-900 border border-amber-500/30 rounded-xl max-w-md w-full p-6 shadow-2xl">
+            {/* Header */}
+            <div className="flex items-start gap-3 mb-4">
+              <div className="p-2 bg-amber-500/10 rounded-lg">
+                <AlertTriangle className="h-6 w-6 text-amber-500" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-white">Protein Check</h3>
+                <p className="text-sm text-gray-400 mt-0.5">
+                  You're at {eodCheckData.currentProtein}g/{eodCheckData.targetProtein}g protein ({eodCheckData.percentage}%)
+                </p>
+              </div>
+              <button
+                onClick={() => setShowEODCheck(false)}
+                className="p-1 hover:bg-surface-1 rounded-lg transition-colors"
+              >
+                <X className="h-5 w-5 text-gray-400" />
+              </button>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="mb-5">
+              <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500"
+                  style={{ width: `${Math.min(eodCheckData.percentage, 100)}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Suggestions */}
+            <div className="space-y-3 mb-5">
+              <p className="text-sm font-medium text-gray-300">Quick high-protein options:</p>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2 p-2 bg-surface-1 rounded-lg">
+                  <CheckCircle className="h-4 w-4 text-cyan-400 flex-shrink-0" />
+                  <span className="text-gray-300">Greek yogurt (20g)</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 bg-surface-1 rounded-lg">
+                  <CheckCircle className="h-4 w-4 text-cyan-400 flex-shrink-0" />
+                  <span className="text-gray-300">Protein shake (25g)</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 bg-surface-1 rounded-lg">
+                  <CheckCircle className="h-4 w-4 text-cyan-400 flex-shrink-0" />
+                  <span className="text-gray-300">Grilled chicken (30g)</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 bg-surface-1 rounded-lg">
+                  <CheckCircle className="h-4 w-4 text-cyan-400 flex-shrink-0" />
+                  <span className="text-gray-300">Cottage cheese (15g)</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Button */}
+            <button
+              onClick={() => setShowEODCheck(false)}
+              className="w-full px-4 py-3 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
+            >
+              Got it, thanks!
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

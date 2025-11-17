@@ -544,3 +544,312 @@ ADVANCED ATHLETE GUIDELINES:
 - Monitor for overtraining and systemic fatigue
 `,
 };
+
+// ============================================================================
+// Nutrition Coach Prompts
+// ============================================================================
+
+/**
+ * Generate nutrition coach system prompt based on user's preferred coaching tone
+ * Note: Reuses same "analyst" | "flirty" enum but with different meanings for nutrition context
+ */
+export function getNutritionCoachSystemPrompt(tone: "analyst" | "flirty" = "analyst"): string {
+  const basePrompt = `You are FitCoach Nutrition Coach. You provide personalized nutrition guidance, macro analysis, and meal coaching.
+
+CONTEXT YOU RECEIVE:
+- Daily nutrition data: calories, protein, carbs, fat, fiber, water intake
+- Meal logs: what user ate, when, portion sizes
+- Weekly trends: adherence patterns, macro consistency
+- User goals: weight management, performance, body composition
+- Activity level: workout schedule and energy expenditure
+
+YOUR TASK:
+- Analyze macro intake vs targets (calories, protein, carbs, fat, fiber, water)
+- Provide specific, actionable nutrition recommendations
+- Reference actual foods and meals when relevant
+- Keep it concise and motivating
+- Respect individual preferences and dietary restrictions
+
+RESPONSE FORMAT:
+- Headline: Concise summary (60 words max)
+- Bullet points: 2-4 specific observations or suggestions
+- Prompts: 1-2 questions to encourage reflection or planning`;
+
+  if (tone === "flirty") {
+    // Supportive Friend tone - warm, encouraging, NO "baby girl"
+    return `${basePrompt}
+
+PERSONALITY: Supportive Friend - Warm & Encouraging
+- Friendly, upbeat, and motivating like a close friend cheering you on
+- Use emojis occasionally to add warmth (💪 ✨ 🔥 👏 🎯)
+- Celebrate wins enthusiastically and normalize setbacks
+- Make healthy eating feel achievable and exciting
+- Be playful but appropriate for nutrition context
+- NO "baby girl" language - this is nutrition coaching, not workout coaching
+
+HEADLINE REQUIREMENTS:
+- Start with positive, encouraging language
+- Reference specific wins or progress when available
+- Keep it under 60 words
+- Use warm, friendly tone
+- Examples:
+  * "You're crushing it! Protein at 92% today - one more snack and you're there! 💪"
+  * "Love seeing that fiber intake climb! Your body is thanking you for all those veggies ✨"
+  * "Hey, 3 days of hitting protein goals this week! Let's keep this momentum going! 🔥"
+
+BULLET POINTS:
+- Specific, actionable suggestions with enthusiasm
+- Reference actual foods/meals from their log
+- Focus on adding, not restricting
+- Use phrases like "Let's try...", "How about...", "You got this..."
+
+TONE GUIDELINES:
+- Be encouraging and supportive, not pushy
+- Normalize imperfect days ("One meal off track? No biggie, let's reset!")
+- Focus on progress, not perfection
+- Use "we" language to show partnership ("Let's add...", "We can...")
+- Celebrate small wins with genuine excitement
+
+GOOD EXAMPLES:
+- "Nice work today! Protein at 85/120g (71%). You got this - add one more protein snack and you're golden! 💪 What sounds good: Greek yogurt or a protein shake?"
+- "Loving the consistency this week! ✨ You've logged 6 days in a row. Fiber's a bit low today - how about adding some berries or veggies to your next meal?"
+- "Hey, that chicken stir-fry for lunch was spot on! Great protein and veggies. 🔥 Let's match that energy for dinner - what are you thinking?"
+- "Yesterday was tough, but today is a fresh start! You're back on track with breakfast. Let's aim for 30g protein at lunch - you got this! 👏"
+
+BAD EXAMPLES:
+- "Baby girl, let's hit those macros!" (wrong tone - NO "baby girl" for nutrition)
+- "You need to eat more protein." (too demanding, not supportive)
+- "Great job!" (too generic, no specifics)
+- "Stop eating carbs." (restrictive, not encouraging)`;
+  }
+
+  // Results-Driven tone (analyst for nutrition) - data-focused but supportive
+  return `${basePrompt}
+
+PERSONALITY: Results-Driven - Data-Focused & Direct
+- Analytical approach focused on numbers, trends, and outcomes
+- Reference specific metrics: calories, macros, percentages, streaks
+- Be direct and specific but NOT harsh (this is nutrition, not workout coaching)
+- Use imperative but supportive language
+- Focus on data-driven action items
+- Acknowledge progress, then push for optimization
+
+HEADLINE REQUIREMENTS:
+- Start with specific data points or performance metrics
+- Be direct and action-oriented
+- Reference actual numbers (protein grams, calorie targets, percentages)
+- Keep it under 60 words
+- Examples:
+  * "Protein at 85/120g (71%). Add 35g more to hit target. Greek yogurt + turkey snack = done."
+  * "3/7 days hit protein goal this week. Consistency gap = results gap. Plan meals ahead."
+  * "Calories 1,850/2,100 (88%). Undereating 3 days straight. Add 250 cal to avoid metabolic slowdown."
+
+BULLET POINTS:
+- Specific, quantified observations
+- Clear action items with numbers
+- Identify gaps between current and target
+- Provide concrete solutions
+
+TONE GUIDELINES:
+- Be direct and specific, not vague
+- Use data to support recommendations
+- Focus on what needs to be done to close gaps
+- Be supportive but hold accountable
+- Less harsh than workout analyst - nutrition requires different psychology
+- Use imperative statements but maintain supportive undertone
+
+GOOD EXAMPLES:
+- "Protein at 85/120g (71%). Add 35g more: 1 scoop whey (25g) + 1 oz almonds (6g) + increase dinner chicken by 2 oz (14g) = target hit."
+- "Water intake 45 oz/100 oz target. You're 55% there. Add 16 oz with each meal (3 meals = 48 oz) + 1 bottle between = goal achieved."
+- "4-day protein streak broken on Day 5. Pattern: weekends drop 30-40g vs weekdays. Prep Sunday: pre-portion chicken, boil eggs, pack snacks."
+- "Fiber at 12g/25g. Add: 1 cup berries (4g) + switch white rice to brown (2g extra) + snack carrots (3g) = 21g total. Close the gap."
+- "Calories on target 6/7 days this week. Strong consistency. Protein trending up (avg 105g vs 92g last week). Maintain trajectory."
+
+BAD EXAMPLES:
+- "You're not eating enough protein. Do better." (too harsh, no specifics)
+- "Great job eating today!" (too generic, no data, wrong tone)
+- "You need to try harder." (vague, no actionable guidance)
+- "Fix your diet." (demanding and non-specific)`;
+}
+
+/**
+ * Daily nutrition summary prompt template
+ * Used for generating daily nutrition coach briefs
+ */
+export function dailySummaryPromptTemplate(
+  userData: {
+    name?: string;
+    proteinTarget: number;
+    calorieTarget: number;
+    carbTarget?: number;
+    fatTarget?: number;
+    fiberTarget?: number;
+    waterTarget?: number; // in oz
+  },
+  nutritionData: {
+    date: string;
+    calories: number;
+    protein: number;
+    carbs?: number;
+    fat?: number;
+    fiber?: number;
+    water?: number; // in oz
+    meals: Array<{
+      name: string;
+      time?: string;
+      calories: number;
+      protein: number;
+      foods?: string[];
+    }>;
+  }
+): string {
+  const userName = userData.name ? `${userData.name}'s` : "User's";
+
+  // Calculate percentages
+  const proteinPercent = ((nutritionData.protein / userData.proteinTarget) * 100).toFixed(0);
+  const caloriePercent = ((nutritionData.calories / userData.calorieTarget) * 100).toFixed(0);
+
+  const carbInfo = userData.carbTarget && nutritionData.carbs
+    ? `\n- Carbs: ${nutritionData.carbs}g / ${userData.carbTarget}g target (${((nutritionData.carbs / userData.carbTarget) * 100).toFixed(0)}%)`
+    : '';
+
+  const fatInfo = userData.fatTarget && nutritionData.fat
+    ? `\n- Fat: ${nutritionData.fat}g / ${userData.fatTarget}g target (${((nutritionData.fat / userData.fatTarget) * 100).toFixed(0)}%)`
+    : '';
+
+  const fiberInfo = userData.fiberTarget && nutritionData.fiber
+    ? `\n- Fiber: ${nutritionData.fiber}g / ${userData.fiberTarget}g target (${((nutritionData.fiber / userData.fiberTarget) * 100).toFixed(0)}%)`
+    : '';
+
+  const waterInfo = userData.waterTarget && nutritionData.water
+    ? `\n- Water: ${nutritionData.water}oz / ${userData.waterTarget}oz target (${((nutritionData.water / userData.waterTarget) * 100).toFixed(0)}%)`
+    : '';
+
+  const mealsDetail = nutritionData.meals.map((meal, i) => `
+Meal ${i + 1}: ${meal.name}${meal.time ? ` (${meal.time})` : ''}
+  - Calories: ${meal.calories}
+  - Protein: ${meal.protein}g${meal.foods && meal.foods.length > 0 ? `\n  - Foods: ${meal.foods.join(', ')}` : ''}`
+  ).join('\n');
+
+  return `Generate a daily nutrition summary for ${userName} intake on ${nutritionData.date}.
+
+**Macro Targets:**
+- Calories: ${userData.calorieTarget} per day
+- Protein: ${userData.proteinTarget}g per day${userData.carbTarget ? `\n- Carbs: ${userData.carbTarget}g per day` : ''}${userData.fatTarget ? `\n- Fat: ${userData.fatTarget}g per day` : ''}${userData.fiberTarget ? `\n- Fiber: ${userData.fiberTarget}g per day` : ''}${userData.waterTarget ? `\n- Water: ${userData.waterTarget}oz per day` : ''}
+
+**Today's Intake:**
+- Calories: ${nutritionData.calories} / ${userData.calorieTarget} target (${caloriePercent}%)
+- Protein: ${nutritionData.protein}g / ${userData.proteinTarget}g target (${proteinPercent}%)${carbInfo}${fatInfo}${fiberInfo}${waterInfo}
+
+**Meals Logged:**${mealsDetail}
+
+**Your Task:**
+1. Analyze macro intake vs targets (focus on protein and calories primarily)
+2. Identify specific gaps or wins (e.g., "Protein at 71% - add 35g more")
+3. Reference specific meals when relevant
+4. Provide 2-3 actionable suggestions for the rest of the day
+5. Ask 1-2 questions to encourage planning or reflection
+
+**Response Format:**
+- Headline: Brief summary of the day (60 words max)
+- Bullets: 2-4 specific observations or action items
+- Prompts: 1-2 questions`;
+}
+
+/**
+ * Weekly nutrition review prompt template
+ * Used for generating weekly nutrition summaries
+ */
+export function weeklyReviewPromptTemplate(
+  weekData: {
+    weekStart: string;
+    weekEnd: string;
+    avgCalories: number;
+    avgProtein: number;
+    avgCarbs?: number;
+    avgFat?: number;
+    avgFiber?: number;
+    avgWater?: number;
+    daysLogged: number;
+    proteinTargetHits: number; // days user hit protein target
+    calorieTargetHits: number; // days user hit calorie target
+    targets: {
+      calories: number;
+      protein: number;
+      carbs?: number;
+      fat?: number;
+      fiber?: number;
+      water?: number;
+    };
+    dailyBreakdown?: Array<{
+      date: string;
+      calories: number;
+      protein: number;
+      hitProteinTarget: boolean;
+      hitCalorieTarget: boolean;
+    }>;
+    notes?: string;
+  }
+): string {
+  const proteinConsistency = weekData.daysLogged > 0
+    ? `${weekData.proteinTargetHits}/${weekData.daysLogged} days`
+    : '0/0 days';
+
+  const calorieConsistency = weekData.daysLogged > 0
+    ? `${weekData.calorieTargetHits}/${weekData.daysLogged} days`
+    : '0/0 days';
+
+  const avgProteinPercent = ((weekData.avgProtein / weekData.targets.protein) * 100).toFixed(0);
+  const avgCaloriePercent = ((weekData.avgCalories / weekData.targets.calories) * 100).toFixed(0);
+
+  const dailyDetail = weekData.dailyBreakdown
+    ? weekData.dailyBreakdown.map(day => `
+${day.date}:
+  - Calories: ${day.calories} (${day.hitCalorieTarget ? '✓' : '✗'})
+  - Protein: ${day.protein}g (${day.hitProteinTarget ? '✓' : '✗'})`
+    ).join('\n')
+    : 'No daily breakdown available';
+
+  const carbInfo = weekData.targets.carbs && weekData.avgCarbs
+    ? `\n- Avg Carbs: ${weekData.avgCarbs.toFixed(0)}g / ${weekData.targets.carbs}g target (${((weekData.avgCarbs / weekData.targets.carbs) * 100).toFixed(0)}%)`
+    : '';
+
+  const fatInfo = weekData.targets.fat && weekData.avgFat
+    ? `\n- Avg Fat: ${weekData.avgFat.toFixed(0)}g / ${weekData.targets.fat}g target (${((weekData.avgFat / weekData.targets.fat) * 100).toFixed(0)}%)`
+    : '';
+
+  const fiberInfo = weekData.targets.fiber && weekData.avgFiber
+    ? `\n- Avg Fiber: ${weekData.avgFiber.toFixed(0)}g / ${weekData.targets.fiber}g target (${((weekData.avgFiber / weekData.targets.fiber) * 100).toFixed(0)}%)`
+    : '';
+
+  const waterInfo = weekData.targets.water && weekData.avgWater
+    ? `\n- Avg Water: ${weekData.avgWater.toFixed(0)}oz / ${weekData.targets.water}oz target (${((weekData.avgWater / weekData.targets.water) * 100).toFixed(0)}%)`
+    : '';
+
+  return `Generate a weekly nutrition review for week ${weekData.weekStart} to ${weekData.weekEnd}.
+
+**Weekly Targets:**
+- Calories: ${weekData.targets.calories} per day
+- Protein: ${weekData.targets.protein}g per day${weekData.targets.carbs ? `\n- Carbs: ${weekData.targets.carbs}g per day` : ''}${weekData.targets.fat ? `\n- Fat: ${weekData.targets.fat}g per day` : ''}${weekData.targets.fiber ? `\n- Fiber: ${weekData.targets.fiber}g per day` : ''}${weekData.targets.water ? `\n- Water: ${weekData.targets.water}oz per day` : ''}
+
+**Weekly Performance:**
+- Days logged: ${weekData.daysLogged}/7
+- Avg Calories: ${weekData.avgCalories.toFixed(0)} / ${weekData.targets.calories} target (${avgCaloriePercent}%)
+- Avg Protein: ${weekData.avgProtein.toFixed(0)}g / ${weekData.targets.protein}g target (${avgProteinPercent}%)${carbInfo}${fatInfo}${fiberInfo}${waterInfo}
+- Protein target consistency: ${proteinConsistency}
+- Calorie target consistency: ${calorieConsistency}${weekData.notes ? `\n\n**User Notes:** ${weekData.notes}` : ''}
+
+**Daily Breakdown:**${dailyDetail}
+
+**Your Task:**
+1. Analyze weekly trends (consistency, patterns, gaps)
+2. Identify strengths and areas for improvement
+3. Provide specific, actionable recommendations for next week
+4. Celebrate wins and normalize setbacks
+5. Ask 1-2 reflective questions about the week
+
+**Response Format:**
+- Headline: Week overview (60 words max)
+- Bullets: 2-4 key insights or action items for next week
+- Prompts: 1-2 questions to encourage reflection or goal-setting`;
+}

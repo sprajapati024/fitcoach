@@ -16,7 +16,6 @@ const PAGE_NAMES: Record<string, string> = {
   "/settings/profile": "Profile & Account",
   "/settings/training": "Training Setup",
   "/settings/coach": "AI Coach",
-  "/settings/plans": "My Plans",
   "/settings/app": "App Settings",
   "/nutrition": "Track",
 };
