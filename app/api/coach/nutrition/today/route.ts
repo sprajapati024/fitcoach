@@ -180,7 +180,7 @@ export async function GET(request: Request) {
       fiber: totalFiber,
       water: totalWaterOz,
       meals: dayMeals.map((meal) => ({
-        name: meal.description,
+        name: meal.description || "Meal",
         time: meal.mealTime ? new Date(meal.mealTime).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : undefined,
         calories: parseInt(meal.calories?.toString() || "0") || 0,
         protein: parseFloat(meal.proteinGrams?.toString() || "0") || 0,
