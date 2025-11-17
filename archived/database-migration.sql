@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS archive.coach_cache (
     id uuid PRIMARY KEY,
     user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     plan_id uuid, -- Will be updated to reference archive.plans after plans is moved
-    context text NOT NULL,
+    context coach_context NOT NULL,  -- Using ENUM type to match public.coach_cache
     cache_key text NOT NULL,
     target_date date,
     payload jsonb NOT NULL,
@@ -265,14 +265,14 @@ WHERE table_schema = 'public'
 -- Check coach_cache split correctly
 SELECT
     'public' as schema,
-    context,
+    context::text,
     COUNT(*) as count
 FROM coach_cache
 GROUP BY context
 UNION ALL
 SELECT
     'archive' as schema,
-    context,
+    context::text,
     COUNT(*) as count
 FROM archive.coach_cache
 GROUP BY context
