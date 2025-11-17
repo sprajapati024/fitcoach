@@ -18,10 +18,7 @@ const PAGE_NAMES: Record<string, string> = {
   "/settings/coach": "AI Coach",
   "/settings/plans": "My Plans",
   "/settings/app": "App Settings",
-  "/plan": "Plan",
-  "/progress": "Progress",
-  "/exercises": "Exercises",
-  "/nutrition": "Nutrition",
+  "/nutrition": "Track",
 };
 
 export function MobileHeader({ userName }: MobileHeaderProps) {

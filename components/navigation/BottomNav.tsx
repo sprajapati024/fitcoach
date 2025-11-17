@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
-import { CalendarDays, Home, LineChart, Settings, Dumbbell, Apple } from "lucide-react";
+import { Home, Settings, Apple } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
@@ -19,27 +19,12 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/dashboard",
     label: "Today",
     icon: Home,
-    match: ["/dashboard", "/workout"],
-  },
-  {
-    href: "/plan",
-    label: "Plan",
-    icon: CalendarDays,
+    match: ["/dashboard"],
   },
   {
     href: "/nutrition",
-    label: "Nutrition",
+    label: "Track",
     icon: Apple,
-  },
-  {
-    href: "/exercises",
-    label: "Exercises",
-    icon: Dumbbell,
-  },
-  {
-    href: "/progress",
-    label: "Progress",
-    icon: LineChart,
   },
   {
     href: "/settings",
@@ -48,33 +33,23 @@ export const NAV_ITEMS: NavItem[] = [
   },
 ];
 
-// Mobile navigation items (5 main tabs)
+// Mobile navigation items (3 main tabs)
 const MOBILE_NAV_ITEMS: NavItem[] = [
   {
     href: "/dashboard",
     label: "Today",
     icon: Home,
-    match: ["/dashboard", "/workout"],
-  },
-  {
-    href: "/plan",
-    label: "Plan",
-    icon: CalendarDays,
+    match: ["/dashboard"],
   },
   {
     href: "/nutrition",
-    label: "Nutrition",
+    label: "Track",
     icon: Apple,
   },
   {
-    href: "/exercises",
-    label: "Exercises",
-    icon: Dumbbell,
-  },
-  {
-    href: "/progress",
-    label: "Progress",
-    icon: LineChart,
+    href: "/settings",
+    label: "Settings",
+    icon: Settings,
   },
 ];
 
