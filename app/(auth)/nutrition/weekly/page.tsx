@@ -485,14 +485,14 @@ export default function WeeklyReviewPage() {
                     {day.hasData ? (
                       <>
                         {day.hitCalorieTarget ? (
-                          <CheckCircle2 className="h-4 w-4 text-green-400" title="Calorie target hit" />
+                          <CheckCircle2 className="h-4 w-4 text-green-400" />
                         ) : (
-                          <XCircle className="h-4 w-4 text-gray-600" title="Calorie target missed" />
+                          <XCircle className="h-4 w-4 text-gray-600" />
                         )}
                         {day.hitProteinTarget ? (
-                          <Target className="h-4 w-4 text-cyan-400" title="Protein target hit" />
+                          <Target className="h-4 w-4 text-cyan-400" />
                         ) : (
-                          <Target className="h-4 w-4 text-gray-600" title="Protein target missed" />
+                          <Target className="h-4 w-4 text-gray-600" />
                         )}
                       </>
                     ) : (
