@@ -46,26 +46,6 @@ export async function POST(request: NextRequest) {
     const performedAtDate = validated.performedAt ? new Date(validated.performedAt) : new Date();
     const sessionDateStr = performedAtDate.toISOString().split('T')[0];
 
-    // Check for duplicate log (same workout, same date)
-    const [existingLog] = await db
-      .select()
-      .from(workoutLogs)
-      .where(
-        and(
-          eq(workoutLogs.userId, user.id),
-          eq(workoutLogs.workoutId, validated.workoutId),
-          eq(workoutLogs.sessionDate, sessionDateStr)
-        )
-      )
-      .limit(1);
-
-    if (existingLog) {
-      return NextResponse.json(
-        { error: 'Workout already logged for this date' },
-        { status: 409 }
-      );
-    }
-
     const isSkip = validated.entries.length === 0;
     const totalDurationMinutes = isSkip ? 0 : workout.durationMinutes || 60;
     const logNotes = isSkip
@@ -75,49 +55,78 @@ export async function POST(request: NextRequest) {
           .map((entry) => `${entry.exerciseId}: ${entry.notes}`)
           .join('; ') || null;
 
-    // Insert workout log
-    const [log] = await db
-      .insert(workoutLogs)
-      .values({
-        userId: user.id,
-        planId: workout.planId,
-        workoutId: validated.workoutId,
-        sessionDate: sessionDateStr,
-        performedAt: performedAtDate,
-        rpeLastSet: !isSkip && typeof validated.rpeLastSet === 'number' ? validated.rpeLastSet.toString() : null,
-        totalDurationMinutes,
-        notes: logNotes,
-      })
-      .returning();
+    // Use transaction to prevent race conditions on duplicate check
+    const result = await db.transaction(async (tx) => {
+      // Check for duplicate log (same workout, same date)
+      const [existingLog] = await tx
+        .select()
+        .from(workoutLogs)
+        .where(
+          and(
+            eq(workoutLogs.userId, user.id),
+            eq(workoutLogs.workoutId, validated.workoutId),
+            eq(workoutLogs.sessionDate, sessionDateStr)
+          )
+        )
+        .limit(1);
 
-    console.log('[Workout Log] Created log:', log.id);
+      if (existingLog) {
+        throw new Error('DUPLICATE_LOG');
+      }
 
-    // Insert workout log sets
-    if (!isSkip) {
-      const setRecords = validated.entries.map((entry) => ({
-        logId: log.id,
-        exerciseId: entry.exerciseId,
-        setIndex: entry.set,
-        reps: entry.reps,
-        weightKg: entry.weight.toString(),
-        rpe: entry.rpe?.toString() || null,
-      }));
+      // Insert workout log
+      const [log] = await tx
+        .insert(workoutLogs)
+        .values({
+          userId: user.id,
+          planId: workout.planId,
+          workoutId: validated.workoutId,
+          sessionDate: sessionDateStr,
+          performedAt: performedAtDate,
+          rpeLastSet: !isSkip && typeof validated.rpeLastSet === 'number' ? String(validated.rpeLastSet) : null,
+          totalDurationMinutes,
+          notes: logNotes,
+        })
+        .returning();
 
-      await db.insert(workoutLogSets).values(setRecords);
-      console.log('[Workout Log] Created', setRecords.length, 'sets');
-    }
+      console.log('[Workout Log] Created log:', log.id);
+
+      // Insert workout log sets
+      if (!isSkip) {
+        const setRecords = validated.entries.map((entry) => ({
+          logId: log.id,
+          exerciseId: entry.exerciseId,
+          setIndex: entry.set,
+          reps: entry.reps,
+          weightKg: String(entry.weight),
+          rpe: entry.rpe != null ? String(entry.rpe) : null,
+        }));
+
+        await tx.insert(workoutLogSets).values(setRecords);
+        console.log('[Workout Log] Created', setRecords.length, 'sets');
+      }
+
+      return log;
+    });
 
     // TODO: Trigger progression recompute if week completed
     // This will be implemented in Phase 2
 
     return NextResponse.json({
       success: true,
-      logId: log.id,
+      logId: result.id,
       status: isSkip ? 'skipped' : 'completed',
       message: isSkip ? 'Workout skipped' : 'Workout logged successfully',
     });
   } catch (error) {
     console.error('[Workout Log] Error:', error);
+
+    if (error instanceof Error && error.message === 'DUPLICATE_LOG') {
+      return NextResponse.json(
+        { error: 'Workout already logged for this date' },
+        { status: 409 }
+      );
+    }
 
     if (error instanceof Error && error.name === 'ZodError') {
       return NextResponse.json(
