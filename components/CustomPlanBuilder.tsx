@@ -11,6 +11,7 @@ import {
   Plus,
   Trash2,
   Check,
+  GripVertical,
 } from "lucide-react";
 
 type Exercise = {
@@ -24,17 +25,10 @@ type Exercise = {
   notes?: string;
 };
 
-type Block = {
-  type: "warmup" | "strength" | "accessory" | "conditioning" | "recovery";
-  title: string;
-  durationMinutes: number;
-  exercises: Exercise[];
-};
-
 type WorkoutPattern = {
   dayIndex: number;
   focus: string;
-  blocks: Block[];
+  exercises: Exercise[];
 };
 
 type Microcycle = {
@@ -71,54 +65,10 @@ const generateDefaultPattern = (dayIndex: number): WorkoutPattern => {
   ];
   const focus = focusOptions[dayIndex % focusOptions.length];
 
-  // Default block structure based on focus
-  const blocks: Block[] =
-    focus === "Conditioning"
-      ? [
-          {
-            type: "warmup",
-            title: "Warmup",
-            durationMinutes: 10,
-            exercises: [],
-          },
-          {
-            type: "conditioning",
-            title: "Conditioning Circuit",
-            durationMinutes: 40,
-            exercises: [],
-          },
-          {
-            type: "recovery",
-            title: "Cool Down",
-            durationMinutes: 10,
-            exercises: [],
-          },
-        ]
-      : [
-          {
-            type: "warmup",
-            title: "Warmup",
-            durationMinutes: 10,
-            exercises: [],
-          },
-          {
-            type: "strength",
-            title: "Main Work",
-            durationMinutes: 35,
-            exercises: [],
-          },
-          {
-            type: "accessory",
-            title: "Accessories",
-            durationMinutes: 15,
-            exercises: [],
-          },
-        ];
-
   return {
     dayIndex,
     focus,
-    blocks,
+    exercises: [],
   };
 };
 
@@ -159,9 +109,6 @@ export function CustomPlanBuilder({
   });
 
   const [selectedPatternIndex, setSelectedPatternIndex] = useState(0);
-  const [selectedBlockIndex, setSelectedBlockIndex] = useState<number | null>(
-    null
-  );
   const [showExercisePicker, setShowExercisePicker] = useState(false);
 
   const dayNames = ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6"];
@@ -257,19 +204,17 @@ export function CustomPlanBuilder({
     }
 
     if (step === 2) {
-      // Validate step 2 - ensure all blocks have at least one exercise
-      const emptyBlocks: string[] = [];
+      // Validate step 2 - ensure all days have at least one exercise
+      const emptyDays: string[] = [];
       microcycle.pattern.forEach((pattern, pIndex) => {
-        pattern.blocks.forEach((block, bIndex) => {
-          if (block.exercises.length === 0) {
-            emptyBlocks.push(`${dayNames[pIndex]} - ${block.title}`);
-          }
-        });
+        if (pattern.exercises.length === 0) {
+          emptyDays.push(dayNames[pIndex]);
+        }
       });
 
-      if (emptyBlocks.length > 0) {
+      if (emptyDays.length > 0) {
         setError(
-          `Please add at least one exercise to each block. Empty blocks: ${emptyBlocks.slice(0, 3).join(", ")}${emptyBlocks.length > 3 ? ` and ${emptyBlocks.length - 3} more` : ""}`
+          `Please add at least one exercise to each day. Empty days: ${emptyDays.join(", ")}`
         );
         return;
       }
@@ -282,15 +227,12 @@ export function CustomPlanBuilder({
     setStep(step - 1);
   };
 
-  const handleAddExercise = (patternIndex: number, blockIndex: number) => {
+  const handleAddExercise = (patternIndex: number) => {
     setSelectedPatternIndex(patternIndex);
-    setSelectedBlockIndex(blockIndex);
     setShowExercisePicker(true);
   };
 
   const handleSelectExercise = (userExercise: UserExercise) => {
-    if (selectedBlockIndex === null) return;
-
     const newExercise: Exercise = {
       id: userExercise.exerciseId,
       name: userExercise.name,
@@ -303,43 +245,33 @@ export function CustomPlanBuilder({
 
     setMicrocycle((prev) => {
       const newPattern = [...prev.pattern];
-      newPattern[selectedPatternIndex].blocks[selectedBlockIndex].exercises.push(
-        newExercise
-      );
+      newPattern[selectedPatternIndex].exercises.push(newExercise);
       return { ...prev, pattern: newPattern };
     });
 
     setShowExercisePicker(false);
-    setSelectedBlockIndex(null);
   };
 
   const handleRemoveExercise = (
     patternIndex: number,
-    blockIndex: number,
     exerciseIndex: number
   ) => {
     setMicrocycle((prev) => {
       const newPattern = [...prev.pattern];
-      newPattern[patternIndex].blocks[blockIndex].exercises.splice(
-        exerciseIndex,
-        1
-      );
+      newPattern[patternIndex].exercises.splice(exerciseIndex, 1);
       return { ...prev, pattern: newPattern };
     });
   };
 
   const handleUpdateExercise = (
     patternIndex: number,
-    blockIndex: number,
     exerciseIndex: number,
     field: string,
     value: string | number
   ) => {
     setMicrocycle((prev) => {
       const newPattern = [...prev.pattern];
-      const exercise = newPattern[patternIndex].blocks[blockIndex].exercises[
-        exerciseIndex
-      ];
+      const exercise = newPattern[patternIndex].exercises[exerciseIndex];
       (exercise as any)[field] = value;
       return { ...prev, pattern: newPattern };
     });
@@ -349,6 +281,30 @@ export function CustomPlanBuilder({
     setMicrocycle((prev) => {
       const newPattern = [...prev.pattern];
       newPattern[patternIndex].focus = newFocus;
+      return { ...prev, pattern: newPattern };
+    });
+  };
+
+  const handleMoveExercise = (
+    patternIndex: number,
+    exerciseIndex: number,
+    direction: "up" | "down"
+  ) => {
+    setMicrocycle((prev) => {
+      const newPattern = [...prev.pattern];
+      const exercises = [...newPattern[patternIndex].exercises];
+      const newIndex =
+        direction === "up" ? exerciseIndex - 1 : exerciseIndex + 1;
+
+      if (newIndex < 0 || newIndex >= exercises.length) return prev;
+
+      // Swap exercises
+      [exercises[exerciseIndex], exercises[newIndex]] = [
+        exercises[newIndex],
+        exercises[exerciseIndex],
+      ];
+      newPattern[patternIndex].exercises = exercises;
+
       return { ...prev, pattern: newPattern };
     });
   };
@@ -374,6 +330,23 @@ export function CustomPlanBuilder({
     try {
       setSaving(true);
 
+      // Convert flat exercise list to block structure for backend compatibility
+      const microcycleWithBlocks = {
+        daysPerWeek: microcycle.daysPerWeek,
+        pattern: microcycle.pattern.map((pattern) => ({
+          dayIndex: pattern.dayIndex,
+          focus: pattern.focus,
+          blocks: [
+            {
+              type: "strength" as const,
+              title: "Main Workout",
+              durationMinutes: minutesPerSession,
+              exercises: pattern.exercises,
+            },
+          ],
+        })),
+      };
+
       const response = await fetch("/api/plan/custom", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -385,7 +358,7 @@ export function CustomPlanBuilder({
           minutesPerSession,
           preferredDays,
           startDate,
-          microcycle,
+          microcycle: microcycleWithBlocks,
         }),
       });
 
@@ -574,7 +547,7 @@ export function CustomPlanBuilder({
                     Build Your Workout Templates
                   </h3>
                   <p className="text-neutral-400 text-sm">
-                    Create {daysPerWeek} workout templates. These will repeat
+                    Add exercises to each training day. These will repeat
                     throughout your plan.
                   </p>
                 </div>
@@ -587,7 +560,7 @@ export function CustomPlanBuilder({
                     {/* Pattern Header */}
                     <div className="bg-surface-2 px-4 py-3 border-b border-border">
                       <div className="flex items-center gap-3">
-                        <span className="text-neutral-400 text-sm">
+                        <span className="text-neutral-400 text-sm font-medium">
                           {dayNames[patternIndex]}:
                         </span>
                         <input
@@ -599,108 +572,155 @@ export function CustomPlanBuilder({
                           placeholder="e.g., Upper Body"
                           className="flex-1 px-3 py-1.5 bg-surface-1 border border-border rounded text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
                         />
+                        <button
+                          onClick={() => handleAddExercise(patternIndex)}
+                          className="flex items-center gap-2 px-3 py-1.5 bg-neural-500 hover:bg-neural-600 text-white rounded-md text-sm"
+                        >
+                          <Plus className="h-4 w-4" />
+                          Add Exercise
+                        </button>
                       </div>
                     </div>
 
-                    {/* Blocks */}
-                    <div className="divide-y divide-border">
-                      {pattern.blocks.map((block, blockIndex) => (
-                        <div key={blockIndex} className="p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <div>
-                              <h4 className="font-semibold">{block.title}</h4>
-                              <p className="text-xs text-neutral-400 uppercase">
-                                {block.type}
-                              </p>
-                            </div>
-                            <button
-                              onClick={() =>
-                                handleAddExercise(patternIndex, blockIndex)
-                              }
-                              className="flex items-center gap-2 px-3 py-1.5 bg-neural-500 hover:bg-neural-600 text-white rounded-md text-sm"
+                    {/* Exercises */}
+                    <div className="p-4">
+                      {pattern.exercises.length === 0 ? (
+                        <p className="text-neutral-500 text-sm py-8 text-center">
+                          No exercises yet. Click "Add Exercise" to start
+                          building your workout.
+                        </p>
+                      ) : (
+                        <div className="space-y-3">
+                          {pattern.exercises.map((exercise, exerciseIndex) => (
+                            <div
+                              key={exerciseIndex}
+                              className="bg-surface-2 rounded-lg p-4 flex items-start gap-3"
                             >
-                              <Plus className="h-4 w-4" />
-                              Add Exercise
-                            </button>
-                          </div>
-
-                          {/* Exercises */}
-                          {block.exercises.length === 0 ? (
-                            <p className="text-neutral-500 text-sm py-4 text-center">
-                              No exercises yet. Click "Add Exercise" to start.
-                            </p>
-                          ) : (
-                            <div className="space-y-2">
-                              {block.exercises.map((exercise, exerciseIndex) => (
-                                <div
-                                  key={exerciseIndex}
-                                  className="bg-surface-2 rounded p-3 flex items-start justify-between"
+                              {/* Reorder buttons */}
+                              <div className="flex flex-col gap-1 pt-1">
+                                <button
+                                  onClick={() =>
+                                    handleMoveExercise(
+                                      patternIndex,
+                                      exerciseIndex,
+                                      "up"
+                                    )
+                                  }
+                                  disabled={exerciseIndex === 0}
+                                  className="p-1 text-neutral-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                                  title="Move up"
                                 >
-                                  <div className="flex-1">
-                                    <h5 className="font-medium text-sm">
-                                      {exercise.name}
-                                    </h5>
-                                    <div className="mt-1 flex gap-4 text-xs">
-                                      <div className="flex items-center gap-1">
-                                        <span className="text-neutral-400">
-                                          Sets:
-                                        </span>
-                                        <input
-                                          type="number"
-                                          min="1"
-                                          max="10"
-                                          value={exercise.sets}
-                                          onChange={(e) =>
-                                            handleUpdateExercise(
-                                              patternIndex,
-                                              blockIndex,
-                                              exerciseIndex,
-                                              "sets",
-                                              parseInt(e.target.value)
-                                            )
-                                          }
-                                          className="w-12 px-1 py-0.5 bg-surface-1 border border-border rounded text-center"
-                                        />
-                                      </div>
-                                      <div className="flex items-center gap-1">
-                                        <span className="text-neutral-400">
-                                          Reps:
-                                        </span>
-                                        <input
-                                          type="text"
-                                          value={exercise.reps}
-                                          onChange={(e) =>
-                                            handleUpdateExercise(
-                                              patternIndex,
-                                              blockIndex,
-                                              exerciseIndex,
-                                              "reps",
-                                              e.target.value
-                                            )
-                                          }
-                                          className="w-16 px-1 py-0.5 bg-surface-1 border border-border rounded text-center"
-                                        />
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <button
-                                    onClick={() =>
-                                      handleRemoveExercise(
-                                        patternIndex,
-                                        blockIndex,
-                                        exerciseIndex
-                                      )
-                                    }
-                                    className="p-1 text-red-400 hover:bg-red-900/20 rounded"
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </button>
+                                  <ChevronLeft className="h-4 w-4 rotate-90" />
+                                </button>
+                                <GripVertical className="h-4 w-4 text-neutral-600" />
+                                <button
+                                  onClick={() =>
+                                    handleMoveExercise(
+                                      patternIndex,
+                                      exerciseIndex,
+                                      "down"
+                                    )
+                                  }
+                                  disabled={
+                                    exerciseIndex ===
+                                    pattern.exercises.length - 1
+                                  }
+                                  className="p-1 text-neutral-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                                  title="Move down"
+                                >
+                                  <ChevronRight className="h-4 w-4 rotate-90" />
+                                </button>
+                              </div>
+
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between mb-2">
+                                  <h5 className="font-medium">
+                                    {exerciseIndex + 1}. {exercise.name}
+                                  </h5>
+                                  <span className="text-xs text-neutral-400 bg-surface-1 px-2 py-1 rounded">
+                                    {exercise.equipment}
+                                  </span>
                                 </div>
-                              ))}
+
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                  <div>
+                                    <label className="block text-xs text-neutral-400 mb-1">
+                                      Sets
+                                    </label>
+                                    <input
+                                      type="number"
+                                      min="1"
+                                      max="10"
+                                      value={exercise.sets}
+                                      onChange={(e) =>
+                                        handleUpdateExercise(
+                                          patternIndex,
+                                          exerciseIndex,
+                                          "sets",
+                                          parseInt(e.target.value)
+                                        )
+                                      }
+                                      className="w-full px-2 py-1.5 bg-surface-1 border border-border rounded text-sm text-center"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs text-neutral-400 mb-1">
+                                      Reps
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={exercise.reps}
+                                      onChange={(e) =>
+                                        handleUpdateExercise(
+                                          patternIndex,
+                                          exerciseIndex,
+                                          "reps",
+                                          e.target.value
+                                        )
+                                      }
+                                      placeholder="8-12"
+                                      className="w-full px-2 py-1.5 bg-surface-1 border border-border rounded text-sm"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs text-neutral-400 mb-1">
+                                      Tempo
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={exercise.tempo || ""}
+                                      onChange={(e) =>
+                                        handleUpdateExercise(
+                                          patternIndex,
+                                          exerciseIndex,
+                                          "tempo",
+                                          e.target.value
+                                        )
+                                      }
+                                      placeholder="2-0-2-0"
+                                      className="w-full px-2 py-1.5 bg-surface-1 border border-border rounded text-sm"
+                                    />
+                                  </div>
+                                  <div className="flex items-end">
+                                    <button
+                                      onClick={() =>
+                                        handleRemoveExercise(
+                                          patternIndex,
+                                          exerciseIndex
+                                        )
+                                      }
+                                      className="w-full px-2 py-1.5 bg-red-900/20 hover:bg-red-900/40 text-red-400 rounded text-sm flex items-center justify-center gap-1"
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                      Remove
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
-                          )}
+                          ))}
                         </div>
-                      ))}
+                      )}
                     </div>
                   </div>
                 ))}
@@ -767,25 +787,29 @@ export function CustomPlanBuilder({
                       Workout Templates
                     </h4>
                     <div className="space-y-2">
-                      {microcycle.pattern.map((pattern, i) => {
-                        const totalExercises = pattern.blocks.reduce(
-                          (sum, block) => sum + block.exercises.length,
-                          0
-                        );
-                        return (
-                          <div
-                            key={i}
-                            className="flex items-center justify-between text-sm bg-surface-2 rounded p-3"
-                          >
-                            <span>
+                      {microcycle.pattern.map((pattern, i) => (
+                        <div
+                          key={i}
+                          className="bg-surface-2 rounded p-3"
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-medium">
                               {dayNames[i]}: {pattern.focus}
                             </span>
-                            <span className="text-neutral-400">
-                              {totalExercises} exercises
+                            <span className="text-neutral-400 text-sm">
+                              {pattern.exercises.length} exercises
                             </span>
                           </div>
-                        );
-                      })}
+                          <div className="text-xs text-neutral-500">
+                            {pattern.exercises
+                              .slice(0, 3)
+                              .map((ex) => ex.name)
+                              .join(", ")}
+                            {pattern.exercises.length > 3 &&
+                              ` +${pattern.exercises.length - 3} more`}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -826,7 +850,6 @@ export function CustomPlanBuilder({
         isOpen={showExercisePicker}
         onClose={() => {
           setShowExercisePicker(false);
-          setSelectedBlockIndex(null);
         }}
         onSelectExercise={handleSelectExercise}
       />
